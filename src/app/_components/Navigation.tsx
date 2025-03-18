@@ -32,6 +32,16 @@ const Navigation = () => {
               >
                 Voicings
               </Link>
+              <Link
+                href="/resources"
+                className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${
+                  pathname === "/resources"
+                    ? "border-b-2 border-[#8B4513] text-[#8B4513]"
+                    : "border-b-2 border-transparent text-gray-400 hover:border-b-2 hover:border-gray-700 hover:text-white"
+                }`}
+              >
+                Resources
+              </Link>
             </div>
           </div>
 
