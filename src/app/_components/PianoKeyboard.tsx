@@ -244,6 +244,19 @@ export const PianoKeyboard: React.FC = () => {
             const inputs = Array.from(access.inputs.values());
             if (inputs.length > 0 && inputs[0]?.name) {
               setMidiDevice(inputs[0].name);
+              
+              // Set up message listeners for all input devices, including the newly connected one
+              inputs.forEach((input) => {
+                input.onmidimessage = (event) => {
+                  const data = event.data;
+                  if (data && data.length >= 3) {
+                    const command = Number(data[0]);
+                    const note = Number(data[1]);
+                    const velocity = Number(data[2]);
+                    handleMIDINote(command, note, velocity);
+                  }
+                };
+              });
             } else {
               setMidiDevice("No MIDI device connected");
             }
