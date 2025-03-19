@@ -244,7 +244,7 @@ export const PianoKeyboard: React.FC = () => {
             const inputs = Array.from(access.inputs.values());
             if (inputs.length > 0 && inputs[0]?.name) {
               setMidiDevice(inputs[0].name);
-              
+
               // Set up message listeners for all input devices, including the newly connected one
               inputs.forEach((input) => {
                 input.onmidimessage = (event) => {
