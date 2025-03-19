@@ -37,15 +37,15 @@ const formatTimestamp = (timestamp: number): string => {
 
 // Component for the debug page
 const DebugPage: React.FC = () => {
-  const [selectedChannel, setSelectedChannel] = useState<number>(0); // 0 means all channels
-  const [allMidiMessages, setAllMidiMessages] = useState<MIDIMessage[]>([]); // Store all messages
+  const [selectedChannel, setSelectedChannel] = useState<number>(1); // 1 means channel 1
+  const [allMidiMessages, setAllMidiMessages] = useState<
+    Record<number, MIDIMessage[]>
+  >({}); // Store all messages per channel
   const [filteredMessages, setFilteredMessages] = useState<MIDIMessage[]>([]); // Filtered messages to display
   const [midiDevices, setMidiDevices] = useState<string[]>([]);
-  const [connectedDevice, setConnectedDevice] = useState<string>(
-    "No MIDI device connected",
-  );
-  const [autoScroll, setAutoScroll] = useState<boolean>(true);
-  const [maxMessages, setMaxMessages] = useState<number>(100);
+  const [connectedDevice, setConnectedDevice] = useState<string>("No device");
+  const [maxMessages] = useState<number>(500);
+  const [filterNoteOff, setFilterNoteOff] = useState<boolean>(false);
 
   // Parse MIDI data to structured format
   const parseMIDIMessage = useCallback(
@@ -119,11 +119,17 @@ const DebugPage: React.FC = () => {
     [],
   );
 
-  // Update filtered messages whenever selected channel or all messages change
+  // Update filtered messages whenever selected channel, all messages, or filterNoteOff change
   useEffect(() => {
-    const filtered = filterMessages(allMidiMessages, selectedChannel);
+    let filtered = filterMessages(
+      allMidiMessages[selectedChannel] ?? [],
+      selectedChannel,
+    );
+    if (filterNoteOff) {
+      filtered = filtered.filter((msg) => msg.type !== "note-off");
+    }
     setFilteredMessages(filtered);
-  }, [selectedChannel, allMidiMessages, filterMessages]);
+  }, [selectedChannel, allMidiMessages, filterMessages, filterNoteOff]);
 
   // Handler for channel selection
   const handleSelectChannel = useCallback((channel: number) => {
@@ -139,12 +145,15 @@ const DebugPage: React.FC = () => {
 
       if (parsedMessage) {
         setAllMidiMessages((prevMessages) => {
-          // Keep the list at max length
-          const newMessages = [...prevMessages, parsedMessage];
+          const channelMessages = prevMessages[parsedMessage.channel] ?? [];
+          const newMessages = [parsedMessage, ...channelMessages];
           if (newMessages.length > maxMessages) {
-            return newMessages.slice(-maxMessages);
+            newMessages.splice(maxMessages);
           }
-          return newMessages;
+          return {
+            ...prevMessages,
+            [parsedMessage.channel]: newMessages,
+          };
         });
       }
     },
@@ -207,19 +216,9 @@ const DebugPage: React.FC = () => {
       });
   }, [handleMIDIMessage]);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (autoScroll && filteredMessages.length > 0) {
-      const messageList = document.getElementById("midi-message-list");
-      if (messageList) {
-        messageList.scrollTop = messageList.scrollHeight;
-      }
-    }
-  }, [filteredMessages, autoScroll]);
-
   // Clear messages handler
   const handleClearMessages = () => {
-    setAllMidiMessages([]);
+    setAllMidiMessages({});
     setFilteredMessages([]);
   };
 
@@ -230,61 +229,38 @@ const DebugPage: React.FC = () => {
       </h1>
 
       <div className="mb-6 flex flex-wrap gap-4">
-        <div className="rounded-md bg-[#1a1a1a] p-4">
+        <div className="w-52 rounded-md bg-[#1a1a1a] p-4">
           <h2 className="mb-2 text-xl text-white">Device</h2>
           <p className="text-gray-300">{connectedDevice}</p>
         </div>
 
-        <div className="rounded-md bg-[#1a1a1a] p-4">
+        <div className="w-52 rounded-md bg-[#1a1a1a] p-4">
           <h2 className="mb-2 text-xl text-white">Channel Filter</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleSelectChannel(0)}
-              className={`rounded px-3 py-1 ${selectedChannel === 0 ? "bg-[#8B4513] text-white" : "bg-[#333] text-gray-300 hover:bg-[#444]"}`}
-            >
-              All
-            </button>
-            {[1, 2, 3].map((channel) => (
-              <button
-                key={channel}
-                onClick={() => handleSelectChannel(channel)}
-                className={`rounded px-3 py-1 ${selectedChannel === channel ? "bg-[#8B4513] text-white" : "bg-[#333] text-gray-300 hover:bg-[#444]"}`}
-              >
-                {channel}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-md bg-[#1a1a1a] p-4">
-          <h2 className="mb-2 text-xl text-white">Options</h2>
           <div className="flex flex-col gap-2">
-            <label className="flex items-center gap-2 text-gray-300">
+            <div className="flex gap-2">
+              {[1, 2, 3].map((channel) => (
+                <button
+                  key={channel}
+                  onClick={() => handleSelectChannel(channel)}
+                  className={`rounded px-3 py-1 ${selectedChannel === channel ? "bg-[#8B4513] text-white" : "bg-[#333] text-gray-300 hover:bg-[#444]"}`}
+                >
+                  {channel}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <label className="text-gray-300">Filter Note-Off:</label>
               <input
                 type="checkbox"
-                checked={autoScroll}
-                onChange={(e) => setAutoScroll(e.target.checked)}
+                checked={filterNoteOff}
+                onChange={(e) => setFilterNoteOff(e.target.checked)}
                 className="rounded"
               />
-              Auto-scroll
-            </label>
-            <div className="flex items-center gap-2">
-              <label className="text-gray-300">Max messages:</label>
-              <select
-                value={maxMessages}
-                onChange={(e) => setMaxMessages(Number(e.target.value))}
-                className="rounded bg-[#333] px-2 py-1 text-white"
-              >
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-                <option value={200}>200</option>
-                <option value={500}>500</option>
-              </select>
             </div>
           </div>
         </div>
 
-        <div className="rounded-md bg-[#1a1a1a] p-4">
+        <div className="w-52 rounded-md bg-[#1a1a1a] p-4">
           <h2 className="mb-2 text-xl text-white">Actions</h2>
           <button
             onClick={handleClearMessages}
@@ -306,8 +282,9 @@ const DebugPage: React.FC = () => {
           <span className="text-sm text-gray-400">
             {filteredMessages.length} messages
             {selectedChannel !== 0 &&
-              allMidiMessages.length > filteredMessages.length &&
-              ` (${allMidiMessages.length} total)`}
+              (allMidiMessages[selectedChannel]?.length ?? 0) >
+                filteredMessages.length &&
+              ` (${allMidiMessages[selectedChannel]?.length ?? 0} total)`}
           </span>
         </div>
 
