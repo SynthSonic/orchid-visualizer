@@ -134,7 +134,7 @@ const DebugPage: React.FC = () => {
   const handleMIDIMessage = useCallback(
     (event: MIDIMessageEvent) => {
       const timestamp = performance.now();
-      const data = event.data;
+      const data = event.data!;
       const parsedMessage = parseMIDIMessage(data, timestamp);
 
       if (parsedMessage) {
