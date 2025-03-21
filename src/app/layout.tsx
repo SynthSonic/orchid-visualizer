@@ -5,7 +5,7 @@ import { Old_Standard_TT } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 import Navigation from "./_components/Navigation";
-import { Footer } from './_components/Footer';
+import { Footer } from "./_components/Footer";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
