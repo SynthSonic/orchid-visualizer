@@ -1,3 +1,4 @@
+/// <reference types="webmidi" />
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
