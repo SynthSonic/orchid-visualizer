@@ -174,7 +174,7 @@ export const PianoKeyboard: React.FC = () => {
     2: new Set<number>(),
     3: new Set<number>(),
   });
-  
+
   const [keyColors, setKeyColors] = useState<Record<string, string>>({});
   const [midiDevice, setMidiDevice] = useState<string>(
     "No MIDI device connected",
@@ -230,7 +230,9 @@ export const PianoKeyboard: React.FC = () => {
 
       // Handle notes by channel
       const updatedNotes = { ...activeNotesRef.current };
-      const channelNotes = new Set<number>(updatedNotes[channel] ?? new Set<number>());
+      const channelNotes = new Set<number>(
+        updatedNotes[channel] ?? new Set<number>(),
+      );
 
       if (isNoteOn) {
         channelNotes.add(noteNumber);
