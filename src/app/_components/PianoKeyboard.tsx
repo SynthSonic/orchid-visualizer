@@ -34,7 +34,7 @@ interface KeyProps {
   isBlack?: boolean;
   color?: string;
   displayText?: string;
-  isBassBorder?: boolean; // Renamed but kept for backwards compatibility
+  isBassNote?: boolean; 
 }
 
 // Components
@@ -44,7 +44,7 @@ const Key: React.FC<KeyProps> = ({
   isBlack = false,
   color,
   displayText,
-  isBassBorder = false,
+  isBassNote = false,
 }) => {
   const width = isBlack ? 39 : 65; // 39 is 60% of 65
   const height = isBlack ? 150 : 256;
@@ -66,7 +66,7 @@ const Key: React.FC<KeyProps> = ({
       />
       
       {/* Bass note indicator - black line at bottom with padding */}
-      {isBassBorder && (
+      {isBassNote && (
         <line
           x1={adjustedX + 4} // 4px padding from left
           y1={height - 8}    // 8px padding from bottom
@@ -168,12 +168,10 @@ const Dial: React.FC<DialProps> = ({ activeChordType }) => {
 };
 
 export const PianoKeyboard: React.FC = () => {
-  // Track notes for each channel in a single state object
-  const [channelNotes, setChannelNotes] = useState<Record<number, Set<number>>>({
-    1: new Set(), // Chord notes
-    2: new Set(), // Bass notes
-    3: new Set()  // Chord information
-  });
+  // Track notes for each channel separately
+  const [channel1Notes, setChannel1Notes] = useState<Set<number>>(new Set());
+  const [channel2Notes, setChannel2Notes] = useState<Set<number>>(new Set()); // New state for bass notes
+  const [channel3Notes, setChannel3Notes] = useState<Set<number>>(new Set());
   const [keyColors, setKeyColors] = useState<Record<string, string>>({});
   const [midiDevice, setMidiDevice] = useState<string>(
     "No MIDI device connected",
@@ -227,51 +225,64 @@ export const PianoKeyboard: React.FC = () => {
 
       if (!noteNumber) return; // If there's no note number, we can't process it
 
-      setChannelNotes((prevChannelNotes) => {
-        // Create a shallow copy of the previous state
-        const updatedChannelNotes = { ...prevChannelNotes };
-        
-        // Initialize the channel if it doesn't exist
-        if (!updatedChannelNotes[channel]) {
-          updatedChannelNotes[channel] = new Set();
-        }
-        
-        // Clone the set for this channel
-        const updatedNotes = new Set(updatedChannelNotes[channel]);
-        
-        // Update the note set based on message type
-        if (isNoteOn) {
-          updatedNotes.add(noteNumber);
-        } else if (isNoteOff) {
-          updatedNotes.delete(noteNumber);
-        }
-        
-        // Update the channel in our state copy
-        updatedChannelNotes[channel] = updatedNotes;
-        
-        // Process notes based on channel
-        const notesArray = Array.from(updatedNotes);
-        
-        // Channel 1: Keyboard display
-        if (channel === 1) {
+      // Handle Channel 1 notes (keyboard display)
+      if (channel === 1) {
+        setChannel1Notes((prev) => {
+          const updatedNotes = new Set(prev);
+          
+          if (isNoteOn) {
+            updatedNotes.add(noteNumber);
+          } else if (isNoteOff) {
+            updatedNotes.delete(noteNumber);
+          }
+          
+          // Update keyboard display
           if (updatedNotes.size === 0) {
             setKeyColors({});
             setNoteDisplayText({});
           } else {
-            updateKeyboardDisplay(notesArray);
+            updateKeyboardDisplay(Array.from(updatedNotes));
           }
-        }
-        // Channel 2: Bass notes
-        else if (channel === 2) {
-          updateBassNotesDisplay(notesArray);
-        }
-        // Channel 3: Chord information
-        else if (channel === 3) {
-          updateChordInfo(notesArray);
-        }
-        
-        return updatedChannelNotes;
-      });
+          
+          return updatedNotes;
+        });
+      }
+      
+      // Handle Channel 2 notes (bass notes)
+      else if (channel === 2) {
+        setChannel2Notes((prev) => {
+          const updatedNotes = new Set(prev);
+          
+          if (isNoteOn) {
+            updatedNotes.add(noteNumber);
+          } else if (isNoteOff) {
+            updatedNotes.delete(noteNumber);
+          }
+          
+          // Update bass notes display
+          updateBassNotesDisplay(Array.from(updatedNotes));
+          
+          return updatedNotes;
+        });
+      }
+      
+      // Handle Channel 3 notes (chord information)
+      else if (channel === 3) {
+        setChannel3Notes((prev) => {
+          const updatedNotes = new Set(prev);
+          
+          if (isNoteOn) {
+            updatedNotes.add(noteNumber);
+          } else if (isNoteOff) {
+            updatedNotes.delete(noteNumber);
+          }
+          
+          // Update chord info
+          updateChordInfo(Array.from(updatedNotes));
+          
+          return updatedNotes;
+        });
+      }
     },
     [updateKeyboardDisplay, updateBassNotesDisplay, updateChordInfo],
   );
@@ -400,7 +411,7 @@ export const PianoKeyboard: React.FC = () => {
               {...note}
               color={keyColors[note.note]}
               displayText={noteDisplayText[note.note]}
-              isBassBorder={bassNotes.has(note.note)}
+              isBassNote={bassNotes.has(note.note)}
             />
           ))}
           {NOTES.filter((note) => note.isBlack).map((note) => (
@@ -409,7 +420,7 @@ export const PianoKeyboard: React.FC = () => {
               {...note}
               color={keyColors[note.note]}
               displayText={noteDisplayText[note.note]}
-              isBassBorder={bassNotes.has(note.note)}
+              isBassNote={bassNotes.has(note.note)}
             />
           ))}
         </svg>
