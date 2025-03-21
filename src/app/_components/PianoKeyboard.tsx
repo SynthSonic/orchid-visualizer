@@ -1,26 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import type { NoteName, ChordInfo } from "./chordUtils";
+/// <reference types="webmidi" />
+
+import { useState, useEffect, useCallback, useRef } from "react";
+import type { NoteName, ChordInfo, MIDIMessage } from "./chordUtils";
 import {
   getMIDINoteName,
   getChordName,
   getColorBrightness,
+  parseMIDIMessage,
 } from "./chordUtils";
 
-// Simplified WebMidi types
-interface MIDIPort {
-  name: string | null;
-  state: string;
-  onmidimessage: ((event: { data: Uint8Array }) => void) | null;
-}
-
-interface MIDIAccess {
-  inputs: Map<string, MIDIPort>;
-  onstatechange: ((event: { port: MIDIPort }) => void) | null;
-}
-
 const BASE_CHORD_COLOR = "#8B4513"; // Darker saddle brown color
+const BASS_LINE_COLOR = "#000000"; // Black for bass note line
 
 const NOTES = [
   { note: "C" as NoteName, x: 0, isBlack: false },
@@ -44,6 +36,7 @@ interface KeyProps {
   isBlack?: boolean;
   color?: string;
   displayText?: string;
+  isBassNote?: boolean;
 }
 
 // Components
@@ -53,6 +46,7 @@ const Key: React.FC<KeyProps> = ({
   isBlack = false,
   color,
   displayText,
+  isBassNote = false,
 }) => {
   const width = isBlack ? 39 : 65; // 39 is 60% of 65
   const height = isBlack ? 150 : 256;
@@ -72,6 +66,19 @@ const Key: React.FC<KeyProps> = ({
         rx={isBlack ? 4 : 6}
         className={`cursor-pointer ${color ? "" : isBlack ? "hover:fill-neutral-900" : "hover:fill-neutral-800"}`}
       />
+
+      {/* Bass note indicator - black line at bottom with padding */}
+      {isBassNote && (
+        <line
+          x1={adjustedX + 4} // 4px padding from left
+          y1={height - 8} // 8px padding from bottom
+          x2={adjustedX + width - 4} // 4px padding from right
+          y2={height - 8} // 8px padding from bottom
+          stroke={BASS_LINE_COLOR}
+          strokeWidth="3"
+        />
+      )}
+
       {displayText && (
         <text
           x={adjustedX + width / 2}
@@ -107,7 +114,7 @@ const Dial: React.FC<DialProps> = ({ activeChordType }) => {
     labels.map((label, index) => {
       const isActive =
         activeChordType &&
-        ((yOffset < 0 && label === activeChordType) || // Top row
+        ((yOffset < 0 && label === activeChordType) ?? // Top row
           (yOffset > 0 && label === activeChordType)); // Bottom row
 
       return (
@@ -163,18 +170,25 @@ const Dial: React.FC<DialProps> = ({ activeChordType }) => {
 };
 
 export const PianoKeyboard: React.FC = () => {
+  // Track notes for each channel separately using a ref instead of state
+  const activeNotesRef = useRef<Record<number, Set<number>>>({
+    1: new Set<number>(),
+    2: new Set<number>(),
+    3: new Set<number>(),
+  });
+
   const [keyColors, setKeyColors] = useState<Record<string, string>>({});
-  const [, setActiveNotes] = useState<Set<number>>(new Set());
   const [midiDevice, setMidiDevice] = useState<string>(
     "No MIDI device connected",
   );
   const [noteDisplayText, setNoteDisplayText] = useState<
     Record<string, string>
   >({});
+  const [bassNotes, setBassNotes] = useState<Set<string>>(new Set()); // Track bass note names
   const [chordInfo, setChordInfo] = useState<ChordInfo | null>(null);
 
-  const updateNoteStates = useCallback((notes: number[]) => {
-    // Batch all state updates together
+  // Update keyboard display based on Channel 1 notes
+  const updateKeyboardDisplay = useCallback((notes: number[]) => {
     const newDisplayText: Record<string, string> = {};
     const newColors: Record<string, string> = {};
 
@@ -187,36 +201,65 @@ export const PianoKeyboard: React.FC = () => {
 
     setNoteDisplayText(newDisplayText);
     setKeyColors(newColors);
-    setChordInfo(getChordName(notes));
+  }, []);
+
+  // Update bass notes display based on Channel 2 notes
+  const updateBassNotesDisplay = useCallback((notes: number[]) => {
+    const newBassNotes = new Set<string>();
+
+    notes.forEach((note) => {
+      const fullNoteName = getMIDINoteName(note);
+      const baseNoteName = fullNoteName.slice(0, -1);
+      newBassNotes.add(baseNoteName);
+    });
+
+    setBassNotes(newBassNotes);
+  }, []);
+
+  // Update chord info based on Channel 3 notes
+  const updateChordInfo = useCallback((notes: number[]) => {
+    setChordInfo(notes.length > 0 ? getChordName(notes) : null);
   }, []);
 
   const handleMIDINote = useCallback(
-    (command: number, note: number, velocity: number) => {
-      const isNoteOn = command === 144 && velocity > 0;
-      const isNoteOff = command === 128 || (command === 144 && velocity === 0);
+    (midiMessage: MIDIMessage) => {
+      const isNoteOn = midiMessage.type === "note-on";
+      const isNoteOff = midiMessage.type === "note-off";
+      const noteNumber = midiMessage.noteNumber;
+      const channel = midiMessage.channel;
 
-      setActiveNotes((prev) => {
-        const updatedNotes = new Set(prev);
+      if (!noteNumber) return; // If there's no note number, we can't process it
 
-        if (isNoteOn) {
-          updatedNotes.add(note);
-        } else if (isNoteOff) {
-          updatedNotes.delete(note);
-        }
+      // Handle notes by channel
+      const updatedNotes = { ...activeNotesRef.current };
+      const channelNotes = new Set<number>(
+        updatedNotes[channel] ?? new Set<number>(),
+      );
 
-        // Update all note-related states based on the new set of active notes
-        if (updatedNotes.size === 0) {
+      if (isNoteOn) {
+        channelNotes.add(noteNumber);
+      } else if (isNoteOff) {
+        channelNotes.delete(noteNumber);
+      }
+
+      updatedNotes[channel] = channelNotes;
+      activeNotesRef.current = updatedNotes;
+
+      // Update appropriate display based on channel
+      if (channel === 1) {
+        if (channelNotes.size === 0) {
           setKeyColors({});
           setNoteDisplayText({});
-          setChordInfo(null);
         } else {
-          updateNoteStates(Array.from(updatedNotes));
+          updateKeyboardDisplay(Array.from(channelNotes));
         }
-
-        return updatedNotes;
-      });
+      } else if (channel === 2) {
+        updateBassNotesDisplay(Array.from(channelNotes));
+      } else if (channel === 3) {
+        updateChordInfo(Array.from(channelNotes));
+      }
     },
-    [updateNoteStates],
+    [updateKeyboardDisplay, updateBassNotesDisplay, updateChordInfo],
   );
 
   useEffect(() => {
@@ -225,57 +268,52 @@ export const PianoKeyboard: React.FC = () => {
       return;
     }
 
-    (navigator as Navigator & { requestMIDIAccess(): Promise<MIDIAccess> })
-      .requestMIDIAccess()
-      .then((access) => {
-        const inputs = Array.from(access.inputs.values());
-        if (inputs.length > 0 && inputs[0]?.name) {
-          setMidiDevice(inputs[0].name);
-        } else {
-          setMidiDevice("No MIDI device connected");
+    const handleMidiSuccess = (midiAccess: WebMidi.MIDIAccess) => {
+      // Get all inputs
+      const inputs = midiAccess.inputs.values();
+      let deviceFound = false;
+
+      // Setup message handlers for all inputs
+      for (const input of inputs) {
+        if (input?.name) {
+          setMidiDevice(input.name);
+          deviceFound = true;
         }
 
-        access.onstatechange = (event) => {
-          if (
-            event.port &&
-            "type" in event.port &&
-            event.port.type === "input"
-          ) {
-            const inputs = Array.from(access.inputs.values());
-            if (inputs.length > 0 && inputs[0]?.name) {
-              setMidiDevice(inputs[0].name);
-
-              // Set up message listeners for all input devices, including the newly connected one
-              inputs.forEach((input) => {
-                input.onmidimessage = (event) => {
-                  const data = event.data;
-                  if (data && data.length >= 3) {
-                    const command = Number(data[0]);
-                    const note = Number(data[1]);
-                    const velocity = Number(data[2]);
-                    handleMIDINote(command, note, velocity);
-                  }
-                };
-              });
-            } else {
-              setMidiDevice("No MIDI device connected");
-            }
+        // Setup a message handler for this input
+        input.onmidimessage = (event: WebMidi.MIDIMessageEvent) => {
+          const midiMessage = parseMIDIMessage(
+            event.data,
+            event.timeStamp ?? performance.now(),
+          );
+          if (midiMessage) {
+            handleMIDINote(midiMessage);
           }
         };
+      }
 
-        Array.from(access.inputs.values()).forEach((input) => {
-          input.onmidimessage = (event) => {
-            const data = event.data;
-            if (data && data.length >= 3) {
-              const command = Number(data[0]);
-              const note = Number(data[1]);
-              const velocity = Number(data[2]);
-              handleMIDINote(command, note, velocity);
-            }
-          };
-        });
-      })
-      .catch((_err) => setMidiDevice("No MIDI access"));
+      if (!deviceFound) {
+        setMidiDevice("No MIDI device connected");
+      }
+
+      // Listen for state changes (device connect/disconnect)
+      midiAccess.onstatechange = (event: WebMidi.MIDIConnectionEvent) => {
+        if (event.port && event.port.type === "input") {
+          // Re-scan MIDI devices when they change
+          handleMidiSuccess(midiAccess);
+        }
+      };
+    };
+
+    // Request MIDI access
+    (
+      navigator as Navigator & {
+        requestMIDIAccess(): Promise<WebMidi.MIDIAccess>;
+      }
+    )
+      .requestMIDIAccess()
+      .then(handleMidiSuccess)
+      .catch(() => setMidiDevice("No MIDI access"));
   }, [handleMIDINote]);
 
   // Extract chord type from chordInfo and map it to button labels
@@ -352,6 +390,7 @@ export const PianoKeyboard: React.FC = () => {
               {...note}
               color={keyColors[note.note]}
               displayText={noteDisplayText[note.note]}
+              isBassNote={bassNotes.has(note.note)}
             />
           ))}
           {NOTES.filter((note) => note.isBlack).map((note) => (
@@ -360,6 +399,7 @@ export const PianoKeyboard: React.FC = () => {
               {...note}
               color={keyColors[note.note]}
               displayText={noteDisplayText[note.note]}
+              isBassNote={bassNotes.has(note.note)}
             />
           ))}
         </svg>

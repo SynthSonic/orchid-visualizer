@@ -501,3 +501,84 @@ export const getVoicingsForQuality = (
       return MAJOR_VOICINGS;
   }
 };
+
+// Define MIDI message type for better organization
+export type MIDIMessageType =
+  | "note-on"
+  | "note-off"
+  | "control-change"
+  | "program-change"
+  | "unknown";
+
+export interface MIDIMessage {
+  timestamp: number;
+  channel: number;
+  type: MIDIMessageType;
+  noteNumber?: number;
+  noteName?: string;
+  velocity?: number;
+  controlNumber?: number;
+  controlValue?: number;
+  programNumber?: number;
+  rawData: number[];
+}
+
+export const parseMIDIMessage = (
+  data: Uint8Array,
+  timestamp: number,
+): MIDIMessage | null => {
+  if (data.length < 1) return null;
+
+  const statusByte = data?.[0];
+  const messageType = statusByte ? statusByte >> 4 : 0;
+  const channel = statusByte ? (statusByte & 0x0f) + 1 : 0;
+
+  let type: MIDIMessageType = "unknown";
+  let noteNumber: number | undefined;
+  let noteName: string | undefined;
+  let velocity: number | undefined;
+  let controlNumber: number | undefined;
+  let controlValue: number | undefined;
+  let programNumber: number | undefined;
+
+  // Note-on message
+  if (messageType === 9) {
+    type = data?.[2] !== undefined && data[2] > 0 ? "note-on" : "note-off"; // Note-on with velocity 0 is treated as note-off
+    noteNumber = data[1];
+    noteName =
+      noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
+    velocity = data[2];
+  }
+  // Note-off message
+  else if (messageType === 8) {
+    type = "note-off";
+    noteNumber = data[1];
+    noteName =
+      noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
+    velocity = data[2];
+  }
+  // Control change
+  else if (messageType === 11) {
+    type = "control-change";
+    controlNumber = data[1];
+    controlValue = data[2];
+  }
+  // Program change
+  else if (messageType === 12) {
+    type = "program-change";
+    programNumber = data[1];
+  }
+
+  return {
+    timestamp,
+    channel,
+    type,
+    noteNumber,
+    noteName,
+    velocity,
+    controlNumber,
+    controlValue,
+    programNumber,
+    rawData: Array.from(data),
+  };
+};
