@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { parseMIDIMessage, MIDIMessage } from "../_components/chordUtils";
+import { parseMIDIMessage } from "../_components/chordUtils";
+import type { MIDIMessage } from "../_components/chordUtils";
 
 // Format timestamp to human-readable format
 const formatTimestamp = (timestamp: number): string => {
@@ -56,9 +57,9 @@ const DebugPage: React.FC = () => {
 
   // Handler for incoming MIDI messages
   const handleMIDIMessage = useCallback(
-    (event: MIDIMessageEvent) => {
+    (event: WebMidi.MIDIMessageEvent) => {
       const timestamp = performance.now();
-      const data = event.data!;
+      const data = event.data;
       const parsedMessage = parseMIDIMessage(data, timestamp);
 
       if (parsedMessage) {
@@ -85,7 +86,11 @@ const DebugPage: React.FC = () => {
       return;
     }
 
-    (navigator as Navigator & { requestMIDIAccess(): Promise<MIDIAccess> })
+    (
+      navigator as Navigator & {
+        requestMIDIAccess(): Promise<WebMidi.MIDIAccess>;
+      }
+    )
       .requestMIDIAccess()
       .then((access) => {
         // Get available devices
@@ -104,7 +109,7 @@ const DebugPage: React.FC = () => {
         }
 
         // Handle device connection/disconnection
-        access.onstatechange = (event) => {
+        access.onstatechange = (event: WebMidi.MIDIConnectionEvent) => {
           if (
             event.port &&
             "type" in event.port &&

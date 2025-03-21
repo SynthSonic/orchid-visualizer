@@ -525,7 +525,7 @@ export interface MIDIMessage {
 
 export const parseMIDIMessage = (
   data: Uint8Array,
-  timestamp: number
+  timestamp: number,
 ): MIDIMessage | null => {
   if (data.length < 1) return null;
 
@@ -545,14 +545,16 @@ export const parseMIDIMessage = (
   if (messageType === 9) {
     type = data?.[2] !== undefined && data[2] > 0 ? "note-on" : "note-off"; // Note-on with velocity 0 is treated as note-off
     noteNumber = data[1];
-    noteName = noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
+    noteName =
+      noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
     velocity = data[2];
   }
   // Note-off message
   else if (messageType === 8) {
     type = "note-off";
     noteNumber = data[1];
-    noteName = noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
+    noteName =
+      noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
     velocity = data[2];
   }
   // Control change
