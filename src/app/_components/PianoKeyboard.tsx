@@ -397,6 +397,31 @@ export const PianoKeyboard: React.FC = () => {
                   className="font-medium"
                 >
                   {chordInfo.chordName}
+                  {(() => {
+                    const extensionCount = [
+                      chordInfo.hasSixth,
+                      chordInfo.hasSeventh,
+                      chordInfo.hasMajorSeventh,
+                      chordInfo.hasNinth,
+                    ].filter(Boolean).length;
+
+                    if (extensionCount === 4) return <tspan fontSize="10" dy="-5">WTF</tspan>;
+                    if (extensionCount === 3) return <tspan fontSize="10" dy="-5">JAZZ</tspan>;
+                    if (extensionCount > 0) {
+                      const extensions = [];
+                      if (chordInfo.hasSixth) extensions.push("6");
+                      if (chordInfo.hasSeventh) extensions.push("7");
+                      if (chordInfo.hasMajorSeventh) extensions.push("M7");
+                      if (chordInfo.hasNinth) extensions.push("9");
+                      return (
+                        <tspan fontSize="10" dy="-5">
+                          {extensions.join("")}
+                        </tspan>
+                      );
+                    }
+                    return null;
+                  })()}
+
                 </text>
                 <text
                   x="125"
