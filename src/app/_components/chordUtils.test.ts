@@ -26,6 +26,10 @@ describe("getChordInfo", () => {
         chordName: "C Major",
         inversion: "Root",
         bassNote: "C4",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -35,6 +39,10 @@ describe("getChordInfo", () => {
         chordName: "C Major",
         inversion: "1st",
         bassNote: "E3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -44,6 +52,10 @@ describe("getChordInfo", () => {
         chordName: "C Major",
         inversion: "2nd",
         bassNote: "G3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
   });
@@ -56,6 +68,10 @@ describe("getChordInfo", () => {
         chordName: "A Minor",
         inversion: "Root",
         bassNote: "A3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -65,6 +81,10 @@ describe("getChordInfo", () => {
         chordName: "A Minor",
         inversion: "1st",
         bassNote: "C4",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -74,6 +94,10 @@ describe("getChordInfo", () => {
         chordName: "A Minor",
         inversion: "2nd",
         bassNote: "E3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
   });
@@ -86,6 +110,10 @@ describe("getChordInfo", () => {
         chordName: "B Diminished",
         inversion: "Root",
         bassNote: "B3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -95,6 +123,10 @@ describe("getChordInfo", () => {
         chordName: "B Diminished",
         inversion: "1st",
         bassNote: "D4",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -104,6 +136,10 @@ describe("getChordInfo", () => {
         chordName: "B Diminished",
         inversion: "2nd",
         bassNote: "F3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
   });
@@ -116,6 +152,10 @@ describe("getChordInfo", () => {
         chordName: "F Sus4",
         inversion: "Root",
         bassNote: "F3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -125,6 +165,10 @@ describe("getChordInfo", () => {
         chordName: "F Sus4",
         inversion: "Root",
         bassNote: "A#3", // Bb is represented as A# in our system
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
 
@@ -134,6 +178,393 @@ describe("getChordInfo", () => {
         chordName: "F Sus4",
         inversion: "2nd",
         bassNote: "C3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
+      });
+    });
+  });
+
+  describe("6 extension chords", () => {
+    test("identifies C maj 6 in root position", () => {
+      // C4(60), E4(64), G4(67), A4(69)
+      expect(getChordInfo([60, 64, 67, 69])).toEqual({
+        chordName: "C Major",
+        inversion: "Root",
+        bassNote: "C4",
+        hasSixth: true,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
+      });
+    });
+  });
+
+  describe("Extended chords", () => {
+    // Major chord extensions
+    describe("Major chord extensions", () => {
+      test("identifies C6 chord", () => {
+        // C4(60), E4(64), G4(67), A4(69)
+        expect(getChordInfo([60, 64, 67, 69])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies C7 chord", () => {
+        // C4(60), E4(64), G4(67), Bb4(70)
+        expect(getChordInfo([60, 64, 67, 70])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Cmaj7 chord", () => {
+        // C4(60), E4(64), G4(67), B4(71)
+        expect(getChordInfo([60, 64, 67, 71])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: false,
+          hasMajorSeventh: true,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies C9 chord with 9th in higher octave", () => {
+        // C4(60), E4(64), G4(67), Bb4(70), D5(74)
+        expect(getChordInfo([60, 64, 67, 70, 74])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: true,
+        });
+      });
+
+      test("identifies C9 chord with 9th in same octave", () => {
+        // C4(60), D4(62), E4(64), G4(67), Bb4(70)
+        expect(getChordInfo([60, 62, 64, 67, 70])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: true,
+        });
+      });
+    });
+
+    // Minor chord extensions
+    describe("Minor chord extensions", () => {
+      test("identifies Cm6 chord", () => {
+        // C4(60), Eb4(63), G4(67), A4(69)
+        expect(getChordInfo([60, 63, 67, 69])).toEqual({
+          chordName: "C Minor",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Cm7 chord", () => {
+        // C4(60), Eb4(63), G4(67), Bb4(70)
+        expect(getChordInfo([60, 63, 67, 70])).toEqual({
+          chordName: "C Minor",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies CmM7 chord", () => {
+        // C4(60), Eb4(63), G4(67), B4(71)
+        expect(getChordInfo([60, 63, 67, 71])).toEqual({
+          chordName: "C Minor",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: false,
+          hasMajorSeventh: true,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Cm9 chord", () => {
+        // C4(60), Eb4(63), G4(67), Bb4(70), D5(74)
+        expect(getChordInfo([60, 63, 67, 70, 74])).toEqual({
+          chordName: "C Minor",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: true,
+        });
+      });
+    });
+
+    // Diminished chord extensions
+    describe("Diminished chord extensions", () => {
+      test("identifies Cdim6 chord", () => {
+        // C4(60), Eb4(63), Gb4(66), A4(69) - A is the major 6th
+        expect(getChordInfo([60, 63, 66, 69])).toEqual({
+          chordName: "C Diminished",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Cdim7 chord", () => {
+        // C4(60), Eb4(63), Gb4(66), Bb4(70) - Bb is the diminished 7th
+        expect(getChordInfo([60, 63, 66, 70])).toEqual({
+          chordName: "C Diminished",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies CdimM7 chord", () => {
+        // C4(60), Eb4(63), Gb4(66), B4(71)
+        expect(getChordInfo([60, 63, 66, 71])).toEqual({
+          chordName: "C Diminished",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: false,
+          hasMajorSeventh: true,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Cdim9 chord", () => {
+        // C4(60), Eb4(63), Gb4(66), A4(69), D5(74)
+        expect(getChordInfo([60, 63, 66, 69, 74])).toEqual({
+          chordName: "C Diminished",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: false,
+          hasNinth: true,
+        });
+      });
+    });
+
+    // Sus4 chord extensions
+    describe("Sus4 chord extensions", () => {
+      test("identifies Csus4/6 chord", () => {
+        // C4(60), F4(65), G4(67), A4(69)
+        expect(getChordInfo([60, 65, 67, 69])).toEqual({
+          chordName: "C Sus4",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Csus4/7 chord", () => {
+        // C4(60), F4(65), G4(67), Bb4(70)
+        expect(getChordInfo([60, 65, 67, 70])).toEqual({
+          chordName: "C Sus4",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Csus4/maj7 chord", () => {
+        // C4(60), F4(65), G4(67), B4(71)
+        expect(getChordInfo([60, 65, 67, 71])).toEqual({
+          chordName: "C Sus4",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: false,
+          hasMajorSeventh: true,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Csus4/9 chord", () => {
+        // C4(60), F4(65), G4(67), Bb4(70), D5(74)
+        expect(getChordInfo([60, 65, 67, 70, 74])).toEqual({
+          chordName: "C Sus4",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: true,
+        });
+      });
+    });
+
+    // Test combinations
+    describe("Combined extensions", () => {
+      test("identifies C6/9 chord", () => {
+        // C4(60), E4(64), G4(67), A4(69), D5(74)
+        expect(getChordInfo([60, 64, 67, 69, 74])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: false,
+          hasNinth: true,
+        });
+      });
+
+      test("identifies Cmaj7/9 chord", () => {
+        // C4(60), E4(64), G4(67), B4(71), D5(74)
+        expect(getChordInfo([60, 64, 67, 71, 74])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: false,
+          hasSeventh: false,
+          hasMajorSeventh: true,
+          hasNinth: true,
+        });
+      });
+
+      test("identifies C6/7 chord", () => {
+        // C4(60), E4(64), G4(67), A4(69), Bb4(70)
+        expect(getChordInfo([60, 64, 67, 69, 70])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies C6/maj7 chord", () => {
+        // C4(60), E4(64), G4(67), A4(69), B4(71)
+        expect(getChordInfo([60, 64, 67, 69, 71])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: true,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Cm6/7 chord", () => {
+        // C4(60), Eb4(63), G4(67), A4(69), Bb4(70)
+        expect(getChordInfo([60, 63, 67, 69, 70])).toEqual({
+          chordName: "C Minor",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies Cdim6/7 chord", () => {
+        // C4(60), Eb4(63), Gb4(66), A4(69), Bb4(70)
+        expect(getChordInfo([60, 63, 66, 69, 70])).toEqual({
+          chordName: "C Diminished",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: false,
+        });
+      });
+
+      test("identifies C6/7/9 chord", () => {
+        // C4(60), E4(64), G4(67), A4(69), Bb4(70), D5(74)
+        expect(getChordInfo([60, 64, 67, 69, 70, 74])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: true,
+          hasMajorSeventh: false,
+          hasNinth: true,
+        });
+      });
+
+      test("identifies C6/maj7/9 chord", () => {
+        // C4(60), E4(64), G4(67), A4(69), B4(71), D5(74)
+        expect(getChordInfo([60, 64, 67, 69, 71, 74])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: false,
+          hasMajorSeventh: true,
+          hasNinth: true,
+        });
+      });
+
+      test("identifies C6/7/maj7/9 chord", () => {
+        // C4(60), E4(64), G4(67), A4(69), Bb4(70), B4(71), D5(74)
+        expect(getChordInfo([60, 64, 67, 69, 70, 71, 74])).toEqual({
+          chordName: "C Major",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: true,
+          hasMajorSeventh: true,
+          hasNinth: true,
+        });
+      });
+
+      test("identifies Cm6/7/maj7/9 chord", () => {
+        // C4(60), Eb4(63), G4(67), A4(69), Bb4(70), B4(71), D5(74)
+        expect(getChordInfo([60, 63, 67, 69, 70, 71, 74])).toEqual({
+          chordName: "C Minor",
+          inversion: "Root",
+          bassNote: "C4",
+          hasSixth: true,
+          hasSeventh: true,
+          hasMajorSeventh: true,
+          hasNinth: true,
+        });
       });
     });
   });
@@ -145,6 +576,10 @@ describe("getChordInfo", () => {
       chordName: "C Major",
       inversion: "Root",
       bassNote: "C4",
+      hasSixth: false,
+      hasSeventh: false,
+      hasMajorSeventh: false,
+      hasNinth: false,
     });
   });
 
@@ -157,6 +592,10 @@ describe("getChordInfo", () => {
         chordName: "G Sus4",
         inversion: "Root",
         bassNote: "G3",
+        hasSixth: false,
+        hasSeventh: false,
+        hasMajorSeventh: false,
+        hasNinth: false,
       });
     });
   });
@@ -172,11 +611,21 @@ describe("getUniqueBaseNotes", () => {
 });
 
 describe("calculateIntervals", () => {
-  it("calculates intervals between notes", () => {
-    expect(calculateIntervals(["C", "E", "G"])).toEqual([0, 4, 7]); // C major triad
-    expect(calculateIntervals(["A", "C", "E"])).toEqual([9, 0, 4]); // A minor triad (A=9, C=0, E=4)
-    expect(calculateIntervals(["C"])).toEqual([0]); // Single note
-    expect(calculateIntervals([])).toEqual([]); // Empty array
+  it("calculates chromatic scale positions from MIDI notes", () => {
+    // C4(60), E4(64), G4(67) - C major triad
+    expect(calculateIntervals([60, 64, 67])).toEqual([0, 4, 7]); // C=0, E=4, G=7
+
+    // A3(57), C4(60), E4(64) - A minor triad
+    expect(calculateIntervals([57, 60, 64])).toEqual([9, 0, 4]); // A=9, C=0, E=4
+
+    // Single note - C4(60)
+    expect(calculateIntervals([60])).toEqual([0]); // C=0
+
+    // Empty array
+    expect(calculateIntervals([])).toEqual([]);
+
+    // Notes across octaves - C4(60), C5(72), G5(79)
+    expect(calculateIntervals([60, 72, 79])).toEqual([0, 0, 7]); // C=0, C=0, G=7
   });
 });
 
