@@ -97,9 +97,19 @@ const Key: React.FC<KeyProps> = ({
 
 interface DialProps {
   activeChordType?: string;
+  hasSixth?: boolean;
+  hasSeventh?: boolean;
+  hasMajorSeventh?: boolean;
+  hasNinth?: boolean;
 }
 
-const Dial: React.FC<DialProps> = ({ activeChordType }) => {
+const Dial: React.FC<DialProps> = ({
+  activeChordType,
+  hasSixth = false,
+  hasSeventh = false,
+  hasMajorSeventh = false,
+  hasNinth = false,
+}) => {
   const size = 60;
   const centerX = -80;
   const centerY = 88;
@@ -113,9 +123,12 @@ const Dial: React.FC<DialProps> = ({ activeChordType }) => {
   const renderButtons = (labels: string[], yOffset: number) =>
     labels.map((label, index) => {
       const isActive =
-        activeChordType &&
-        ((yOffset < 0 && label === activeChordType) ?? // Top row
-          (yOffset > 0 && label === activeChordType)); // Bottom row
+        (yOffset < 0 && label === activeChordType) || // Top row - chord types
+        (yOffset > 0 && // Bottom row - extensions
+          ((label === "6" && hasSixth) ||
+            (label === "m7" && hasSeventh) ||
+            (label === "M7" && hasMajorSeventh) ||
+            (label === "9" && hasNinth)));
 
       return (
         <g key={label}>
@@ -335,7 +348,13 @@ export const PianoKeyboard: React.FC = () => {
       </div>
       <div className="relative">
         <svg width="850" height="330" viewBox="-520 0 1040 300">
-          <Dial activeChordType={activeChordType} />
+          <Dial
+            activeChordType={activeChordType}
+            hasSixth={chordInfo?.hasSixth}
+            hasSeventh={chordInfo?.hasSeventh}
+            hasMajorSeventh={chordInfo?.hasMajorSeventh}
+            hasNinth={chordInfo?.hasNinth}
+          />
           <g>
             {/* Table header - always shown */}
             <text x="0" y="-40" textAnchor="start" fill="#666" fontSize="12">
