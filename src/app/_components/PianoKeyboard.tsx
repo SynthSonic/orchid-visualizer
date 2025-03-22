@@ -4,9 +4,12 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { NoteName, ChordInfo, MIDIMessage } from "./types/chord.types";
-import { getChordInfo } from "./utils/chord/chordDetection";
-import { parseMIDIMessage, getMIDINoteName } from "./utils/midi/midiUtils";
-import { getColorBrightness } from "./utils/color/colorUtils";
+import {
+  getMIDINoteName,
+  getChordInfo,
+  getColorBrightness,
+  parseMIDIMessage,
+} from "./chordUtils";
 
 const BASE_CHORD_COLOR = "#8B4513"; // Darker saddle brown color
 const BASS_LINE_COLOR = "#000000"; // Black for bass note line
@@ -251,17 +254,21 @@ export const PianoKeyboard: React.FC = () => {
 
       if (isNoteOn) {
         channelNotes.add(noteNumber);
-
+        console.log("Note on", noteNumber);
+        
         // If this is channel 3 and we don't have a root note yet, set it
         if (channel === 3 && currentRootNoteRef.current === null) {
           currentRootNoteRef.current = noteNumber;
+          console.log("Setting root note", noteNumber);
         }
       } else if (isNoteOff) {
         channelNotes.delete(noteNumber);
+        console.log("Note off", noteNumber);
 
         // If this is channel 3 and the note being released is the root note,
         // clear all notes and reset root note
         if (channel === 3 && noteNumber === currentRootNoteRef.current) {
+          console.log("Clearing notes - root note released", Array.from(channelNotes));
           channelNotes.clear();
           currentRootNoteRef.current = null;
         }
@@ -285,6 +292,7 @@ export const PianoKeyboard: React.FC = () => {
         if (channelNotes.size === 0) {
           currentRootNoteRef.current = null;
         }
+        console.log("Notes", Array.from(channelNotes));
         // Sort notes numerically before passing to chord detection
         const sortedNotes = Array.from(channelNotes).sort((a, b) => a - b);
         updateChordInfo(sortedNotes);

@@ -1,28 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import type { NoteName, ChordType } from "../_components/types/chord.types";
+import type { NoteName } from "../_components/types/chord.types";
 import {
-  getFirstVoicingForNote,
+  getFirstVoicing,
   getChordNotes,
   getVoicingsForQuality,
-} from "../_components/utils/chord/voicingUtils";
+} from "../_components/voicingUtils";
 
 type ChordQuality = "Dim" | "Min" | "Maj" | "Sus";
 
 const WHOLE_NOTES: NoteName[] = ["C", "D", "E", "F", "G", "A", "B"];
 
-const QUALITY_TO_TYPE: Record<ChordQuality, ChordType> = {
-  Dim: "Diminished",
-  Min: "Minor",
-  Maj: "Major",
-  Sus: "Sus4",
-};
-
 const VoicingsPage: React.FC = () => {
   const [selectedQuality, setSelectedQuality] = useState<ChordQuality>("Maj");
-  const voicings: Record<NoteName, number[]> =
-    getVoicingsForQuality(selectedQuality);
+  const voicings = getVoicingsForQuality(selectedQuality);
 
   // Find the maximum number of voicings across all notes
   const maxVoicings = Math.max(
@@ -80,10 +72,7 @@ const VoicingsPage: React.FC = () => {
             <tbody>
               {Array.from({ length: maxVoicings }, (_, i) => {
                 const firstVoicings = WHOLE_NOTES.map((note) =>
-                  getFirstVoicingForNote(
-                    note,
-                    QUALITY_TO_TYPE[selectedQuality],
-                  ),
+                  getFirstVoicing(voicings[note] ?? []),
                 );
 
                 return (
