@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { NoteName, ChordInfo, MIDIMessage } from "./chordUtils";
 import {
   getMIDINoteName,
-  getChordName,
+  getChordInfo,
   getColorBrightness,
   parseMIDIMessage,
 } from "./chordUtils";
@@ -218,7 +218,7 @@ export const PianoKeyboard: React.FC = () => {
 
   // Update chord info based on Channel 3 notes
   const updateChordInfo = useCallback((notes: number[]) => {
-    setChordInfo(notes.length > 0 ? getChordName(notes) : null);
+    setChordInfo(notes.length > 0 ? getChordInfo(notes) : null);
   }, []);
 
   const handleMIDINote = useCallback(

@@ -12,18 +12,10 @@ export type NoteName =
   | "A"
   | "A#"
   | "B";
-export type ChordType =
-  | "Major"
-  | "Minor"
-  | "Diminished"
-  | "Augmented"
-  | "Major 7th"
-  | "Minor 7th"
-  | "Dominant 7th"
-  | "Sus4"
-  | "Sus2"
-  | "6th"
-  | "9th";
+
+// Only include triad types
+export type ChordType = "Major" | "Minor" | "Diminished" | "Sus4";
+
 export type Inversion = number[];
 
 // Constants
@@ -63,73 +55,53 @@ export const OCTAVE_MAPPING: Record<string, number> = {
   B: 2,
 } as const;
 
-// Interval constants
-export const MAJOR_INTERVALS = [0, 4, 7]; // Root, major third, perfect fifth
-export const MINOR_INTERVALS = [0, 3, 7]; // Root, minor third, perfect fifth
-export const DIMINISHED_INTERVALS = [0, 3, 6]; // Root, minor third, diminished fifth
-export const SUS_INTERVALS = [0, 5, 7]; // Root, perfect fourth, perfect fifth
+// Root position intervals for each triad type
+export const ROOT_POSITION_INTERVALS = {
+  Major: [0, 4, 7] as const, // Root, major third, perfect fifth
+  Minor: [0, 3, 7] as const, // Root, minor third, perfect fifth
+  Diminished: [0, 3, 6] as const, // Root, minor third, diminished fifth
+  Sus4: [0, 5, 7] as const, // Root, perfect fourth, perfect fifth
+} as const;
 
-// Chord patterns
+// Helper function to generate inversions from root position intervals
+const generateInversions = (
+  rootPositionIntervals: readonly number[],
+): Inversion[] => {
+  if (rootPositionIntervals.length !== 3) {
+    throw new Error("Root position intervals must contain exactly 3 notes");
+  }
+
+  // After length check, we know this is safe
+  const [root, second, third] = rootPositionIntervals as [
+    number,
+    number,
+    number,
+  ];
+  const inversions: Inversion[] = [];
+
+  // Root position
+  inversions.push([root, second, third]);
+
+  // First inversion - shift first note up an octave
+  inversions.push([second, third, root + 12]);
+
+  // Second inversion - shift first two notes up an octave
+  inversions.push([third, root + 12, second + 12]);
+
+  return inversions;
+};
+
+// Generate chord patterns for triads
 export const CHORD_PATTERNS: Record<ChordType, Inversion[]> = {
-  Major: [
-    [0, 4, 7],
-    [4, 7, 12],
-    [7, 12, 16],
-  ], // Root, 1st, 2nd inversion
-  Minor: [
-    [0, 3, 7],
-    [3, 7, 12],
-    [7, 12, 15],
-  ], // Root, 1st, 2nd inversion
-  Diminished: [
-    [0, 3, 6],
-    [3, 6, 9],
-  ], // Root, 1st inversion
-  Augmented: [
-    [0, 4, 8],
-    [4, 8, 12],
-  ], // Root, 1st inversion
-  "Major 7th": [
-    [0, 4, 7, 11],
-    [4, 7, 11, 12],
-    [7, 11, 12, 16],
-    [11, 12, 16, 19],
-  ],
-  "Minor 7th": [
-    [0, 3, 7, 10],
-    [3, 7, 10, 12],
-    [7, 10, 12, 15],
-    [10, 12, 15, 19],
-  ],
-  "Dominant 7th": [
-    [0, 4, 7, 10],
-    [4, 7, 10, 12],
-    [7, 10, 12, 16],
-    [10, 12, 16, 19],
-  ],
-  Sus4: [
-    [0, 5, 7],
-    [5, 7, 12],
-  ], // Root, 1st inversion
-  Sus2: [
-    [0, 2, 7],
-    [2, 7, 12],
-  ], // Root, 1st inversion
-  "6th": [
-    [0, 4, 7, 9],
-    [4, 7, 9, 12],
-    [7, 9, 12, 16],
-  ],
-  "9th": [
-    [0, 4, 7, 10, 14],
-    [4, 7, 10, 14, 16],
-    [7, 10, 14, 16, 19],
-  ],
+  Major: generateInversions([...ROOT_POSITION_INTERVALS.Major]),
+  Minor: generateInversions([...ROOT_POSITION_INTERVALS.Minor]),
+  Diminished: generateInversions([...ROOT_POSITION_INTERVALS.Diminished]),
+  Sus4: generateInversions([...ROOT_POSITION_INTERVALS.Sus4]),
 } as const;
 
 // Utility functions
 export const getMIDINoteName = (midiNote: number): string => {
-  const octave = Math.floor(midiNote / 12) - 2;
+  const octave = Math.floor(midiNote / 12) - 1;
   const noteIndex = midiNote % 12;
   return `${BASE_NOTES[noteIndex] ?? "C"}${octave}`;
 };
@@ -172,29 +144,16 @@ export const getVoicingsForNote = (
   note: NoteName,
   chordQuality: ChordType,
 ): number[] => {
-  let intervals: number[];
-  switch (chordQuality) {
-    case "Major":
-      intervals = MAJOR_INTERVALS;
-      break;
-    case "Minor":
-      intervals = MINOR_INTERVALS;
-      break;
-    case "Diminished":
-      intervals = DIMINISHED_INTERVALS;
-      break;
-    case "Sus4":
-      intervals = SUS_INTERVALS;
-      break;
-    default:
-      intervals = MAJOR_INTERVALS; // Default to major
+  const intervals = ROOT_POSITION_INTERVALS[chordQuality];
+  if (!intervals) {
+    return []; // Return empty array if intervals are undefined
   }
 
   const baseOffset = NOTE_OFFSETS[note];
   if (baseOffset === undefined) {
     return []; // Return empty array if note offset is undefined
   }
-  return generateVoicings(baseOffset, intervals);
+  return generateVoicings(baseOffset, [...intervals]);
 };
 
 // Get the first voicing for a note and chord quality
@@ -235,43 +194,43 @@ export const FIRST_VOICING_MAP = generateFirstVoicingMap();
 
 // Generate voicings for each note and chord type
 export const MAJOR_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, MAJOR_INTERVALS),
-  D: generateVoicings(-9, MAJOR_INTERVALS),
-  E: generateVoicings(-7, MAJOR_INTERVALS),
-  F: generateVoicings(-6, MAJOR_INTERVALS),
-  G: generateVoicings(-4, MAJOR_INTERVALS),
-  A: generateVoicings(-2, MAJOR_INTERVALS),
-  B: generateVoicings(0, MAJOR_INTERVALS),
+  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Major]),
+  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Major]),
+  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Major]),
+  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Major]),
+  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Major]),
+  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Major]),
+  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Major]),
 } as const;
 
 export const MINOR_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, MINOR_INTERVALS),
-  D: generateVoicings(-9, MINOR_INTERVALS),
-  E: generateVoicings(-7, MINOR_INTERVALS),
-  F: generateVoicings(-6, MINOR_INTERVALS),
-  G: generateVoicings(-4, MINOR_INTERVALS),
-  A: generateVoicings(-2, MINOR_INTERVALS),
-  B: generateVoicings(0, MINOR_INTERVALS),
+  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Minor]),
+  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Minor]),
+  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Minor]),
+  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Minor]),
+  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Minor]),
+  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Minor]),
+  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Minor]),
 } as const;
 
 export const DIMINISHED_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, DIMINISHED_INTERVALS),
-  D: generateVoicings(-9, DIMINISHED_INTERVALS),
-  E: generateVoicings(-7, DIMINISHED_INTERVALS),
-  F: generateVoicings(-6, DIMINISHED_INTERVALS),
-  G: generateVoicings(-4, DIMINISHED_INTERVALS),
-  A: generateVoicings(-2, DIMINISHED_INTERVALS),
-  B: generateVoicings(0, DIMINISHED_INTERVALS),
+  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Diminished]),
+  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Diminished]),
+  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Diminished]),
+  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Diminished]),
+  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Diminished]),
+  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Diminished]),
+  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Diminished]),
 } as const;
 
 export const SUS_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, SUS_INTERVALS),
-  D: generateVoicings(-9, SUS_INTERVALS),
-  E: generateVoicings(-7, SUS_INTERVALS),
-  F: generateVoicings(-6, SUS_INTERVALS),
-  G: generateVoicings(-4, SUS_INTERVALS),
-  A: generateVoicings(-2, SUS_INTERVALS),
-  B: generateVoicings(0, SUS_INTERVALS),
+  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Sus4]),
+  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Sus4]),
+  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Sus4]),
+  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Sus4]),
+  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Sus4]),
+  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Sus4]),
+  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Sus4]),
 } as const;
 
 // Chord info interface
@@ -281,99 +240,141 @@ export interface ChordInfo {
   bassNote: string;
 }
 
-// Get chord name from notes
-export const getChordName = (notes: number[]): ChordInfo | null => {
-  if (notes.length < 2) return null;
-
-  // Sort notes and get their base note names (without octave)
+// Helper function to get unique base notes from MIDI notes
+export const getUniqueBaseNotes = (notes: number[]): NoteName[] => {
   const baseNotes = notes.map((note) => getBaseNoteName(note));
-  const uniqueNotes = [...new Set(baseNotes)];
+  return [...new Set(baseNotes)] as NoteName[];
+};
 
-  // Get intervals between notes
-  const intervals = uniqueNotes
-    .map((note) => {
-      const index = BASE_NOTES.indexOf(note);
-      return index >= 0 ? index : 0;
-    })
-    .sort((a, b) => a - b);
+// Helper function to calculate intervals between notes
+export const calculateIntervals = (notes: NoteName[]): number[] => {
+  return notes.map((note) => {
+    const index = BASE_NOTES.indexOf(note);
+    return index >= 0 ? index : 0;
+  });
+};
 
-  if (intervals.length === 0) return null;
+// Helper function to normalize intervals relative to a root note
+export const normalizeIntervals = (
+  intervals: number[],
+  rootIndex: number,
+): number[] => {
+  const rotatedIntervals = [
+    ...intervals.slice(rootIndex),
+    ...intervals.slice(0, rootIndex).map((n) => n + 12),
+  ];
 
-  // Try each note as the root
-  for (const [i, rootIndex] of intervals.entries()) {
-    // Rotate intervals to try each note as root
-    const rotatedIntervals = [
-      ...intervals.slice(i),
-      ...intervals.slice(0, i).map((n) => n + 12),
-    ];
+  if (rotatedIntervals.length === 0 || rotatedIntervals[0] === undefined) {
+    return [];
+  }
 
-    // Skip if rotatedIntervals is empty
-    if (rotatedIntervals.length === 0) continue;
+  const firstInterval = rotatedIntervals[0];
+  return rotatedIntervals.map((n) => (n - firstInterval + 12) % 12);
+};
 
-    // Get the first interval and normalize all intervals relative to it
-    const firstInterval = rotatedIntervals[0];
-    if (firstInterval === undefined) continue;
+// Helper function to find matching chord pattern
+export const findChordPattern = (
+  normalizedIntervals: number[],
+  rootNote: NoteName,
+): { chordType: ChordType; pattern: number[]; rootNote: NoteName } | null => {
+  for (const [chordType, inversions] of Object.entries(CHORD_PATTERNS)) {
+    for (const pattern of inversions) {
+      if (!pattern) continue;
 
-    // Normalize intervals to start from 0
-    const normalizedIntervals = rotatedIntervals.map(
-      (n) => (n - firstInterval + 12) % 12,
-    );
-
-    // Check against patterns
-    for (const [chordType, inversions] of Object.entries(CHORD_PATTERNS)) {
-      for (const [, pattern] of inversions.entries()) {
-        if (!pattern) continue;
-
-        if (
-          normalizedIntervals.length === pattern.length &&
-          normalizedIntervals.every((interval, j) => interval === pattern[j])
-        ) {
-          // The root note is the one we rotated to
-          if (
-            typeof rootIndex === "number" &&
-            rootIndex >= 0 &&
-            rootIndex < BASE_NOTES.length
-          ) {
-            const rootNote = BASE_NOTES[rootIndex];
-            if (!rootNote) continue;
-
-            const lowestNoteName = getMIDINoteName(Math.min(...notes));
-
-            // Determine the actual inversion based on the lowest note
-            let actualInversionIndex = 0;
-            const rootBaseIndex = BASE_NOTES.indexOf(rootNote);
-            if (rootBaseIndex !== intervals[0] && intervals[0] !== undefined) {
-              // Find which note in the pattern is the lowest note
-              const lowestNoteInterval =
-                (intervals[0] - rootBaseIndex + 12) % 12;
-              actualInversionIndex = pattern.findIndex(
-                (interval) => interval === lowestNoteInterval,
-              );
-              if (actualInversionIndex === -1) actualInversionIndex = 0;
-            }
-
-            // Determine inversion text
-            let inversionText = "Root";
-            if (actualInversionIndex === 1) {
-              inversionText = "1st";
-            } else if (actualInversionIndex === 2) {
-              inversionText = "2nd";
-            } else if (actualInversionIndex === 3) {
-              inversionText = "3rd";
-            }
-
-            return {
-              chordName: `${rootNote} ${chordType}`,
-              inversion: inversionText,
-              bassNote: lowestNoteName,
-            };
+      if (
+        normalizedIntervals.length === pattern.length &&
+        normalizedIntervals.every((interval, j) => interval === pattern[j])
+      ) {
+        // For sus4 chords, check if the fourth interval is present
+        if (chordType === "Sus4") {
+          const fourth = normalizedIntervals[1];
+          if (fourth === 5) {
+            return { chordType: chordType as ChordType, pattern, rootNote };
           }
+        } else {
+          return { chordType: chordType as ChordType, pattern, rootNote };
         }
       }
     }
   }
+  return null;
+};
 
-  // If no pattern matches, return null
+// Helper function to determine inversion
+export const determineInversion = (
+  lowestNote: number,
+  rootNote: NoteName,
+): { inversionText: string; lowestNoteName: string } => {
+  const lowestNoteName = getMIDINoteName(lowestNote);
+  const lowestNoteBase = getBaseNoteName(lowestNote);
+
+  let inversionText = "Root";
+  const lowestNoteIndex = BASE_NOTES.indexOf(lowestNoteBase);
+  const rootNoteIndex = BASE_NOTES.indexOf(rootNote);
+
+  if (lowestNoteIndex !== rootNoteIndex) {
+    const interval = (lowestNoteIndex - rootNoteIndex + 12) % 12;
+    if (interval === 4 || interval === 3) {
+      // Major or minor third
+      inversionText = "1st";
+    } else if (interval === 7 || interval === 6) {
+      // Perfect or diminished fifth
+      inversionText = "2nd";
+    } else if (interval === 10 || interval === 11) {
+      // Minor or major seventh
+      inversionText = "3rd";
+    }
+  }
+
+  return { inversionText, lowestNoteName };
+};
+
+// Main chord identification function
+export const getChordInfo = (notes: number[]): ChordInfo | null => {
+  if (notes.length < 2) return null;
+
+  // Get unique base notes
+  const uniqueNotes = getUniqueBaseNotes(notes);
+
+  // Calculate intervals
+  const intervals = calculateIntervals(uniqueNotes);
+  if (intervals.length === 0) return null;
+
+  // Try each note as the root
+  for (const [i, rootIndex] of intervals.entries()) {
+    // Skip if rootIndex is invalid
+    if (
+      typeof rootIndex !== "number" ||
+      rootIndex < 0 ||
+      rootIndex >= BASE_NOTES.length
+    ) {
+      continue;
+    }
+
+    const rootNote = BASE_NOTES[rootIndex];
+    if (!rootNote) continue;
+
+    // Normalize intervals
+    const normalizedIntervals = normalizeIntervals(intervals, i);
+    if (normalizedIntervals.length === 0) continue;
+
+    // Find matching chord pattern
+    const match = findChordPattern(normalizedIntervals, rootNote);
+    if (match) {
+      // Determine inversion
+      const { inversionText, lowestNoteName } = determineInversion(
+        Math.min(...notes),
+        match.rootNote,
+      );
+
+      return {
+        chordName: `${match.rootNote} ${match.chordType}`,
+        inversion: inversionText,
+        bassNote: lowestNoteName,
+      };
+    }
+  }
+
   return null;
 };
 
@@ -436,35 +437,34 @@ export const getChordNotes = (
   const pattern = (voicingIndex + 1) % 3;
 
   // Get the correct intervals for this chord quality
-  let thirdInterval: number;
-  let fifthInterval: number;
-
+  let intervals: readonly number[];
   switch (quality) {
     case "Maj":
-      thirdInterval = 4; // Major third
-      fifthInterval = 7; // Perfect fifth
+      intervals = ROOT_POSITION_INTERVALS.Major;
       break;
     case "Min":
-      thirdInterval = 3; // Minor third
-      fifthInterval = 7; // Perfect fifth
+      intervals = ROOT_POSITION_INTERVALS.Minor;
       break;
     case "Dim":
-      thirdInterval = 3; // Minor third
-      fifthInterval = 6; // Diminished fifth
+      intervals = ROOT_POSITION_INTERVALS.Diminished;
       break;
     case "Sus":
-      thirdInterval = 5; // Perfect fourth
-      fifthInterval = 7; // Perfect fifth
+      intervals = ROOT_POSITION_INTERVALS.Sus4;
       break;
     default:
-      thirdInterval = 4;
-      fifthInterval = 7;
+      intervals = ROOT_POSITION_INTERVALS.Major;
   }
 
   // Calculate notes based on the pattern
   let notes: string[] = [];
-  const third = BASE_NOTES[(baseNoteIndex + thirdInterval) % 12];
-  const fifth = BASE_NOTES[(baseNoteIndex + fifthInterval) % 12];
+  if (intervals.length < 3) return "-";
+
+  const secondInterval = intervals[1];
+  const thirdInterval = intervals[2];
+  if (secondInterval === undefined || thirdInterval === undefined) return "-";
+
+  const third = BASE_NOTES[(baseNoteIndex + secondInterval) % 12];
+  const fifth = BASE_NOTES[(baseNoteIndex + thirdInterval) % 12];
   const root = BASE_NOTES[baseNoteIndex];
 
   if (!third || !fifth || !root) return "-";
