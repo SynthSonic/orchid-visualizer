@@ -153,15 +153,15 @@ export const getUniqueBaseNotes = (notes: number[]): NoteName[] => {
 };
 
 /**
- * Calculates intervals between notes
- * @param notes - Array of note names
- * @returns Array of intervals (in semitones)
+ * Calculates intervals between MIDI notes as positions in the chromatic scale (0-11)
+ * @param notes - Array of MIDI note numbers
+ * @returns Array of intervals (0-11 representing positions in the chromatic scale)
  */
-export const calculateIntervals = (notes: NoteName[]): number[] => {
-  return notes.map((note) => {
-    const index = BASE_NOTES.indexOf(note);
-    return index >= 0 ? index : 0;
-  });
+export const calculateIntervals = (notes: number[]): number[] => {
+  if (notes.length === 0) return [];
+
+  // Convert MIDI notes to their chromatic scale positions (0-11)
+  return notes.map((note) => note % 12);
 };
 
 /**
@@ -197,17 +197,21 @@ export const findChordPattern = (
   normalizedIntervals: number[],
   rootNote: NoteName,
 ): { chordType: ChordType; pattern: number[]; rootNote: NoteName } | null => {
+  // Filter out potential 9ths (interval of 2) for triad identification
+  const triadIntervals = normalizedIntervals
+    .filter((interval) => interval !== 2) // Remove 9ths
+    .slice(0, 3); // Only use first 3 non-ninth intervals for triad identification
+
+  if (triadIntervals.length < 3) return null;
+
   for (const [chordType, inversions] of Object.entries(CHORD_PATTERNS)) {
     for (const pattern of inversions) {
       if (!pattern) continue;
 
-      if (
-        normalizedIntervals.length === pattern.length &&
-        normalizedIntervals.every((interval, j) => interval === pattern[j])
-      ) {
+      if (triadIntervals.every((interval, j) => interval === pattern[j])) {
         // For sus4 chords, check if the fourth interval is present
         if (chordType === "Sus4") {
-          const fourth = normalizedIntervals[1];
+          const fourth = triadIntervals[1];
           if (fourth === 5) {
             return { chordType: chordType as ChordType, pattern, rootNote };
           }
@@ -255,18 +259,52 @@ export const determineInversion = (
 };
 
 /**
- * Gets chord information from an array of MIDI notes
+ * Checks for extended chord intervals in the normalized intervals
+ * @param intervals - Array of normalized intervals
+ * @returns Object containing boolean flags for each extension
+ */
+const checkExtendedIntervals = (
+  intervals: number[],
+): {
+  hasSixth: boolean;
+  hasSeventh: boolean;
+  hasMajorSeventh: boolean;
+  hasNinth: boolean;
+} => {
+  return {
+    hasSixth: intervals.includes(9), // Major 6th is 9 semitones
+    hasSeventh: intervals.includes(10), // Minor 7th is 10 semitones
+    hasMajorSeventh: intervals.includes(11), // Major 7th is 11 semitones
+    hasNinth: intervals.includes(2), // 9th is 2 semitones (in next octave)
+  };
+};
+
+/**
+ * Gets chord information from an array of MIDI note numbers
  * @param notes - Array of MIDI note numbers
  * @returns Chord information or null if no chord identified
  */
 export const getChordInfo = (notes: number[]): ChordInfo | null => {
-  if (notes.length < 2) return null;
+  if (notes.length < 3) return null;
 
-  // Get unique base notes
-  const uniqueNotes = getUniqueBaseNotes(notes);
+  // Remove duplicate MIDI notes while preserving order
+  const uniqueMidiNotes = [...new Set(notes)];
+  if (uniqueMidiNotes.length < 3) return null;
 
-  // Calculate intervals
-  const intervals = calculateIntervals(uniqueNotes);
+  // Sort MIDI notes to make interval calculation easier
+  const sortedNotes = [...uniqueMidiNotes].sort((a, b) => a - b);
+  const lowestNote = sortedNotes[0];
+  if (lowestNote === undefined) return null;
+
+  // Check for 9th by looking at actual intervals between notes
+  const hasNinth = sortedNotes.some((note, i) => {
+    if (i === 0) return false;
+    const interval = note - lowestNote;
+    return interval > 12 && interval % 12 === 2; // 14 semitones = 9th
+  });
+
+  // Calculate intervals for chord identification (using first 3 notes)
+  const intervals = calculateIntervals(uniqueMidiNotes);
   if (intervals.length === 0) return null;
 
   // Try each note as the root
@@ -292,14 +330,26 @@ export const getChordInfo = (notes: number[]): ChordInfo | null => {
     if (match) {
       // Determine inversion
       const { inversionText, lowestNoteName } = determineInversion(
-        Math.min(...notes),
+        Math.min(...uniqueMidiNotes),
         match.rootNote,
       );
+
+      // Check for extended intervals
+      const {
+        hasSixth,
+        hasSeventh,
+        hasMajorSeventh,
+        hasNinth: hasNinthFromIntervals,
+      } = checkExtendedIntervals(normalizedIntervals);
 
       return {
         chordName: `${match.rootNote} ${match.chordType}`,
         inversion: inversionText,
         bassNote: lowestNoteName,
+        hasSixth,
+        hasSeventh,
+        hasMajorSeventh,
+        hasNinth: hasNinth || hasNinthFromIntervals, // Use either method of 9th detection
       };
     }
   }

@@ -59,6 +59,10 @@ export interface ChordInfo {
   chordName: string;
   inversion: string;
   bassNote: string;
+  hasSixth: boolean;
+  hasSeventh: boolean;
+  hasMajorSeventh: boolean;
+  hasNinth: boolean;
 }
 
 /**
