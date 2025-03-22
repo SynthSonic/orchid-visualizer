@@ -1,13 +1,13 @@
-import type { ChordType, NoteName } from "../../../types/chord.types";
 import {
   generateVoicings,
+  getFirstVoicing,
   getVoicingsForNote,
   getFirstVoicingForNote,
   generateFirstVoicingMap,
   getVoicingsForQuality,
   getChordNotes,
-} from "../voicingUtils";
-import "@jest/globals";
+} from "./voicingUtils";
+import type { ChordType, NoteName } from "./types/chord.types";
 
 describe("voicingUtils", () => {
   describe("generateVoicings", () => {
@@ -42,6 +42,22 @@ describe("voicingUtils", () => {
       expect(gVoicings).toContain(-4); // Root
       expect(gVoicings).toContain(8); // One octave up
       expect(gVoicings).toContain(20); // Two octaves up
+    });
+  });
+
+  describe("getFirstVoicing", () => {
+    it("should return the highest voicing less than 2", () => {
+      const voicings = [0, 1, 2, 3, 4];
+      expect(getFirstVoicing(voicings)).toBe(1);
+    });
+
+    it("should return null when no valid voicings exist", () => {
+      const voicings = [2, 3, 4];
+      expect(getFirstVoicing(voicings)).toBeNull();
+    });
+
+    it("should handle empty array", () => {
+      expect(getFirstVoicing([])).toBeNull();
     });
   });
 

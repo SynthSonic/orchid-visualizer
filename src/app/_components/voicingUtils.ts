@@ -1,17 +1,16 @@
-import type {
-  NoteName,
-  ChordType,
-  ChordShortName,
-} from "../../types/chord.types";
+import type { NoteName, ChordType, ChordShortName } from "./types/chord.types";
 import {
   BASE_NOTES,
   CHORD_DEFINITIONS,
   NOTE_OFFSETS,
-} from "../../constants/chord.constants";
-import { ROOT_POSITION_INTERVALS, CHORD_PATTERNS } from "./chordDetection";
+} from "./constants/chord.constants";
+import { ROOT_POSITION_INTERVALS, CHORD_PATTERNS } from "./chordUtils";
 
 /**
  * Generates voicings for a given base offset and intervals
+ * @param baseOffset - The base offset to start generating voicings from
+ * @param intervals - The intervals to generate voicings for
+ * @returns Array of voicing numbers
  */
 export const generateVoicings = (
   baseOffset: number,
@@ -34,7 +33,20 @@ export const generateVoicings = (
 };
 
 /**
+ * Gets the first valid voicing from an array of voicings
+ * @param voicings - Array of voicing numbers
+ * @returns The first valid voicing or null if none found
+ */
+export const getFirstVoicing = (voicings: number[]): number | null => {
+  const validVoicings = voicings.filter((v) => v < 2);
+  return validVoicings.length > 0 ? Math.max(...validVoicings) : null;
+};
+
+/**
  * Gets all voicings for a given note and chord quality
+ * @param note - The root note
+ * @param chordQuality - The chord quality (e.g. Major, Minor)
+ * @returns Array of voicing numbers
  */
 export const getVoicingsForNote = (
   note: NoteName,
@@ -51,17 +63,21 @@ export const getVoicingsForNote = (
 
 /**
  * Gets the first voicing for a given note and chord quality
+ * @param note - The root note
+ * @param chordQuality - The chord quality (e.g. Major, Minor)
+ * @returns The first valid voicing or null if none found
  */
 export const getFirstVoicingForNote = (
   note: NoteName,
   chordQuality: ChordType,
 ): number | null => {
   const voicings = getVoicingsForNote(note, chordQuality);
-  return voicings[0] ?? null;
+  return getFirstVoicing(voicings);
 };
 
 /**
  * Generates a map of first voicings for all whole notes and chord qualities
+ * @returns Record mapping notes and chord qualities to their first voicings
  */
 export const generateFirstVoicingMap = (): Record<
   NoteName,
@@ -88,6 +104,8 @@ export const generateFirstVoicingMap = (): Record<
 
 /**
  * Gets voicings for a specific chord quality
+ * @param quality - The chord quality shortname (e.g. "Maj", "Min")
+ * @returns Record mapping notes to their voicings
  */
 export const getVoicingsForQuality = (
   quality: ChordShortName,
@@ -105,6 +123,8 @@ export const getVoicingsForQuality = (
 
 /**
  * Generates all voicings for a chord type
+ * @param intervals - The intervals that define the chord
+ * @returns Record mapping notes to their voicings
  */
 const generateVoicingsForChordType = (
   intervals: readonly number[],
@@ -121,6 +141,10 @@ const generateVoicingsForChordType = (
 
 /**
  * Gets the notes that make up a chord in a specific voicing
+ * @param baseNote - The root note of the chord
+ * @param voicing - The voicing number
+ * @param quality - The chord quality shortname
+ * @returns Space-separated string of notes or "-" if invalid
  */
 export const getChordNotes = (
   baseNote: string,
