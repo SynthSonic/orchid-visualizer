@@ -1,83 +1,43 @@
-// Types
-export type NoteName =
-  | "C"
-  | "C#"
-  | "D"
-  | "D#"
-  | "E"
-  | "F"
-  | "F#"
-  | "G"
-  | "G#"
-  | "A"
-  | "A#"
-  | "B";
+import type {
+  NoteName,
+  ChordType,
+  ChordShortName,
+  ChordInfo,
+  MIDIMessage,
+  MIDIMessageType,
+} from "./types/chord.types";
 
-// Only include triad types
-export type ChordType = "Major" | "Minor" | "Diminished" | "Sus4";
+import {
+  BASE_NOTES,
+  CHORD_DEFINITIONS,
+  NOTE_OFFSETS,
+} from "./constants/chord.constants";
 
-export type Inversion = number[];
+// Root position intervals derived from chord definitions
+export const ROOT_POSITION_INTERVALS = Object.fromEntries(
+  Object.entries(CHORD_DEFINITIONS).map(([key, def]) => [key, def.intervals]),
+) as unknown as Record<ChordType, readonly number[]>;
 
-// Constants
-export const BASE_NOTES = [
-  "C",
-  "C#",
-  "D",
-  "D#",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "G#",
-  "A",
-  "A#",
-  "B",
-] as const;
-export const NOTE_OFFSETS: Record<string, number> = {
-  C: -11,
-  D: -9,
-  E: -7,
-  F: -6,
-  G: -4,
-  A: -2,
-  B: 0,
-} as const;
-
-// Octave mapping for each note's first voicing index
-// This will be used later to show the octave of the voicing
-export const OCTAVE_MAPPING: Record<string, number> = {
-  C: 4,
-  D: 4,
-  E: 4,
-  F: 3,
-  G: 3,
-  A: 2,
-  B: 2,
-} as const;
-
-// Root position intervals for each triad type
-export const ROOT_POSITION_INTERVALS = {
-  Major: [0, 4, 7] as const, // Root, major third, perfect fifth
-  Minor: [0, 3, 7] as const, // Root, minor third, perfect fifth
-  Diminished: [0, 3, 6] as const, // Root, minor third, diminished fifth
-  Sus4: [0, 5, 7] as const, // Root, perfect fourth, perfect fifth
-} as const;
-
-// Helper function to generate inversions from root position intervals
+/**
+ * Generates all possible inversions for a given set of root position intervals.
+ * @param rootPositionIntervals - The intervals of the chord in root position
+ * @returns Array of inversions, each containing the intervals for that inversion
+ * @throws Error if the input intervals array does not contain exactly 3 notes
+ */
 const generateInversions = (
   rootPositionIntervals: readonly number[],
-): Inversion[] => {
+): number[][] => {
   if (rootPositionIntervals.length !== 3) {
     throw new Error("Root position intervals must contain exactly 3 notes");
   }
 
-  // After length check, we know this is safe
-  const [root, second, third] = rootPositionIntervals as [
+  // After length check, we know this is safe to assert
+  const [root, second, third] = rootPositionIntervals as readonly [
     number,
     number,
     number,
   ];
-  const inversions: Inversion[] = [];
+  const inversions: number[][] = [];
 
   // Root position
   inversions.push([root, second, third]);
@@ -92,26 +52,40 @@ const generateInversions = (
 };
 
 // Generate chord patterns for triads
-export const CHORD_PATTERNS: Record<ChordType, Inversion[]> = {
+export const CHORD_PATTERNS: Record<ChordType, number[][]> = {
   Major: generateInversions([...ROOT_POSITION_INTERVALS.Major]),
   Minor: generateInversions([...ROOT_POSITION_INTERVALS.Minor]),
   Diminished: generateInversions([...ROOT_POSITION_INTERVALS.Diminished]),
   Sus4: generateInversions([...ROOT_POSITION_INTERVALS.Sus4]),
 } as const;
 
-// Utility functions
+/**
+ * Converts a MIDI note number to a note name with octave
+ * @param midiNote - MIDI note number (0-127)
+ * @returns Note name with octave (e.g. "C4")
+ */
 export const getMIDINoteName = (midiNote: number): string => {
   const octave = Math.floor(midiNote / 12) - 1;
   const noteIndex = midiNote % 12;
   return `${BASE_NOTES[noteIndex] ?? "C"}${octave}`;
 };
 
+/**
+ * Gets the base note name without octave from a MIDI note number
+ * @param midiNote - MIDI note number (0-127)
+ * @returns Base note name (e.g. "C")
+ */
 export const getBaseNoteName = (midiNote: number): NoteName => {
   const noteIndex = midiNote % 12;
   return BASE_NOTES[noteIndex] ?? "C";
 };
 
-// Generate voicings for each note
+/**
+ * Generates voicings for a given base offset and intervals
+ * @param baseOffset - The base offset to start generating voicings from
+ * @param intervals - The intervals to generate voicings for
+ * @returns Array of voicing numbers
+ */
 export const generateVoicings = (
   baseOffset: number,
   intervals: number[],
@@ -120,43 +94,53 @@ export const generateVoicings = (
   let currentValue = baseOffset;
 
   while (currentValue <= 60) {
-    // Add each interval from the current position
     intervals.forEach((interval) => {
       const newValue = currentValue + interval;
       if (newValue <= 60) {
         voicings.push(newValue);
       }
     });
-    currentValue += 12; // Move up an octave
+    currentValue += 12;
   }
 
   return voicings;
 };
 
-// Get the first voicing (highest number less than 2)
+/**
+ * Gets the first valid voicing from an array of voicings
+ * @param voicings - Array of voicing numbers
+ * @returns The first valid voicing or null if none found
+ */
 export const getFirstVoicing = (voicings: number[]): number | null => {
   const validVoicings = voicings.filter((v) => v < 2);
   return validVoicings.length > 0 ? Math.max(...validVoicings) : null;
 };
 
-// Get all voicings for a note and chord quality
+/**
+ * Gets all voicings for a given note and chord quality
+ * @param note - The root note
+ * @param chordQuality - The chord quality (e.g. Major, Minor)
+ * @returns Array of voicing numbers
+ */
 export const getVoicingsForNote = (
   note: NoteName,
   chordQuality: ChordType,
 ): number[] => {
   const intervals = ROOT_POSITION_INTERVALS[chordQuality];
-  if (!intervals) {
-    return []; // Return empty array if intervals are undefined
-  }
+  if (!intervals) return [];
 
   const baseOffset = NOTE_OFFSETS[note];
-  if (baseOffset === undefined) {
-    return []; // Return empty array if note offset is undefined
-  }
+  if (baseOffset === undefined) return [];
+
   return generateVoicings(baseOffset, [...intervals]);
 };
 
-// Get the first voicing for a note and chord quality
+/**
+ * Gets the first voicing for a given note and chord quality
+ * @param note - The root note
+ * @param chordQuality - The chord quality (e.g. Major, Minor)
+ * @returns The first valid voicing or null if none found
+ */
 export const getFirstVoicingForNote = (
   note: NoteName,
   chordQuality: ChordType,
@@ -165,7 +149,10 @@ export const getFirstVoicingForNote = (
   return getFirstVoicing(voicings);
 };
 
-// Get all first voicings for all whole notes and chord qualities
+/**
+ * Generates a map of first voicings for all whole notes and chord qualities
+ * @returns Record mapping notes and chord qualities to their first voicings
+ */
 export const generateFirstVoicingMap = (): Record<
   NoteName,
   Record<ChordType, number | null>
@@ -192,61 +179,192 @@ export const generateFirstVoicingMap = (): Record<
 // Generate the mapping
 export const FIRST_VOICING_MAP = generateFirstVoicingMap();
 
-// Generate voicings for each note and chord type
-export const MAJOR_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Major]),
-  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Major]),
-  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Major]),
-  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Major]),
-  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Major]),
-  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Major]),
-  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Major]),
-} as const;
+/**
+ * Parses raw MIDI message data into a structured format
+ * @param data - Raw MIDI message data
+ * @param timestamp - Message timestamp
+ * @returns Parsed MIDI message or null if invalid data
+ */
+export const parseMIDIMessage = (
+  data: Uint8Array,
+  timestamp: number,
+): MIDIMessage | null => {
+  if (!data || data.length < 1) return null;
 
-export const MINOR_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Minor]),
-  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Minor]),
-  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Minor]),
-  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Minor]),
-  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Minor]),
-  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Minor]),
-  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Minor]),
-} as const;
+  const statusByte = data[0];
+  if (statusByte === undefined) return null;
 
-export const DIMINISHED_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Diminished]),
-  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Diminished]),
-  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Diminished]),
-  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Diminished]),
-  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Diminished]),
-  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Diminished]),
-  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Diminished]),
-} as const;
+  const messageType = statusByte >> 4;
+  const channel = (statusByte & 0x0f) + 1;
 
-export const SUS_VOICINGS: Record<string, number[]> = {
-  C: generateVoicings(-11, [...ROOT_POSITION_INTERVALS.Sus4]),
-  D: generateVoicings(-9, [...ROOT_POSITION_INTERVALS.Sus4]),
-  E: generateVoicings(-7, [...ROOT_POSITION_INTERVALS.Sus4]),
-  F: generateVoicings(-6, [...ROOT_POSITION_INTERVALS.Sus4]),
-  G: generateVoicings(-4, [...ROOT_POSITION_INTERVALS.Sus4]),
-  A: generateVoicings(-2, [...ROOT_POSITION_INTERVALS.Sus4]),
-  B: generateVoicings(0, [...ROOT_POSITION_INTERVALS.Sus4]),
-} as const;
+  let type: MIDIMessageType = "unknown";
+  let noteNumber: number | undefined;
+  let noteName: string | undefined;
+  let velocity: number | undefined;
+  let controlNumber: number | undefined;
+  let controlValue: number | undefined;
+  let programNumber: number | undefined;
 
-// Chord info interface
-export interface ChordInfo {
-  chordName: string;
-  inversion: string;
-  bassNote: string;
-}
+  switch (messageType) {
+    case 9: // Note-on
+      if (data[2] === undefined) return null;
+      type = data[2] > 0 ? "note-on" : "note-off";
+      noteNumber = data[1];
+      noteName =
+        noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
+      velocity = data[2];
+      break;
+    case 8: // Note-off
+      type = "note-off";
+      noteNumber = data[1];
+      noteName =
+        noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
+      velocity = data[2];
+      break;
+    case 11: // Control change
+      type = "control-change";
+      controlNumber = data[1];
+      controlValue = data[2];
+      break;
+    case 12: // Program change
+      type = "program-change";
+      programNumber = data[1];
+      break;
+  }
 
-// Helper function to get unique base notes from MIDI notes
+  return {
+    timestamp,
+    channel,
+    type,
+    noteNumber,
+    noteName,
+    velocity,
+    controlNumber,
+    controlValue,
+    programNumber,
+    rawData: Array.from(data),
+  };
+};
+
+/**
+ * Gets voicings for a specific chord quality
+ * @param quality - The chord quality shortname (e.g. "Maj", "Min")
+ * @returns Record mapping notes to their voicings
+ */
+export const getVoicingsForQuality = (
+  quality: ChordShortName,
+): Record<string, number[]> => {
+  const chordType = Object.entries(CHORD_DEFINITIONS).find(
+    ([_, def]) => def.shortName === quality,
+  )?.[0] as ChordType | undefined;
+
+  if (!chordType) {
+    return generateVoicingsForChordType(ROOT_POSITION_INTERVALS.Major);
+  }
+
+  return generateVoicingsForChordType(ROOT_POSITION_INTERVALS[chordType]);
+};
+
+/**
+ * Generates all voicings for a chord type
+ * @param intervals - The intervals that define the chord
+ * @returns Record mapping notes to their voicings
+ */
+const generateVoicingsForChordType = (
+  intervals: readonly number[],
+): Record<NoteName, number[]> => {
+  const voicings: Record<NoteName, number[]> = {} as Record<NoteName, number[]>;
+
+  // Only use natural notes (no sharps/flats) as defined in NOTE_OFFSETS
+  Object.entries(NOTE_OFFSETS).forEach(([note, offset]) => {
+    voicings[note as NoteName] = generateVoicings(offset, [...intervals]);
+  });
+
+  return voicings;
+};
+
+/**
+ * Gets the notes that make up a chord in a specific voicing
+ * @param baseNote - The root note of the chord
+ * @param voicing - The voicing number
+ * @param quality - The chord quality shortname
+ * @returns Space-separated string of notes or "-" if invalid
+ */
+export const getChordNotes = (
+  baseNote: string,
+  voicing: number | undefined,
+  quality: ChordShortName,
+): string => {
+  if (voicing === undefined || voicing === null) return "";
+
+  // Find the base note index in the chromatic scale
+  const baseNoteIndex = BASE_NOTES.indexOf(baseNote as NoteName);
+  if (baseNoteIndex === -1) return "-";
+
+  // Get the voicings array for this note
+  const voicings = getVoicingsForQuality(quality)[baseNote] ?? [];
+  if (!voicings.length) return "-";
+
+  // Find the index of this voicing in the array
+  const voicingIndex = voicings.indexOf(voicing);
+  if (voicingIndex === -1) return "-";
+
+  // The pattern repeats every 3 notes, shift by 1 so index 0 is first inversion
+  const pattern = (voicingIndex + 1) % 3;
+
+  // Get the correct intervals for this chord quality
+  const chordType = Object.entries(CHORD_DEFINITIONS).find(
+    ([_, def]) => def.shortName === quality,
+  )?.[0] as ChordType | undefined;
+
+  if (!chordType) return "-";
+
+  const intervals = ROOT_POSITION_INTERVALS[chordType];
+
+  // Calculate notes based on the pattern
+  let notes: string[] = [];
+  if (intervals.length < 3) return "-";
+
+  const secondInterval = intervals[1];
+  const thirdInterval = intervals[2];
+  if (secondInterval === undefined || thirdInterval === undefined) return "-";
+
+  const third = BASE_NOTES[(baseNoteIndex + secondInterval) % 12];
+  const fifth = BASE_NOTES[(baseNoteIndex + thirdInterval) % 12];
+  const root = BASE_NOTES[baseNoteIndex];
+
+  if (!third || !fifth || !root) return "-";
+
+  switch (pattern) {
+    case 0: // Root position: 1-3-5
+      notes = [root, third, fifth];
+      break;
+    case 1: // First inversion: 3-5-1
+      notes = [third, fifth, root];
+      break;
+    case 2: // Second inversion: 5-1-3
+      notes = [fifth, root, third];
+      break;
+  }
+
+  return notes.join(" ");
+};
+
+/**
+ * Gets unique base notes from an array of MIDI note numbers
+ * @param notes - Array of MIDI note numbers
+ * @returns Array of unique base note names
+ */
 export const getUniqueBaseNotes = (notes: number[]): NoteName[] => {
   const baseNotes = notes.map((note) => getBaseNoteName(note));
   return [...new Set(baseNotes)] as NoteName[];
 };
 
-// Helper function to calculate intervals between notes
+/**
+ * Calculates intervals between notes
+ * @param notes - Array of note names
+ * @returns Array of intervals (in semitones)
+ */
 export const calculateIntervals = (notes: NoteName[]): number[] => {
   return notes.map((note) => {
     const index = BASE_NOTES.indexOf(note);
@@ -254,7 +372,12 @@ export const calculateIntervals = (notes: NoteName[]): number[] => {
   });
 };
 
-// Helper function to normalize intervals relative to a root note
+/**
+ * Normalizes intervals relative to a root note
+ * @param intervals - Array of intervals
+ * @param rootIndex - Index of the root note
+ * @returns Array of normalized intervals
+ */
 export const normalizeIntervals = (
   intervals: number[],
   rootIndex: number,
@@ -272,7 +395,12 @@ export const normalizeIntervals = (
   return rotatedIntervals.map((n) => (n - firstInterval + 12) % 12);
 };
 
-// Helper function to find matching chord pattern
+/**
+ * Finds a matching chord pattern for a set of intervals
+ * @param normalizedIntervals - Array of normalized intervals
+ * @param rootNote - The root note
+ * @returns Matching chord pattern or null if no match found
+ */
 export const findChordPattern = (
   normalizedIntervals: number[],
   rootNote: NoteName,
@@ -300,7 +428,12 @@ export const findChordPattern = (
   return null;
 };
 
-// Helper function to determine inversion
+/**
+ * Determines the inversion of a chord based on its lowest note
+ * @param lowestNote - MIDI note number of the lowest note
+ * @param rootNote - Root note of the chord
+ * @returns Object containing inversion text and lowest note name
+ */
 export const determineInversion = (
   lowestNote: number,
   rootNote: NoteName,
@@ -329,7 +462,11 @@ export const determineInversion = (
   return { inversionText, lowestNoteName };
 };
 
-// Main chord identification function
+/**
+ * Gets chord information from an array of MIDI notes
+ * @param notes - Array of MIDI note numbers
+ * @returns Chord information or null if no chord identified
+ */
 export const getChordInfo = (notes: number[]): ChordInfo | null => {
   if (notes.length < 2) return null;
 
@@ -378,6 +515,12 @@ export const getChordInfo = (notes: number[]): ChordInfo | null => {
   return null;
 };
 
+/**
+ * Adjusts color brightness based on MIDI note number
+ * @param midiNote - MIDI note number
+ * @param baseColor - Base color in hex format
+ * @returns Adjusted color in hex format
+ */
 export const getColorBrightness = (
   midiNote: number,
   baseColor: string,
@@ -395,190 +538,7 @@ export const getColorBrightness = (
   const newG = Math.min(255, Math.round(g * brightnessMultiplier));
   const newB = Math.min(255, Math.round(b * brightnessMultiplier));
 
-  return `#${newR.toString(16).padStart(2, "0")}${newG.toString(16).padStart(2, "0")}${newB.toString(16).padStart(2, "0")}`;
-};
-
-// Get chord notes for a specific voicing
-export const getChordNotes = (
-  baseNote: string,
-  voicing: number | undefined,
-  quality: "Maj" | "Min" | "Dim" | "Sus",
-): string => {
-  if (voicing === undefined || voicing === null) return "";
-
-  // Find the base note index in the chromatic scale
-  const baseNoteIndex = BASE_NOTES.indexOf(baseNote as NoteName);
-  if (baseNoteIndex === -1) return "-";
-
-  // Get the voicings array for this note
-  let voicings: number[] = [];
-  switch (quality) {
-    case "Maj":
-      voicings = MAJOR_VOICINGS[baseNote] ?? [];
-      break;
-    case "Min":
-      voicings = MINOR_VOICINGS[baseNote] ?? [];
-      break;
-    case "Dim":
-      voicings = DIMINISHED_VOICINGS[baseNote] ?? [];
-      break;
-    case "Sus":
-      voicings = SUS_VOICINGS[baseNote] ?? [];
-      break;
-  }
-
-  if (!voicings.length) return "-";
-
-  // Find the index of this voicing in the array
-  const voicingIndex = voicings.indexOf(voicing);
-  if (voicingIndex === -1) return "-";
-
-  // The pattern repeats every 3 notes, shift by 1 so index 0 is first inversion
-  const pattern = (voicingIndex + 1) % 3;
-
-  // Get the correct intervals for this chord quality
-  let intervals: readonly number[];
-  switch (quality) {
-    case "Maj":
-      intervals = ROOT_POSITION_INTERVALS.Major;
-      break;
-    case "Min":
-      intervals = ROOT_POSITION_INTERVALS.Minor;
-      break;
-    case "Dim":
-      intervals = ROOT_POSITION_INTERVALS.Diminished;
-      break;
-    case "Sus":
-      intervals = ROOT_POSITION_INTERVALS.Sus4;
-      break;
-    default:
-      intervals = ROOT_POSITION_INTERVALS.Major;
-  }
-
-  // Calculate notes based on the pattern
-  let notes: string[] = [];
-  if (intervals.length < 3) return "-";
-
-  const secondInterval = intervals[1];
-  const thirdInterval = intervals[2];
-  if (secondInterval === undefined || thirdInterval === undefined) return "-";
-
-  const third = BASE_NOTES[(baseNoteIndex + secondInterval) % 12];
-  const fifth = BASE_NOTES[(baseNoteIndex + thirdInterval) % 12];
-  const root = BASE_NOTES[baseNoteIndex];
-
-  if (!third || !fifth || !root) return "-";
-
-  switch (pattern) {
-    case 0: // Root position: 1-3-5
-      notes = [root, third, fifth];
-      break;
-    case 1: // First inversion: 3-5-1
-      notes = [third, fifth, root];
-      break;
-    case 2: // Second inversion: 5-1-3
-      notes = [fifth, root, third];
-      break;
-  }
-
-  return notes.join(" ");
-};
-
-// Get voicings for a specific chord quality
-export const getVoicingsForQuality = (
-  quality: "Maj" | "Min" | "Dim" | "Sus",
-): Record<string, number[]> => {
-  switch (quality) {
-    case "Maj":
-      return MAJOR_VOICINGS;
-    case "Min":
-      return MINOR_VOICINGS;
-    case "Dim":
-      return DIMINISHED_VOICINGS;
-    case "Sus":
-      return SUS_VOICINGS;
-    default:
-      return MAJOR_VOICINGS;
-  }
-};
-
-// Define MIDI message type for better organization
-export type MIDIMessageType =
-  | "note-on"
-  | "note-off"
-  | "control-change"
-  | "program-change"
-  | "unknown";
-
-export interface MIDIMessage {
-  timestamp: number;
-  channel: number;
-  type: MIDIMessageType;
-  noteNumber?: number;
-  noteName?: string;
-  velocity?: number;
-  controlNumber?: number;
-  controlValue?: number;
-  programNumber?: number;
-  rawData: number[];
-}
-
-export const parseMIDIMessage = (
-  data: Uint8Array,
-  timestamp: number,
-): MIDIMessage | null => {
-  if (data.length < 1) return null;
-
-  const statusByte = data?.[0];
-  const messageType = statusByte ? statusByte >> 4 : 0;
-  const channel = statusByte ? (statusByte & 0x0f) + 1 : 0;
-
-  let type: MIDIMessageType = "unknown";
-  let noteNumber: number | undefined;
-  let noteName: string | undefined;
-  let velocity: number | undefined;
-  let controlNumber: number | undefined;
-  let controlValue: number | undefined;
-  let programNumber: number | undefined;
-
-  // Note-on message
-  if (messageType === 9) {
-    type = data?.[2] !== undefined && data[2] > 0 ? "note-on" : "note-off"; // Note-on with velocity 0 is treated as note-off
-    noteNumber = data[1];
-    noteName =
-      noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
-    velocity = data[2];
-  }
-  // Note-off message
-  else if (messageType === 8) {
-    type = "note-off";
-    noteNumber = data[1];
-    noteName =
-      noteNumber !== undefined ? getMIDINoteName(noteNumber) : undefined;
-    velocity = data[2];
-  }
-  // Control change
-  else if (messageType === 11) {
-    type = "control-change";
-    controlNumber = data[1];
-    controlValue = data[2];
-  }
-  // Program change
-  else if (messageType === 12) {
-    type = "program-change";
-    programNumber = data[1];
-  }
-
-  return {
-    timestamp,
-    channel,
-    type,
-    noteNumber,
-    noteName,
-    velocity,
-    controlNumber,
-    controlValue,
-    programNumber,
-    rawData: Array.from(data),
-  };
+  return `#${newR.toString(16).padStart(2, "0")}${newG
+    .toString(16)
+    .padStart(2, "0")}${newB.toString(16).padStart(2, "0")}`;
 };

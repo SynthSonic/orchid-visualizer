@@ -15,7 +15,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
-    "test": "jest"
+    "test": "jest",
+    "validate": ".husky/pre-commit"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.10.1",

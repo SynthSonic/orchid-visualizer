@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { parseMIDIMessage } from "../_components/chordUtils";
-import type { MIDIMessage } from "../_components/chordUtils";
+import type { MIDIMessage } from "../_components/types/chord.types";
 
 // Format timestamp to human-readable format
 const formatTimestamp = (timestamp: number): string => {

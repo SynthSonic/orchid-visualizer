@@ -3,7 +3,7 @@
 /// <reference types="webmidi" />
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { NoteName, ChordInfo, MIDIMessage } from "./chordUtils";
+import type { NoteName, ChordInfo, MIDIMessage } from "./types/chord.types";
 import {
   getMIDINoteName,
   getChordInfo,
