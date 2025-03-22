@@ -405,8 +405,18 @@ export const PianoKeyboard: React.FC = () => {
                       chordInfo.hasNinth,
                     ].filter(Boolean).length;
 
-                    if (extensionCount === 4) return <tspan fontSize="10" dy="-5">WTF</tspan>;
-                    if (extensionCount === 3) return <tspan fontSize="10" dy="-5">JAZZ</tspan>;
+                    if (extensionCount === 4)
+                      return (
+                        <tspan fontSize="10" dy="-5">
+                          WTF
+                        </tspan>
+                      );
+                    if (extensionCount === 3)
+                      return (
+                        <tspan fontSize="10" dy="-5">
+                          JAZZ
+                        </tspan>
+                      );
                     if (extensionCount > 0) {
                       const extensions = [];
                       if (chordInfo.hasSixth) extensions.push("6");
@@ -421,7 +431,6 @@ export const PianoKeyboard: React.FC = () => {
                     }
                     return null;
                   })()}
-
                 </text>
                 <text
                   x="125"
