@@ -6,7 +6,7 @@ import {
   getFirstVoicing,
   getChordNotes,
   getVoicingsForQuality,
-} from "../_components/chordUtils";
+} from "../_components/voicingUtils";
 
 type ChordQuality = "Dim" | "Min" | "Maj" | "Sus";
 
