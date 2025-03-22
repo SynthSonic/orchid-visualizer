@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { parseMIDIMessage } from "../_components/chordUtils";
+import { parseMIDIMessage } from "../_components/utils/midi/midiUtils";
 import type { MIDIMessage } from "../_components/types/chord.types";
 
 // Format timestamp to human-readable format
@@ -111,11 +111,8 @@ const DebugPage: React.FC = () => {
 
         // Handle device connection/disconnection
         access.onstatechange = (event: WebMidi.MIDIConnectionEvent) => {
-          if (
-            event.port &&
-            "type" in event.port &&
-            event.port.type === "input"
-          ) {
+          const port = event.port;
+          if (port && "type" in port && port.type === "input") {
             const updatedInputs = Array.from(access.inputs.values());
             const updatedDeviceNames = updatedInputs
               .map((input) => input.name ?? "Unnamed device")
@@ -274,7 +271,7 @@ const DebugPage: React.FC = () => {
                     <td className="p-2 font-mono text-gray-500">
                       [
                       {msg.rawData
-                        .map((b) => b.toString(16).padStart(2, "0"))
+                        .map((b: number) => b.toString(16).padStart(2, "0"))
                         .join(" ")}
                       ]
                     </td>
