@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import type { NoteName } from "../_components/chordUtils";
+import type { NoteName } from "../_components/types/chord.types";
 import {
   getFirstVoicing,
   getChordNotes,
   getVoicingsForQuality,
-} from "../_components/chordUtils";
+} from "../_components/voicingUtils";
 
 type ChordQuality = "Dim" | "Min" | "Maj" | "Sus";
 
