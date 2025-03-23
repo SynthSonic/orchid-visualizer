@@ -281,16 +281,21 @@ export const PianoKeyboard: React.FC = () => {
         } else {
           updateKeyboardDisplay(Array.from(channelNotes));
         }
+
+        // Sort notes numerically before passing to chord detection
+        const sortedNotes = Array.from(channelNotes).sort((a, b) => a - b);
+        updateChordInfo(Array.from(sortedNotes));
       } else if (channel === 2) {
         updateBassNotesDisplay(Array.from(channelNotes));
       } else if (channel === 3) {
+        // BUG: DISABLING USE OF CHANNEL 3 DUE TO ORCHID BUG
         // If all notes are cleared, reset the root note
-        if (channelNotes.size === 0) {
-          currentRootNoteRef.current = null;
-        }
+        // if (channelNotes.size === 0) {
+        //   currentRootNoteRef.current = null;
+        // }
         // Sort notes numerically before passing to chord detection
-        const sortedNotes = Array.from(channelNotes).sort((a, b) => a - b);
-        updateChordInfo(sortedNotes);
+        // const sortedNotes = Array.from(channelNotes).sort((a, b) => a - b);
+        // updateChordInfo(sortedNotes);
       }
     },
     [updateKeyboardDisplay, updateBassNotesDisplay, updateChordInfo],
