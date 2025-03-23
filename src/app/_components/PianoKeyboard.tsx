@@ -84,7 +84,7 @@ const Key: React.FC<KeyProps> = ({
           x={adjustedX + width / 2}
           y={height + 20}
           textAnchor="middle"
-          fill={color ?? "#666"}
+          fill="#C7C7C7"
           fontSize="16"
           fontWeight="bold"
         >
