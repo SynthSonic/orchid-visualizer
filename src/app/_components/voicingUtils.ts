@@ -173,104 +173,151 @@ const generateVoicingsForChordType = (
 };
 
 /**
+ * Validates the input parameters for getChordNotes
+ */
+const validateChordInput = (
+  baseNote: string,
+  voicing: { voicing: number; inversion: number; octave: number } | undefined,
+  quality: ChordShortName,
+): { isValid: boolean; shouldReturnEmpty: boolean } => {
+  if (voicing === undefined || voicing === null) {
+    return { isValid: false, shouldReturnEmpty: true };
+  }
+
+  const baseNoteIndex = BASE_NOTES.indexOf(baseNote as NoteName);
+  if (baseNoteIndex === -1) {
+    return { isValid: false, shouldReturnEmpty: false };
+  }
+
+  const voicings = getVoicingsForQuality(quality)[baseNote] ?? {};
+  if (Object.keys(voicings).length === 0) {
+    return { isValid: false, shouldReturnEmpty: false };
+  }
+
+  return { isValid: true, shouldReturnEmpty: false };
+};
+
+/**
+ * Gets the chord type and intervals for a given quality
+ */
+const getChordTypeAndIntervals = (
+  quality: ChordShortName,
+): {
+  chordType: ChordType | undefined;
+  intervals: readonly number[];
+} => {
+  const chordType = Object.entries(CHORD_DEFINITIONS).find(
+    ([_, def]) => def.shortName === quality,
+  )?.[0] as ChordType | undefined;
+
+  if (!chordType) return { chordType: undefined, intervals: [] };
+
+  return {
+    chordType,
+    intervals: ROOT_POSITION_INTERVALS[chordType],
+  };
+};
+
+/**
+ * Calculates the octave adjustment needed for a note
+ */
+const calculateOctaveAdjustment = (
+  noteIndex: number,
+  baseIndex: number,
+): number => {
+  return noteIndex < baseIndex ? 1 : 0;
+};
+
+/**
+ * Generates the notes for a chord based on the pattern and intervals
+ */
+const generateChordNotes = (
+  baseNote: string,
+  baseNoteIndex: number,
+  intervals: readonly number[],
+  pattern: number,
+  baseOctave: number,
+): string[] => {
+  if (intervals.length < 3) return [];
+
+  const secondInterval = intervals[1];
+  const thirdInterval = intervals[2];
+  if (secondInterval === undefined || thirdInterval === undefined) return [];
+
+  const third = BASE_NOTES[(baseNoteIndex + secondInterval) % 12];
+  const fifth = BASE_NOTES[(baseNoteIndex + thirdInterval) % 12];
+  const root = BASE_NOTES[baseNoteIndex];
+
+  if (!third || !fifth || !root) return [];
+
+  const thirdOctaveAdjustment = calculateOctaveAdjustment(
+    (baseNoteIndex + secondInterval) % 12,
+    baseNoteIndex,
+  );
+  const fifthOctaveAdjustment = calculateOctaveAdjustment(
+    (baseNoteIndex + thirdInterval) % 12,
+    baseNoteIndex,
+  );
+
+  switch (pattern) {
+    case 0: // Root position: 1-3-5
+      return [
+        `${root}${baseOctave}`,
+        `${third}${baseOctave + thirdOctaveAdjustment}`,
+        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
+      ];
+    case 1: // First inversion: 3-5-1
+      return [
+        `${third}${baseOctave + thirdOctaveAdjustment}`,
+        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
+        `${root}${baseOctave + 1}`,
+      ];
+    case 2: // Second inversion: 5-1-3
+      return [
+        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
+        `${root}${baseOctave + 1}`,
+        `${third}${baseOctave + thirdOctaveAdjustment + 1}`,
+      ];
+    default:
+      return [];
+  }
+};
+
+/**
  * Gets the notes that make up a chord in a specific voicing
  * @param baseNote - The root note of the chord
  * @param voicing - The voicing number
  * @param quality - The chord quality shortname
- * @returns Space-separated string of notes with octave numbers or "-" if invalid
+ * @returns Space-separated string of notes with octave numbers, "-" if invalid, or "" if undefined voicing
  */
 export const getChordNotes = (
   baseNote: string,
   voicing: { voicing: number; inversion: number; octave: number } | undefined,
   quality: ChordShortName,
 ): string => {
-  if (voicing === undefined || voicing === null) return "";
+  const validation = validateChordInput(baseNote, voicing, quality);
+  if (!validation.isValid) {
+    return validation.shouldReturnEmpty ? "" : "-";
+  }
 
-  // Find the base note index in the chromatic scale
   const baseNoteIndex = BASE_NOTES.indexOf(baseNote as NoteName);
-  if (baseNoteIndex === -1) return "-";
-
-  // Get the voicings array for this note
   const voicings = getVoicingsForQuality(quality)[baseNote] ?? {};
-  if (Object.keys(voicings).length === 0) return "-";
-
-  // Find the index of this voicing in the array
   const voicingIndex = Object.values(voicings).findIndex(
-    (v) => v.voicing === voicing.voicing,
+    (v) => v.voicing === voicing!.voicing,
   );
   if (voicingIndex === -1) return "-";
 
-  // The pattern repeats every 3 notes, shift by 1 so index 0 is first inversion
   const pattern = (voicingIndex + 1) % 3;
+  const { intervals } = getChordTypeAndIntervals(quality);
+  if (!intervals.length) return "-";
 
-  // Get the correct intervals for this chord quality
-  const chordType = Object.entries(CHORD_DEFINITIONS).find(
-    ([_, def]) => def.shortName === quality,
-  )?.[0] as ChordType | undefined;
-
-  if (!chordType) return "-";
-
-  const intervals = ROOT_POSITION_INTERVALS[chordType];
-
-  // Calculate notes based on the pattern
-  let notes: string[] = [];
-  if (intervals.length < 3) return "-";
-
-  const secondInterval = intervals[1];
-  const thirdInterval = intervals[2];
-  if (secondInterval === undefined || thirdInterval === undefined) return "-";
-
-  const third = BASE_NOTES[(baseNoteIndex + secondInterval) % 12];
-  const fifth = BASE_NOTES[(baseNoteIndex + thirdInterval) % 12];
-  const root = BASE_NOTES[baseNoteIndex];
-
-  if (!third || !fifth || !root) return "-";
-
-  // Calculate octaves based on the base note's octave and inversion pattern
-  const baseOctave = voicing.octave;
-
-  // Helper function to determine if a note needs to increment octave
-  const needsOctaveIncrement = (noteIndex: number, baseIndex: number) => {
-    return noteIndex < baseIndex;
-  };
-
-  // Calculate octave adjustments for third and fifth
-  const thirdOctaveAdjustment = needsOctaveIncrement(
-    (baseNoteIndex + secondInterval) % 12,
+  const notes = generateChordNotes(
+    baseNote,
     baseNoteIndex,
-  )
-    ? 1
-    : 0;
-  const fifthOctaveAdjustment = needsOctaveIncrement(
-    (baseNoteIndex + thirdInterval) % 12,
-    baseNoteIndex,
-  )
-    ? 1
-    : 0;
+    intervals,
+    pattern,
+    voicing!.octave,
+  );
 
-  switch (pattern) {
-    case 0: // Root position: 1-3-5
-      notes = [
-        `${root}${baseOctave}`,
-        `${third}${baseOctave + thirdOctaveAdjustment}`,
-        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
-      ];
-      break;
-    case 1: // First inversion: 3-5-1
-      notes = [
-        `${third}${baseOctave + thirdOctaveAdjustment}`,
-        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
-        `${root}${baseOctave + 1}`,
-      ];
-      break;
-    case 2: // Second inversion: 5-1-3
-      notes = [
-        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
-        `${root}${baseOctave + 1}`,
-        `${third}${baseOctave + thirdOctaveAdjustment + 1}`,
-      ];
-      break;
-  }
-
-  return notes.join(" ");
+  return notes.length ? notes.join(" ") : "-";
 };
