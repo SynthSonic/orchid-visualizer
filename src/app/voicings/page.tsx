@@ -18,12 +18,12 @@ const VoicingsPage: React.FC = () => {
 
   // Find the maximum number of voicings across all notes
   const maxVoicings = Math.max(
-    ...WHOLE_NOTES.map((note) => (voicings[note] ?? []).length),
+    ...WHOLE_NOTES.map((note) => Object.keys(voicings[note] ?? {}).length),
   );
 
   return (
     <div className="p-8">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-7xl">
         <h1 className="mb-8 font-old-standard text-3xl font-bold italic">
           Chord Voicings
         </h1>
@@ -59,10 +59,13 @@ const VoicingsPage: React.FC = () => {
           <table className="min-w-full bg-[#1a1a1a]">
             <thead>
               <tr className="bg-[#111]">
+                <th className="w-32 px-6 py-4 text-left text-sm font-bold text-gray-400">
+                  Inversion
+                </th>
                 {WHOLE_NOTES.map((note) => (
                   <th
                     key={note}
-                    className="w-24 px-6 py-4 text-left text-sm font-bold text-gray-400"
+                    className="w-32 px-6 py-4 text-left text-sm font-bold text-gray-400"
                   >
                     {note}
                   </th>
@@ -72,27 +75,33 @@ const VoicingsPage: React.FC = () => {
             <tbody>
               {Array.from({ length: maxVoicings }, (_, i) => {
                 const firstVoicings = WHOLE_NOTES.map((note) =>
-                  getFirstVoicing(voicings[note] ?? []),
+                  getFirstVoicing(voicings[note] ?? {}),
                 );
+                const inversion =
+                  i % 3 === 0 ? "1st" : i % 3 === 1 ? "2nd" : "Root";
 
                 return (
                   <tr
                     key={i}
                     className="border-t border-gray-700 transition-colors hover:bg-[#222]"
                   >
+                    <td className="w-32 px-6 py-4 text-sm font-medium text-gray-400">
+                      {inversion}
+                    </td>
                     {WHOLE_NOTES.map((note, noteIndex) => {
-                      const voicing = voicings[note]?.[i];
+                      const voicingObj = voicings[note]?.[i];
                       const firstVoicing = firstVoicings[noteIndex] ?? null;
-                      const isFirstVoicing = voicing === firstVoicing;
+                      const isFirstVoicing =
+                        voicingObj?.voicing === firstVoicing;
                       const shouldShowDash =
-                        voicing !== undefined &&
+                        voicingObj !== undefined &&
                         firstVoicing !== null &&
-                        voicing < firstVoicing;
+                        voicingObj.voicing < firstVoicing;
 
                       return (
                         <td
                           key={note}
-                          className={`w-24 px-6 py-4 font-mono ${
+                          className={`w-32 px-6 py-4 font-mono ${
                             isFirstVoicing
                               ? "font-medium text-[#8B4513]"
                               : "text-gray-300"
@@ -105,10 +114,14 @@ const VoicingsPage: React.FC = () => {
                               {isFirstVoicing ? (
                                 <strong>1</strong>
                               ) : (
-                                (voicing ?? "-")
+                                (voicingObj?.voicing ?? "-")
                               )}
                               <div className="text-xs text-gray-500">
-                                {getChordNotes(note, voicing, selectedQuality)}
+                                {getChordNotes(
+                                  note,
+                                  voicingObj,
+                                  selectedQuality,
+                                )}
                               </div>
                             </div>
                           )}
