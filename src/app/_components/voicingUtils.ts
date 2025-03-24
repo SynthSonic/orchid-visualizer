@@ -10,20 +10,34 @@ import { ROOT_POSITION_INTERVALS, CHORD_PATTERNS } from "./chordUtils";
  * Generates voicings for a given base offset and intervals
  * @param baseOffset - The base offset to start generating voicings from
  * @param intervals - The intervals to generate voicings for
- * @returns Array of voicing numbers
+ * @returns Object mapping indices to voicing information
  */
 export const generateVoicings = (
   baseOffset: number,
   intervals: number[],
-): number[] => {
-  const voicings: number[] = [];
+): Record<number, { voicing: number; inversion: number; octave: number }> => {
+  const voicings: Record<
+    number,
+    { voicing: number; inversion: number; octave: number }
+  > = {};
   let currentValue = baseOffset;
+  let voicingIndex = 0;
 
   while (currentValue <= 60) {
     intervals.forEach((interval) => {
       const newValue = currentValue + interval;
       if (newValue <= 60) {
-        voicings.push(newValue);
+        // Calculate inversion (0 = first, 1 = second, 2 = root)
+        const inversion = (voicingIndex + 1) % 3;
+        // Calculate octave (0 for first two, then increments every 3)
+        const octave = Math.floor((voicingIndex + 1) / 3);
+
+        voicings[voicingIndex] = {
+          voicing: newValue,
+          inversion,
+          octave,
+        };
+        voicingIndex++;
       }
     });
     currentValue += 12;
@@ -33,30 +47,37 @@ export const generateVoicings = (
 };
 
 /**
- * Gets the first valid voicing from an array of voicings
- * @param voicings - Array of voicing numbers
+ * Gets the first valid voicing from a voicings object
+ * @param voicings - Object mapping indices to voicing information
  * @returns The first valid voicing or null if none found
  */
-export const getFirstVoicing = (voicings: number[]): number | null => {
-  const validVoicings = voicings.filter((v) => v < 2);
-  return validVoicings.length > 0 ? Math.max(...validVoicings) : null;
+export const getFirstVoicing = (
+  voicings: Record<
+    number,
+    { voicing: number; inversion: number; octave: number }
+  >,
+): number | null => {
+  const validVoicings = Object.values(voicings).filter((v) => v.voicing < 2);
+  return validVoicings.length > 0
+    ? Math.max(...validVoicings.map((v) => v.voicing))
+    : null;
 };
 
 /**
  * Gets all voicings for a given note and chord quality
  * @param note - The root note
  * @param chordQuality - The chord quality (e.g. Major, Minor)
- * @returns Array of voicing numbers
+ * @returns Object mapping indices to voicing information
  */
 export const getVoicingsForNote = (
   note: NoteName,
   chordQuality: ChordType,
-): number[] => {
+): Record<number, { voicing: number; inversion: number; octave: number }> => {
   const intervals = ROOT_POSITION_INTERVALS[chordQuality];
-  if (!intervals) return [];
+  if (!intervals) return {};
 
   const baseOffset = NOTE_OFFSETS[note];
-  if (baseOffset === undefined) return [];
+  if (baseOffset === undefined) return {};
 
   return generateVoicings(baseOffset, [...intervals]);
 };
@@ -105,11 +126,14 @@ export const generateFirstVoicingMap = (): Record<
 /**
  * Gets voicings for a specific chord quality
  * @param quality - The chord quality shortname (e.g. "Maj", "Min")
- * @returns Record mapping notes to their voicings
+ * @returns Record mapping notes to their voicings with inversion and octave information
  */
 export const getVoicingsForQuality = (
   quality: ChordShortName,
-): Record<string, number[]> => {
+): Record<
+  string,
+  Record<number, { voicing: number; inversion: number; octave: number }>
+> => {
   const chordType = Object.entries(CHORD_DEFINITIONS).find(
     ([_, def]) => def.shortName === quality,
   )?.[0] as ChordType | undefined;
@@ -128,8 +152,17 @@ export const getVoicingsForQuality = (
  */
 const generateVoicingsForChordType = (
   intervals: readonly number[],
-): Record<NoteName, number[]> => {
-  const voicings: Record<NoteName, number[]> = {} as Record<NoteName, number[]>;
+): Record<
+  NoteName,
+  Record<number, { voicing: number; inversion: number; octave: number }>
+> => {
+  const voicings: Record<
+    NoteName,
+    Record<number, { voicing: number; inversion: number; octave: number }>
+  > = {} as Record<
+    NoteName,
+    Record<number, { voicing: number; inversion: number; octave: number }>
+  >;
 
   // Only use natural notes (no sharps/flats) as defined in NOTE_OFFSETS
   Object.entries(NOTE_OFFSETS).forEach(([note, offset]) => {
@@ -144,11 +177,11 @@ const generateVoicingsForChordType = (
  * @param baseNote - The root note of the chord
  * @param voicing - The voicing number
  * @param quality - The chord quality shortname
- * @returns Space-separated string of notes or "-" if invalid
+ * @returns Space-separated string of notes with octave numbers or "-" if invalid
  */
 export const getChordNotes = (
   baseNote: string,
-  voicing: number | undefined,
+  voicing: { voicing: number; inversion: number; octave: number } | undefined,
   quality: ChordShortName,
 ): string => {
   if (voicing === undefined || voicing === null) return "";
@@ -158,11 +191,13 @@ export const getChordNotes = (
   if (baseNoteIndex === -1) return "-";
 
   // Get the voicings array for this note
-  const voicings = getVoicingsForQuality(quality)[baseNote] ?? [];
-  if (!voicings.length) return "-";
+  const voicings = getVoicingsForQuality(quality)[baseNote] ?? {};
+  if (Object.keys(voicings).length === 0) return "-";
 
   // Find the index of this voicing in the array
-  const voicingIndex = voicings.indexOf(voicing);
+  const voicingIndex = Object.values(voicings).findIndex(
+    (v) => v.voicing === voicing.voicing,
+  );
   if (voicingIndex === -1) return "-";
 
   // The pattern repeats every 3 notes, shift by 1 so index 0 is first inversion
@@ -191,15 +226,49 @@ export const getChordNotes = (
 
   if (!third || !fifth || !root) return "-";
 
+  // Calculate octaves based on the base note's octave and inversion pattern
+  const baseOctave = voicing.octave;
+
+  // Helper function to determine if a note needs to increment octave
+  const needsOctaveIncrement = (noteIndex: number, baseIndex: number) => {
+    return noteIndex < baseIndex;
+  };
+
+  // Calculate octave adjustments for third and fifth
+  const thirdOctaveAdjustment = needsOctaveIncrement(
+    (baseNoteIndex + secondInterval) % 12,
+    baseNoteIndex,
+  )
+    ? 1
+    : 0;
+  const fifthOctaveAdjustment = needsOctaveIncrement(
+    (baseNoteIndex + thirdInterval) % 12,
+    baseNoteIndex,
+  )
+    ? 1
+    : 0;
+
   switch (pattern) {
     case 0: // Root position: 1-3-5
-      notes = [root, third, fifth];
+      notes = [
+        `${root}${baseOctave}`,
+        `${third}${baseOctave + thirdOctaveAdjustment}`,
+        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
+      ];
       break;
     case 1: // First inversion: 3-5-1
-      notes = [third, fifth, root];
+      notes = [
+        `${third}${baseOctave + thirdOctaveAdjustment}`,
+        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
+        `${root}${baseOctave + 1}`,
+      ];
       break;
     case 2: // Second inversion: 5-1-3
-      notes = [fifth, root, third];
+      notes = [
+        `${fifth}${baseOctave + fifthOctaveAdjustment}`,
+        `${root}${baseOctave + 1}`,
+        `${third}${baseOctave + thirdOctaveAdjustment + 1}`,
+      ];
       break;
   }
 

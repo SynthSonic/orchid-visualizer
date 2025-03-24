@@ -15,58 +15,72 @@ describe("voicingUtils", () => {
       const baseOffset = 0; // C
       const intervals = [0, 4, 7]; // Major chord intervals
       const result = generateVoicings(baseOffset, intervals);
-      expect(result).toEqual([
-        0, 4, 7, 12, 16, 19, 24, 28, 31, 36, 40, 43, 48, 52, 55, 60,
-      ]);
+      expect(result[0]).toEqual({ voicing: 0, inversion: 1, octave: 0 });
+      expect(result[1]).toEqual({ voicing: 4, inversion: 2, octave: 0 });
+      expect(result[2]).toEqual({ voicing: 7, inversion: 0, octave: 1 });
+      expect(result[3]).toEqual({ voicing: 12, inversion: 1, octave: 1 });
     });
 
     it("should not generate voicings above 60", () => {
       const result = generateVoicings(50, [0, 4, 7]);
-      expect(Math.max(...result)).toBeLessThanOrEqual(60);
+      const maxVoicing = Math.max(
+        ...Object.values(result).map((v) => v.voicing),
+      );
+      expect(maxVoicing).toBeLessThanOrEqual(60);
     });
 
     it("should handle empty intervals array", () => {
       const result = generateVoicings(0, []);
-      expect(result).toEqual([]);
+      expect(Object.keys(result)).toHaveLength(0);
     });
 
     it("should generate correct octave patterns from different starting offsets", () => {
       // Test with C's offset (-11)
       const cVoicings = generateVoicings(-11, [0, 4, 7]);
-      expect(cVoicings).toContain(-11); // Root
-      expect(cVoicings).toContain(1); // One octave up
-      expect(cVoicings).toContain(13); // Two octaves up
+      expect(cVoicings[0]).toEqual({ voicing: -11, inversion: 1, octave: 0 });
+      expect(cVoicings[3]).toEqual({ voicing: 1, inversion: 1, octave: 1 });
+      expect(cVoicings[6]).toEqual({ voicing: 13, inversion: 1, octave: 2 });
 
       // Test with G's offset (-4)
       const gVoicings = generateVoicings(-4, [0, 4, 7]);
-      expect(gVoicings).toContain(-4); // Root
-      expect(gVoicings).toContain(8); // One octave up
-      expect(gVoicings).toContain(20); // Two octaves up
+      expect(gVoicings[0]).toEqual({ voicing: -4, inversion: 1, octave: 0 });
+      expect(gVoicings[3]).toEqual({ voicing: 8, inversion: 1, octave: 1 });
+      expect(gVoicings[6]).toEqual({ voicing: 20, inversion: 1, octave: 2 });
     });
   });
 
   describe("getFirstVoicing", () => {
     it("should return the highest voicing less than 2", () => {
-      const voicings = [0, 1, 2, 3, 4];
+      const voicings = {
+        0: { voicing: 0, inversion: 1, octave: 0 },
+        1: { voicing: 1, inversion: 2, octave: 0 },
+        2: { voicing: 2, inversion: 0, octave: 0 },
+        3: { voicing: 3, inversion: 1, octave: 0 },
+        4: { voicing: 4, inversion: 2, octave: 0 },
+      };
       expect(getFirstVoicing(voicings)).toBe(1);
     });
 
     it("should return null when no valid voicings exist", () => {
-      const voicings = [2, 3, 4];
+      const voicings = {
+        0: { voicing: 2, inversion: 1, octave: 0 },
+        1: { voicing: 3, inversion: 2, octave: 0 },
+        2: { voicing: 4, inversion: 0, octave: 0 },
+      };
       expect(getFirstVoicing(voicings)).toBeNull();
     });
 
-    it("should handle empty array", () => {
-      expect(getFirstVoicing([])).toBeNull();
+    it("should handle empty object", () => {
+      expect(getFirstVoicing({})).toBeNull();
     });
   });
 
   describe("getVoicingsForNote", () => {
     it("should return correct voicings for C Major", () => {
       const result = getVoicingsForNote("C" as NoteName, "Major" as ChordType);
-      expect(result).toContain(-11); // Root (C: -11)
-      expect(result).toContain(-7); // Third (E: -7)
-      expect(result).toContain(-4); // Fifth (G: -4)
+      expect(result[0]).toEqual({ voicing: -11, inversion: 1, octave: 0 }); // Root (C: -11)
+      expect(result[1]).toEqual({ voicing: -7, inversion: 2, octave: 0 }); // Third (E: -7)
+      expect(result[2]).toEqual({ voicing: -4, inversion: 0, octave: 1 }); // Fifth (G: -4)
     });
 
     it("should return correct voicings for all natural notes in Major", () => {
@@ -85,9 +99,11 @@ describe("voicingUtils", () => {
           note as NoteName,
           "Major" as ChordType,
         );
-        expect(result[0]).toBe(offset); // First voicing should be the base offset
-        expect(result).toContain(offset + 12); // Should include next octave
-        expect(result).toContain(offset + 24); // Should include two octaves up
+        const firstVoicing = result[0];
+        expect(firstVoicing).toBeDefined();
+        expect(firstVoicing!.voicing).toBe(offset); // First voicing should be the base offset
+        expect(Object.values(result).some((v) => v.voicing === offset + 12)); // Should include next octave
+        expect(Object.values(result).some((v) => v.voicing === offset + 24)); // Should include two octaves up
       });
     });
 
@@ -97,21 +113,29 @@ describe("voicingUtils", () => {
       const eMajor = getVoicingsForNote("E" as NoteName, "Major" as ChordType);
 
       // Verify the difference between consecutive notes is correct
-      expect(dMajor[0]! - cMajor[0]!).toBe(2); // D is 2 semitones above C
-      expect(eMajor[0]! - dMajor[0]!).toBe(2); // E is 2 semitones above D
+      const cFirst = cMajor[0];
+      const dFirst = dMajor[0];
+      const eFirst = eMajor[0];
+
+      expect(cFirst).toBeDefined();
+      expect(dFirst).toBeDefined();
+      expect(eFirst).toBeDefined();
+
+      expect(dFirst!.voicing - cFirst!.voicing).toBe(2); // D is 2 semitones above C
+      expect(eFirst!.voicing - dFirst!.voicing).toBe(2); // E is 2 semitones above D
     });
 
-    it("should return empty array for invalid note", () => {
+    it("should return empty object for invalid note", () => {
       const result = getVoicingsForNote("H" as NoteName, "Major" as ChordType);
-      expect(result).toEqual([]);
+      expect(Object.keys(result)).toHaveLength(0);
     });
 
-    it("should return empty array for invalid chord quality", () => {
+    it("should return empty object for invalid chord quality", () => {
       const result = getVoicingsForNote(
         "C" as NoteName,
         "Invalid" as ChordType,
       );
-      expect(result).toEqual([]);
+      expect(Object.keys(result)).toHaveLength(0);
     });
   });
 
@@ -161,7 +185,7 @@ describe("voicingUtils", () => {
     it("should return voicings for major quality", () => {
       const result = getVoicingsForQuality("Maj");
       expect(result).toHaveProperty("C");
-      expect(Array.isArray(result.C)).toBe(true);
+      expect(typeof result.C).toBe("object");
     });
 
     it("should default to major voicings for invalid quality", () => {
@@ -177,7 +201,7 @@ describe("voicingUtils", () => {
       const result = getVoicingsForQuality("Maj");
       ["C", "D", "E", "F", "G", "A", "B"].forEach((note) => {
         expect(result).toHaveProperty(note);
-        expect(Array.isArray(result[note])).toBe(true);
+        expect(typeof result[note]).toBe("object");
       });
     });
 
@@ -185,44 +209,68 @@ describe("voicingUtils", () => {
       const result = getVoicingsForQuality("Maj");
 
       // Verify each note starts at its correct offset
-      expect(result.C![0]).toBe(-11);
-      expect(result.D![0]).toBe(-9);
-      expect(result.E![0]).toBe(-7);
-      expect(result.F![0]).toBe(-6);
-      expect(result.G![0]).toBe(-4);
-      expect(result.A![0]).toBe(-2);
-      expect(result.B![0]).toBe(0);
+      const cFirst = result.C?.[0];
+      const dFirst = result.D?.[0];
+      const eFirst = result.E?.[0];
+      const fFirst = result.F?.[0];
+      const gFirst = result.G?.[0];
+      const aFirst = result.A?.[0];
+      const bFirst = result.B?.[0];
+
+      expect(cFirst).toBeDefined();
+      expect(dFirst).toBeDefined();
+      expect(eFirst).toBeDefined();
+      expect(fFirst).toBeDefined();
+      expect(gFirst).toBeDefined();
+      expect(aFirst).toBeDefined();
+      expect(bFirst).toBeDefined();
+
+      expect(cFirst!.voicing).toBe(-11);
+      expect(dFirst!.voicing).toBe(-9);
+      expect(eFirst!.voicing).toBe(-7);
+      expect(fFirst!.voicing).toBe(-6);
+      expect(gFirst!.voicing).toBe(-4);
+      expect(aFirst!.voicing).toBe(-2);
+      expect(bFirst!.voicing).toBe(0);
     });
 
     it("should maintain correct octave patterns for each note", () => {
       const result = getVoicingsForQuality("Maj");
 
       Object.entries(result).forEach(([_note, voicings]) => {
-        const baseOffset = voicings[0]!; // We know this exists from previous test
-        expect(voicings).toContain(baseOffset + 12); // One octave up
-        expect(voicings).toContain(baseOffset + 24); // Two octaves up
-        expect(voicings).toContain(baseOffset + 36); // Three octaves up
+        const firstVoicing = voicings[0];
+        expect(firstVoicing).toBeDefined();
+        const baseOffset = firstVoicing!.voicing;
+        expect(
+          Object.values(voicings).some((v) => v.voicing === baseOffset + 12),
+        ); // One octave up
+        expect(
+          Object.values(voicings).some((v) => v.voicing === baseOffset + 24),
+        ); // Two octaves up
+        expect(
+          Object.values(voicings).some((v) => v.voicing === baseOffset + 36),
+        ); // Three octaves up
       });
     });
   });
 
   describe("getChordNotes", () => {
     it("should return root position notes for C Major", () => {
-      const voicings = getVoicingsForQuality("Maj").C ?? [];
+      const voicings = getVoicingsForQuality("Maj").C ?? {};
       const result = getChordNotes("C", voicings[0], "Maj");
-      expect(result).toBe("E G C");
+      expect(result).toBe("E0 G0 C1");
     });
 
     it("should return first inversion notes for C Major", () => {
-      const voicings = getVoicingsForQuality("Maj").C ?? [];
+      const voicings = getVoicingsForQuality("Maj").C ?? {};
       const result = getChordNotes("C", voicings[1], "Maj");
-      expect(result).toBe("G C E");
+      expect(result).toBe("G0 C1 E1");
     });
 
     it("should return second inversion notes for C Major", () => {
-      const voicings = getVoicingsForQuality("Maj").C ?? [];
+      const voicings = getVoicingsForQuality("Maj").C ?? {};
       const result = getChordNotes("C", voicings[2], "Maj");
-      expect(result).toBe("C E G");
+      expect(result).toBe("C1 E1 G1");
     });
 
     it("should return empty string for undefined voicing", () => {
@@ -230,11 +278,13 @@ describe("voicingUtils", () => {
     });
 
     it('should return "-" for invalid inputs', () => {
-      expect(getChordNotes("H", 0, "Maj")).toBe("-");
+      expect(
+        getChordNotes("H", { voicing: 0, inversion: 0, octave: 0 }, "Maj"),
+      ).toBe("-");
       expect(
         getChordNotes(
           "C",
-          0,
+          { voicing: 0, inversion: 0, octave: 0 },
           "InvalidQuality" as "Maj" | "Min" | "Dim" | "Sus",
         ),
       ).toBe("-");
@@ -245,23 +295,39 @@ describe("voicingUtils", () => {
     });
 
     it("should handle specific voicings correctly - G major voicing 24", () => {
-      const result = getChordNotes("G", 24, "Maj");
-      expect(result).toBe("D G B");
+      const result = getChordNotes(
+        "G",
+        { voicing: 24, inversion: 0, octave: 2 },
+        "Maj",
+      );
+      expect(result).toBe("D3 G3 B3");
     });
 
     it("should handle specific voicings correctly - F minor voicing 37", () => {
-      const result = getChordNotes("F", 37, "Min");
-      expect(result).toBe("F G# C");
+      const result = getChordNotes(
+        "F",
+        { voicing: 37, inversion: 1, octave: 3 },
+        "Min",
+      );
+      expect(result).toBe("F3 G#3 C4");
     });
 
     it("should handle specific voicings correctly - B diminished voicing 60", () => {
-      const result = getChordNotes("B", 60, "Dim");
-      expect(result).toBe("D F B");
+      const result = getChordNotes(
+        "B",
+        { voicing: 60, inversion: 2, octave: 5 },
+        "Dim",
+      );
+      expect(result).toBe("D6 F6 B6");
     });
 
     it("should handle specific voicings correctly - D sus4 voicing 15", () => {
-      const result = getChordNotes("D", 15, "Sus");
-      expect(result).toBe("G A D");
+      const result = getChordNotes(
+        "D",
+        { voicing: 15, inversion: 0, octave: 1 },
+        "Sus",
+      );
+      expect(result).toBe("G1 A1 D2");
     });
   });
 });
