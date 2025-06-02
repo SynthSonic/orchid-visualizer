@@ -22,50 +22,58 @@ const VoicingsPage: React.FC = () => {
   );
 
   return (
-    <div className="p-8">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="mb-8 font-old-standard text-3xl font-bold italic">
-          Chord Voicings
-        </h1>
+    <div className="p-8 pt-[60px]">
+      <div className="mx-auto max-w-7xl flex flex-col items-center">
 
-        <div className="mb-8">
-          <label className="mb-2 block text-sm font-medium text-gray-400">
-            Select Chord Quality
-          </label>
-          <div className="inline-flex rounded-lg bg-[#1a1a1a] p-1">
-            {(["Dim", "Min", "Maj", "Sus"] as ChordQuality[]).map((quality) => (
-              <button
-                key={quality}
-                onClick={() => setSelectedQuality(quality)}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                  selectedQuality === quality
-                    ? "bg-[#8B4513] text-white"
-                    : "text-gray-400 hover:bg-[#222] hover:text-white"
-                }`}
-              >
-                {quality === "Dim"
-                  ? "Diminished"
-                  : quality === "Min"
-                    ? "Minor"
-                    : quality === "Maj"
-                      ? "Major"
-                      : "Suspended"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="overflow-x-auto rounded-lg border border-gray-700">
-          <table className="min-w-full bg-[#1a1a1a]">
+        <div className="flex justify-center w-full">
+          <div className="overflow-x-auto inline-block">
+            {/* Chord quality buttons row */}
+            <div className="flex" style={{ borderTopLeftRadius: '6px', borderTopRightRadius: '6px' }}>
+              {(["Dim", "Min", "Maj", "Sus"] as ChordQuality[]).map((quality, index) => (
+                <button
+                  key={quality}
+                  onClick={() => setSelectedQuality(quality)}
+                  className="relative"
+                  style={{ marginRight: index === 3 ? '0' : '8px' }}
+                >
+                  <div 
+                    className={`w-[75px] h-[75px] relative ${selectedQuality === quality ? 'bg-[#AD792A]' : 'bg-black'}`}
+                    style={{ 
+                      border: '1px solid #FFFFFF',
+                      borderRadius: '6px',
+                      margin: '8px 0 8px 0'
+                    }}
+                  >
+                    <span 
+                      className="absolute"
+                      style={{
+                        fontFamily: "'Geist Mono', monospace",
+                        fontWeight: 500,
+                        fontSize: '16px',
+                        letterSpacing: '-0.03em',
+                        color: selectedQuality === quality ? '#FFFFFF' : '#888888',
+                        left: '12px',
+                        top: '12px'
+                      }}
+                    >
+                      {quality}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+            
+            <div style={{ borderRadius: '6px', overflow: 'hidden', border: '1px solid #FFFFFF' }} className="font-['Geist']">
+              <table className="table-fixed w-full" style={{ borderCollapse: 'collapse' }}>
             <thead>
-              <tr className="bg-[#111]">
-                <th className="w-32 px-6 py-4 text-left text-sm font-bold text-gray-400">
+              <tr className="bg-[#A88B5E]">
+                <th className="w-36 px-4 py-4 text-left text-base font-bold text-black">
                   Inversion
                 </th>
                 {WHOLE_NOTES.map((note) => (
                   <th
                     key={note}
-                    className="w-32 px-6 py-4 text-left text-sm font-bold text-gray-400"
+                    className="w-36 px-4 py-4 text-left text-base font-bold text-black"
                   >
                     {note}
                   </th>
@@ -83,9 +91,9 @@ const VoicingsPage: React.FC = () => {
                 return (
                   <tr
                     key={i}
-                    className="border-t border-gray-700 transition-colors hover:bg-[#222]"
+                    className="border-t border-white transition-colors hover:bg-[#222]"
                   >
-                    <td className="w-32 px-6 py-4 text-sm font-medium text-gray-400">
+                    <td className="w-36 px-4 py-4 text-base font-medium text-white">
                       {inversion}
                     </td>
                     {WHOLE_NOTES.map((note, noteIndex) => {
@@ -101,10 +109,10 @@ const VoicingsPage: React.FC = () => {
                       return (
                         <td
                           key={note}
-                          className={`w-32 px-6 py-4 font-mono ${
+                          className={`w-36 px-4 py-4 ${
                             isFirstVoicing
-                              ? "font-medium text-[#8B4513]"
-                              : "text-gray-300"
+                              ? "font-medium text-[#AD792A]"
+                              : "text-white"
                           }`}
                         >
                           {shouldShowDash ? (
@@ -116,7 +124,7 @@ const VoicingsPage: React.FC = () => {
                               ) : (
                                 (voicingObj?.voicing ?? "-")
                               )}
-                              <div className="text-xs text-gray-500">
+                              <div className="text-sm text-[#888888]">
                                 {getChordNotes(
                                   note,
                                   voicingObj,
@@ -132,7 +140,9 @@ const VoicingsPage: React.FC = () => {
                 );
               })}
             </tbody>
-          </table>
+            </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

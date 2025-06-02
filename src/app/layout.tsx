@@ -1,22 +1,25 @@
 import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
-import { Old_Standard_TT } from "next/font/google";
+import { GeistMono } from "geist/font/mono";
+import { Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
-import { Inter } from "next/font/google";
 import Navigation from "./_components/Navigation";
 import { Footer } from "./_components/Footer";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
-const oldStandardTT = Old_Standard_TT({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: "400",
   style: ["normal", "italic"],
-  variable: "--font-old-standard",
+  variable: "--font-instrument",
 });
 
-const inter = Inter({ subsets: ["latin"] });
+// GeistMono and GeistSans are imported from the geist package and include the variable property
+
+// Add Geist Mono font for the new navigation design
+const geistMonoImport = "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap";
 
 export const metadata = {
   title: "Orchid Visualizer",
@@ -43,7 +46,7 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#1a1a1a",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -54,12 +57,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${GeistSans.variable} ${oldStandardTT.variable} ${inter.className}`}
+      className={GeistSans.className}
     >
-      <body className="min-h-screen bg-gradient-to-b from-black via-[#1a1a1a] to-black text-white">
+      <head>
+        <link href={geistMonoImport} rel="stylesheet" />
+      </head>
+      <body className="flex flex-col min-h-screen bg-black text-white">
+        {/* Custom styles are added in globals.css */}
         <TRPCReactProvider>
           <Navigation />
-          {children}
+          <main className="flex-grow">
+            {children}
+          </main>
         </TRPCReactProvider>
         <Footer />
         <Analytics />

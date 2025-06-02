@@ -152,7 +152,7 @@ const DialComponent: React.FC<DialProps> = ({
     labels.map((label, index) => {
       // Default to false for active state if no chord info is available yet
       const isActive =
-        (yOffset < 0 && label === activeChordType) || // Top row - chord types
+        (yOffset < 0 && activeChordType && label === activeChordType) || // Top row - chord types
         (yOffset > 0 && // Bottom row - extensions
           ((label === "6" && hasSixth) ||
             (label === "m7" && hasSeventh) ||
@@ -171,7 +171,6 @@ const DialComponent: React.FC<DialProps> = ({
             strokeWidth="1"
             rx="6"
           />
-          {/* Always show labels when MIDI device is connected */}
           {midiDevice !== "No MIDI device connected" && (
             <text
               x={buttonStartX + (buttonSize + buttonGap) * index + 12}
@@ -226,8 +225,7 @@ const Dial = memo(DialComponent, (prevProps, nextProps) => {
     prevProps.hasSixth === nextProps.hasSixth &&
     prevProps.hasSeventh === nextProps.hasSeventh &&
     prevProps.hasMajorSeventh === nextProps.hasMajorSeventh &&
-    prevProps.hasNinth === nextProps.hasNinth &&
-    prevProps.midiDevice === nextProps.midiDevice
+    prevProps.hasNinth === nextProps.hasNinth
   );
 });
 
@@ -414,18 +412,16 @@ export const PianoKeyboard: React.FC = () => {
   }, [handleMIDINote]);
 
   // Extract chord type from chordInfo and map it to button labels
-  // No default active button, only set when chord info is available
-  const activeChordType = chordInfo
-    ? chordInfo.chordName
-        .split(" ")[1]
-        ?.replace("7th", "7")
-        ?.replace("Major", "Maj")
-        ?.replace("Minor", "Min")
-        ?.replace("Diminished", "Dim")
-        ?.replace("Dominant", "")
-        ?.replace("Sus4", "Sus")
-        ?.replace("Sus2", "Sus") 
-    : undefined;
+  const activeChordType =
+    chordInfo?.chordName
+      .split(" ")[1]
+      ?.replace("7th", "7")
+      ?.replace("Major", "Maj")
+      ?.replace("Minor", "Min")
+      ?.replace("Diminished", "Dim")
+      ?.replace("Dominant", "")
+      ?.replace("Sus4", "Sus")
+      ?.replace("Sus2", "Sus") ?? undefined;
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -502,19 +498,18 @@ export const PianoKeyboard: React.FC = () => {
               {midiDevice}
             </text>
           )}
-          {/* Always render the Dial component with default values when no chord info is available */}
-          <Dial
-            activeChordType={activeChordType}
-            hasSixth={chordInfo?.hasSixth}
-            hasSeventh={chordInfo?.hasSeventh}
-            hasMajorSeventh={chordInfo?.hasMajorSeventh}
-            hasNinth={chordInfo?.hasNinth}
-            midiDevice={midiDevice}
-          />
-          <g>
-            {/* Labels - only displayed when MIDI device is connected */}
-            {midiDevice !== "No MIDI device connected" && (
-              <>
+          {/* All labels and buttons - only displayed when MIDI device is connected */}
+          {midiDevice !== "No MIDI device connected" && (
+            <>
+              <Dial
+                activeChordType={activeChordType}
+                hasSixth={chordInfo?.hasSixth}
+                hasSeventh={chordInfo?.hasSeventh}
+                hasMajorSeventh={chordInfo?.hasMajorSeventh}
+                hasNinth={chordInfo?.hasNinth}
+                midiDevice={midiDevice}
+              />
+              <g>
                 <text 
                   x="0" 
                   y="270" 
@@ -551,11 +546,12 @@ export const PianoKeyboard: React.FC = () => {
                 >
                   BASS
                 </text>
-              </>
-            )}
+              </g>
+            </>
+          )}
             
-            {/* Chord values - only shown when chordInfo exists */}
-            {chordInfo && (
+          {/* Chord values - only shown when chordInfo exists */}
+          {chordInfo && (
               <>
                 {/* Chord values - displayed on top with Instrument Serif */}
                 <text

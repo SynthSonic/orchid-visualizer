@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for MIDI disconnected state */
+.midi-disconnected rect,
+.midi-disconnected path,
+.midi-disconnected line,
+.midi-disconnected circle {
+  stroke: #555555 !important;
+}
+
+/* Apply opacity to the top fill when disconnected */
+.midi-disconnected path[fill="#A88B5E"] {
+  fill-opacity: 0.4;
+}
+
+/* Change Problems button text to white when disconnected */
+body:has(.midi-disconnected) footer button {
+  color: #FFFFFF !important;
+}

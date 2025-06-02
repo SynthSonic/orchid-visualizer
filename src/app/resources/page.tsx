@@ -2,90 +2,57 @@ import React from "react";
 
 const ResourcesPage = () => {
   return (
-    <div className="p-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="mb-8 font-old-standard text-3xl font-bold italic">
-          Resources
-        </h1>
-        <div className="mb-8">
-          <h2 className="mb-2 text-2xl font-semibold">Official</h2>
-          <ul className="list-inside list-disc">
-            <li>
-              <a
-                href="https://manual.telepathicinstruments.com/"
-                className="text-[#8B4513] hover:underline"
-              >
-                Orchid User Manual
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://telepathicinstruments.com/pages/support"
-                className="text-[#8B4513] hover:underline"
-              >
-                Orchid Support
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://orchid.nolt.io/"
-                className="text-[#8B4513] hover:underline"
-              >
-                Feature Requests
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://firmware.telepathicinstruments.com/"
-                className="text-[#8B4513] hover:underline"
-              >
-                Firmware Updates
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div className="mb-8">
-          <h2 className="mb-2 text-2xl font-semibold">Community</h2>
-          <ul className="list-inside list-disc">
-            <li>
-              <a
-                href="https://discord.gg/m23GeqeS8D"
-                className="text-[#8B4513] hover:underline"
-              >
-                Community Discord
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/SynthSonic/orchid-visualizer"
-                className="text-[#8B4513] hover:underline"
-              >
-                Orchid Visualizer GitHub
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/SynthSonic/orchid-visualizer/issues"
-                className="text-[#8B4513] hover:underline"
-              >
-                Orchid Visualizer Feature Requests
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div className="mb-8">
-          <h2 className="mb-2 text-2xl font-semibold">Learning</h2>
-
-          <div className="mt-4">
-            <iframe
-              width="560"
-              height="315"
-              src="https://www.youtube.com/embed/GKf50ib0tho"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+    <div className="p-8" style={{ paddingTop: '53px', paddingLeft: '40px' }}>
+      <div className="mx-auto max-w-7xl flex justify-center">
+        <div className="flex flex-col md:flex-row gap-20 justify-center" style={{ marginLeft: '32px' }}>
+          {/* Left Column */}
+          <div className="w-[300px]">
+            <h2 className="font-['Instrument Serif'] text-[32px] mb-8" style={{ fontFamily: 'Instrument Serif' }}>Community</h2>
+            
+            <div className="space-y-6">
+              {/* Link 1 */}
+              <div className="block">
+                <a href="https://discord.gg/m23GeqeS8D" target="_blank" rel="noopener noreferrer" className="font-['Geist'] font-medium text-[20px] text-[#AD792A] no-underline tracking-[-0.03em]">Official Community Discord</a>
+                <div className="font-['Geist'] text-[14px] text-[#888888] tracking-[-0.03em]">Connect with fellow Orchid owners and the Telepathic team.</div>
+              </div>
+              
+              {/* Link 2 */}
+              <div className="block">
+                <a href="https://github.com/SynthSonic/orchid-visualizer/issues" target="_blank" rel="noopener noreferrer" className="font-['Geist'] font-medium text-[20px] text-[#AD792A] no-underline tracking-[-0.03em]">Visualizer Feature Requests</a>
+                <div className="font-['Geist'] text-[14px] text-[#888888] tracking-[-0.03em]">Feedback welcomed. There is also a Discord channel for #orchid-labs</div>
+              </div>
+              
+              {/* Link 3 */}
+              <div className="block">
+                <a href="https://github.com/SynthSonic/orchid-visualizer" target="_blank" rel="noopener noreferrer" className="font-['Geist'] font-medium text-[20px] text-[#AD792A] no-underline tracking-[-0.03em]">Visualizer GitHub</a>
+                <div className="font-['Geist'] text-[14px] text-[#888888] tracking-[-0.03em]">Open-source community project</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Right Column */}
+          <div className="w-[300px]">
+            <h2 className="font-['Instrument Serif'] text-[32px] mb-8" style={{ fontFamily: 'Instrument Serif' }}>Telepathic Instruments</h2>
+            
+            <div className="space-y-6">
+              {/* Link 1 */}
+              <div className="block">
+                <a href="https://help.telepathicinstruments.com/" target="_blank" rel="noopener noreferrer" className="font-['Geist'] font-medium text-[20px] text-[#AD792A] no-underline tracking-[-0.03em]">Telepathic Support</a>
+                <div className="font-['Geist'] text-[14px] text-[#888888] tracking-[-0.03em]">Product manuals, feature requests, contact info, etc.</div>
+              </div>
+              
+              {/* Link 2 */}
+              <div className="block">
+                <a href="https://www.youtube.com/@telepathic.instruments" target="_blank" rel="noopener noreferrer" className="font-['Geist'] font-medium text-[20px] text-[#AD792A] no-underline tracking-[-0.03em]">Telepathic YouTube</a>
+                <div className="font-['Geist'] text-[14px] text-[#888888] tracking-[-0.03em]">Product manuals, feature requests, contact info, etc.</div>
+              </div>
+              
+              {/* Link 3 */}
+              <div className="block">
+                <a href="https://firmware.telepathicinstruments.com/" target="_blank" rel="noopener noreferrer" className="font-['Geist'] font-medium text-[20px] text-[#AD792A] no-underline tracking-[-0.03em]">Orchid Firmware Updates</a>
+                <div className="font-['Geist'] text-[14px] text-[#888888] tracking-[-0.03em]">Requires Chrome or Opera based browser</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
