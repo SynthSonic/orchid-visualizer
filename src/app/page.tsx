@@ -5,7 +5,10 @@ export default function Home() {
   return (
     <HydrateClient>
       <main className="relative flex flex-col items-center">
-        <div className="container flex flex-col items-center mt-17 px-4" style={{ marginTop: '68px' }}>
+        <div
+          className="mt-17 container flex flex-col items-center px-4"
+          style={{ marginTop: "68px" }}
+        >
           <PianoKeyboard />
         </div>
       </main>

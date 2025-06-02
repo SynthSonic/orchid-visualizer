@@ -12,7 +12,6 @@ import {
 } from "./chordUtils";
 
 const BASE_CHORD_COLOR = "#8B5522"; // Rich brown color
-const BASS_LINE_COLOR = "#000000"; // Black for bass note line
 
 // Colors for different states
 const ACTIVE_STROKE_COLOR = "#FFFFFF"; // White stroke when MIDI is connected
@@ -233,12 +232,9 @@ const Dial = memo(DialComponent, (prevProps, nextProps) => {
 
 // Helper function to determine colors based on MIDI connection state
 const getStrokeColor = (midiDevice: string) => {
-  return midiDevice === "No MIDI device connected" ? INACTIVE_STROKE_COLOR : ACTIVE_STROKE_COLOR;
-};
-
-// Helper function to get the top fill color with opacity when disconnected
-const getTopFillColor = (midiDevice: string) => {
-  return midiDevice === "No MIDI device connected" ? "#A88B5E66" : "#A88B5E";
+  return midiDevice === "No MIDI device connected"
+    ? INACTIVE_STROKE_COLOR
+    : ACTIVE_STROKE_COLOR;
 };
 
 export const PianoKeyboard: React.FC = () => {
@@ -253,7 +249,9 @@ export const PianoKeyboard: React.FC = () => {
   const currentRootNoteRef = useRef<number | null>(null);
 
   const [keyColors, setKeyColors] = useState<Record<string, string>>({});
-  const [midiDevice, setMidiDevice] = useState<string>("No MIDI device connected");
+  const [midiDevice, setMidiDevice] = useState<string>(
+    "No MIDI device connected",
+  );
   const [noteDisplayText, setNoteDisplayText] = useState<
     Record<string, string>
   >({});
@@ -424,60 +422,76 @@ export const PianoKeyboard: React.FC = () => {
         ?.replace("Diminished", "Dim")
         ?.replace("Dominant", "")
         ?.replace("Sus4", "Sus")
-        ?.replace("Sus2", "Sus") 
+        ?.replace("Sus2", "Sus")
     : undefined;
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className={`relative overflow-hidden rounded-[64px] border-2 bg-black ${midiDevice === "No MIDI device connected" ? "border-[#555555]" : "border-white"}`}>
-        <svg 
-          width="1130" 
-          height="704" 
+      <div
+        className={`relative overflow-hidden rounded-[64px] border-2 bg-black ${midiDevice === "No MIDI device connected" ? "border-[#555555]" : "border-white"}`}
+      >
+        <svg
+          width="1130"
+          height="704"
           viewBox="-520 0 1040 700"
-          className={midiDevice === "No MIDI device connected" ? "midi-disconnected" : ""}
+          className={
+            midiDevice === "No MIDI device connected" ? "midi-disconnected" : ""
+          }
         >
           {/* New top section with speaker cutout holes - increased height */}
-          <path 
-            d="M-564 0 L564 0 L564 220 C564 192.918 546.272 149 506.632 149 C466.992 149 -462.701 149 -510.921 149 C-559.142 149 -564 203.198 -564 220 Z" 
-            fill="#A88B5E" 
-            stroke="white" 
+          <path
+            d="M-564 0 L564 0 L564 220 C564 192.918 546.272 149 506.632 149 C466.992 149 -462.701 149 -510.921 149 C-559.142 149 -564 203.198 -564 220 Z"
+            fill="#A88B5E"
+            stroke="white"
             strokeWidth="2"
           />
-          
-{/* Speaker cutout holes - left side (scaled 16px taller, updated shape) */}
-<g transform="translate(-480, 26) scale(0.9)">
-  {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
-    <g key={i} transform={`translate(${i * 36}, -8) scale(1.1477)`}>
-      <path
-        d="M20.3203 100.124C20.3203 100.163 20.2969 108.521 10.3203 108.521V106.521C14.6351 106.521 16.4723 104.776 17.3516 103.3C17.8297 102.497 18.0771 101.677 18.2021 101.047C18.2639 100.736 18.2935 100.482 18.3076 100.315C18.3147 100.233 18.318 100.172 18.3193 100.139C18.32 100.122 18.3203 100.112 18.3203 100.109V17.1436C18.3203 13.8256 17.5757 9.99058 16.0986 7.05957C14.6074 4.1005 12.6442 2.52119 10.3203 2.52148C8.00148 2.52191 6.03717 4.10957 4.54297 7.08105C3.06445 10.0214 2.32042 13.8572 2.32031 17.1436V100.109L2.32129 100.139C2.32262 100.172 2.32596 100.233 2.33301 100.315C2.34717 100.482 2.37673 100.736 2.43848 101.047C2.5635 101.677 2.81089 102.497 3.28906 103.3C4.16832 104.776 6.00552 106.521 10.3203 106.521V108.521L9.8584 108.516C0.343047 108.262 0.320366 100.162 0.320312 100.124V17.1436C0.320549 10.0769 3.48306 0.52238 10.3203 0.521484L10.6377 0.52832C17.2555 0.816347 20.3202 10.1283 20.3203 17.1436V100.124Z"
-        fill={midiDevice === "No MIDI device connected" ? INACTIVE_STROKE_COLOR : "white"}
-        fillOpacity={midiDevice === "No MIDI device connected" ? 0.3 : 0.5}
-      />
-      <path
-        d="M6.32031 14.5215C6.32031 12.3123 8.11117 10.5215 10.3203 10.5215C12.5295 10.5215 14.3203 12.3123 14.3203 14.5215V98.5215C14.3203 100.731 12.5295 102.521 10.3203 102.521C8.11117 102.521 6.32031 100.731 6.32031 98.5215V14.5215Z"
-        fill="black"
-      />
-    </g>
-  ))}
-</g>
-          
-{/* Speaker cutout holes - right side (scaled 16px taller, updated shape) */}
-<g transform="translate(482, 26) scale(-0.9, 0.9)">
-  {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
-    <g key={i} transform={`translate(${i * 36}, -8) scale(1.1477)`}>
-      <path
-        d="M20.3203 100.124C20.3203 100.163 20.2969 108.521 10.3203 108.521V106.521C14.6351 106.521 16.4723 104.776 17.3516 103.3C17.8297 102.497 18.0771 101.677 18.2021 101.047C18.2639 100.736 18.2935 100.482 18.3076 100.315C18.3147 100.233 18.318 100.172 18.3193 100.139C18.32 100.122 18.3203 100.112 18.3203 100.109V17.1436C18.3203 13.8256 17.5757 9.99058 16.0986 7.05957C14.6074 4.1005 12.6442 2.52119 10.3203 2.52148C8.00148 2.52191 6.03717 4.10957 4.54297 7.08105C3.06445 10.0214 2.32042 13.8572 2.32031 17.1436V100.109L2.32129 100.139C2.32262 100.172 2.32596 100.233 2.33301 100.315C2.34717 100.482 2.37673 100.736 2.43848 101.047C2.5635 101.677 2.81089 102.497 3.28906 103.3C4.16832 104.776 6.00552 106.521 10.3203 106.521V108.521L9.8584 108.516C0.343047 108.262 0.320366 100.162 0.320312 100.124V17.1436C0.320549 10.0769 3.48306 0.52238 10.3203 0.521484L10.6377 0.52832C17.2555 0.816347 20.3202 10.1283 20.3203 17.1436V100.124Z"
-        fill={midiDevice === "No MIDI device connected" ? INACTIVE_STROKE_COLOR : "white"}
-        fillOpacity={midiDevice === "No MIDI device connected" ? 0.3 : 0.5}
-      />
-      <path
-        d="M6.32031 14.5215C6.32031 12.3123 8.11117 10.5215 10.3203 10.5215C12.5295 10.5215 14.3203 12.3123 14.3203 14.5215V98.5215C14.3203 100.731 12.5295 102.521 10.3203 102.521C8.11117 102.521 6.32031 100.731 6.32031 98.5215V14.5215Z"
-        fill="black"
-      />
-    </g>
-  ))}
-</g>
-          
+
+          {/* Speaker cutout holes - left side (scaled 16px taller, updated shape) */}
+          <g transform="translate(-480, 26) scale(0.9)">
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <g key={i} transform={`translate(${i * 36}, -8) scale(1.1477)`}>
+                <path
+                  d="M20.3203 100.124C20.3203 100.163 20.2969 108.521 10.3203 108.521V106.521C14.6351 106.521 16.4723 104.776 17.3516 103.3C17.8297 102.497 18.0771 101.677 18.2021 101.047C18.2639 100.736 18.2935 100.482 18.3076 100.315C18.3147 100.233 18.318 100.172 18.3193 100.139C18.32 100.122 18.3203 100.112 18.3203 100.109V17.1436C18.3203 13.8256 17.5757 9.99058 16.0986 7.05957C14.6074 4.1005 12.6442 2.52119 10.3203 2.52148C8.00148 2.52191 6.03717 4.10957 4.54297 7.08105C3.06445 10.0214 2.32042 13.8572 2.32031 17.1436V100.109L2.32129 100.139C2.32262 100.172 2.32596 100.233 2.33301 100.315C2.34717 100.482 2.37673 100.736 2.43848 101.047C2.5635 101.677 2.81089 102.497 3.28906 103.3C4.16832 104.776 6.00552 106.521 10.3203 106.521V108.521L9.8584 108.516C0.343047 108.262 0.320366 100.162 0.320312 100.124V17.1436C0.320549 10.0769 3.48306 0.52238 10.3203 0.521484L10.6377 0.52832C17.2555 0.816347 20.3202 10.1283 20.3203 17.1436V100.124Z"
+                  fill={
+                    midiDevice === "No MIDI device connected"
+                      ? INACTIVE_STROKE_COLOR
+                      : "white"
+                  }
+                  fillOpacity={
+                    midiDevice === "No MIDI device connected" ? 0.3 : 0.5
+                  }
+                />
+                <path
+                  d="M6.32031 14.5215C6.32031 12.3123 8.11117 10.5215 10.3203 10.5215C12.5295 10.5215 14.3203 12.3123 14.3203 14.5215V98.5215C14.3203 100.731 12.5295 102.521 10.3203 102.521C8.11117 102.521 6.32031 100.731 6.32031 98.5215V14.5215Z"
+                  fill="black"
+                />
+              </g>
+            ))}
+          </g>
+
+          {/* Speaker cutout holes - right side (scaled 16px taller, updated shape) */}
+          <g transform="translate(482, 26) scale(-0.9, 0.9)">
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <g key={i} transform={`translate(${i * 36}, -8) scale(1.1477)`}>
+                <path
+                  d="M20.3203 100.124C20.3203 100.163 20.2969 108.521 10.3203 108.521V106.521C14.6351 106.521 16.4723 104.776 17.3516 103.3C17.8297 102.497 18.0771 101.677 18.2021 101.047C18.2639 100.736 18.2935 100.482 18.3076 100.315C18.3147 100.233 18.318 100.172 18.3193 100.139C18.32 100.122 18.3203 100.112 18.3203 100.109V17.1436C18.3203 13.8256 17.5757 9.99058 16.0986 7.05957C14.6074 4.1005 12.6442 2.52119 10.3203 2.52148C8.00148 2.52191 6.03717 4.10957 4.54297 7.08105C3.06445 10.0214 2.32042 13.8572 2.32031 17.1436V100.109L2.32129 100.139C2.32262 100.172 2.32596 100.233 2.33301 100.315C2.34717 100.482 2.37673 100.736 2.43848 101.047C2.5635 101.677 2.81089 102.497 3.28906 103.3C4.16832 104.776 6.00552 106.521 10.3203 106.521V108.521L9.8584 108.516C0.343047 108.262 0.320366 100.162 0.320312 100.124V17.1436C0.320549 10.0769 3.48306 0.52238 10.3203 0.521484L10.6377 0.52832C17.2555 0.816347 20.3202 10.1283 20.3203 17.1436V100.124Z"
+                  fill={
+                    midiDevice === "No MIDI device connected"
+                      ? INACTIVE_STROKE_COLOR
+                      : "white"
+                  }
+                  fillOpacity={
+                    midiDevice === "No MIDI device connected" ? 0.3 : 0.5
+                  }
+                />
+                <path
+                  d="M6.32031 14.5215C6.32031 12.3123 8.11117 10.5215 10.3203 10.5215C12.5295 10.5215 14.3203 12.3123 14.3203 14.5215V98.5215C14.3203 100.731 12.5295 102.521 10.3203 102.521C8.11117 102.521 6.32031 100.731 6.32031 98.5215V14.5215Z"
+                  fill="black"
+                />
+              </g>
+            ))}
+          </g>
+
           {/* Horizontal line across the top of the keyboard */}
           <line
             x1="-564"
@@ -487,13 +501,13 @@ export const PianoKeyboard: React.FC = () => {
             stroke={getStrokeColor(midiDevice)}
             strokeWidth="1"
           />
-          
+
           {/* Only show message when no MIDI device is connected */}
           {midiDevice === "No MIDI device connected" && (
-            <text 
-              x="0" 
-              y="252" 
-              textAnchor="start" 
+            <text
+              x="0"
+              y="252"
+              textAnchor="start"
               fill="#FFFFFF"
               fontFamily="'Instrument Serif', serif"
               fontSize="44"
@@ -515,11 +529,11 @@ export const PianoKeyboard: React.FC = () => {
             {/* Labels - only displayed when MIDI device is connected */}
             {midiDevice !== "No MIDI device connected" && (
               <>
-                <text 
-                  x="0" 
-                  y="270" 
-                  textAnchor="start" 
-                  fill="#888888" 
+                <text
+                  x="0"
+                  y="270"
+                  textAnchor="start"
+                  fill="#888888"
                   fontFamily="'Geist Mono', monospace"
                   fontWeight="500"
                   fontSize="16"
@@ -527,11 +541,11 @@ export const PianoKeyboard: React.FC = () => {
                 >
                   CHORD
                 </text>
-                <text 
-                  x="180" 
-                  y="270" 
-                  textAnchor="start" 
-                  fill="#888888" 
+                <text
+                  x="180"
+                  y="270"
+                  textAnchor="start"
+                  fill="#888888"
                   fontFamily="'Geist Mono', monospace"
                   fontWeight="500"
                   fontSize="16"
@@ -539,11 +553,11 @@ export const PianoKeyboard: React.FC = () => {
                 >
                   INVERSION
                 </text>
-                <text 
-                  x="360" 
-                  y="270" 
-                  textAnchor="start" 
-                  fill="#888888" 
+                <text
+                  x="360"
+                  y="270"
+                  textAnchor="start"
+                  fill="#888888"
                   fontFamily="'Geist Mono', monospace"
                   fontWeight="500"
                   fontSize="16"
@@ -553,7 +567,7 @@ export const PianoKeyboard: React.FC = () => {
                 </text>
               </>
             )}
-            
+
             {/* Chord values - only shown when chordInfo exists */}
             {chordInfo && (
               <>
@@ -568,13 +582,13 @@ export const PianoKeyboard: React.FC = () => {
                   letterSpacing="-0.03em"
                 >
                   {/* Split chord name into root note and chord type with same size but with spacing */}
-                  {chordInfo.chordName.split(' ')[0]}
+                  {chordInfo.chordName.split(" ")[0]}
                   <tspan
                     fontSize="44" /* Same size as root note */
                     dy="0"
                     dx="10" /* Add 10px spacing between root note and chord type */
                   >
-                    {chordInfo.chordName.split(' ').slice(1).join(' ')}
+                    {chordInfo.chordName.split(" ").slice(1).join(" ")}
                   </tspan>
                   {(() => {
                     const extensionCount = [
@@ -633,7 +647,6 @@ export const PianoKeyboard: React.FC = () => {
                 >
                   {chordInfo.bassNote}
                 </text>
-
               </>
             )}
           </g>

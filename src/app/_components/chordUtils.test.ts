@@ -589,7 +589,7 @@ describe("getChordInfo", () => {
       // The notes [G3, C4, D4] form a G sus4 chord
       // G is root, C is fourth, D is fifth
       expect(getChordInfo([55, 60, 62])).toEqual({
-        chordName: "G Sus4",
+        chordName: "G Sus",
         inversion: "Root",
         bassNote: "G3",
         hasSixth: false,

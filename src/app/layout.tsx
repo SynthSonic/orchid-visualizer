@@ -1,7 +1,6 @@
 import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
 import { Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import Navigation from "./_components/Navigation";
@@ -9,6 +8,7 @@ import { Footer } from "./_components/Footer";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
+// This font is used in global.css via its variable property
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
@@ -19,7 +19,8 @@ const instrumentSerif = Instrument_Serif({
 // GeistMono and GeistSans are imported from the geist package and include the variable property
 
 // Add Geist Mono font for the new navigation design
-const geistMonoImport = "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap";
+const geistMonoImport =
+  "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap";
 
 export const metadata = {
   title: "Orchid Visualizer",
@@ -55,20 +56,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={GeistSans.className}
-    >
+    <html lang="en" className={GeistSans.className}>
       <head>
         <link href={geistMonoImport} rel="stylesheet" />
       </head>
-      <body className="flex flex-col min-h-screen bg-black text-white">
+      <body className="flex min-h-screen flex-col bg-black text-white">
         {/* Custom styles are added in globals.css */}
         <TRPCReactProvider>
           <Navigation />
-          <main className="flex-grow">
-            {children}
-          </main>
+          <main className="flex-grow">{children}</main>
         </TRPCReactProvider>
         <Footer />
         <Analytics />
