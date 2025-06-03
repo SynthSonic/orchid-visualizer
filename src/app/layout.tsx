@@ -22,6 +22,10 @@ const instrumentSerif = Instrument_Serif({
 const geistMonoImport =
   "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap";
 
+// Add Geist Sans font to ensure it's available for all users
+const geistSansImport =
+  "https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600&display=swap";
+
 export const metadata = {
   title: "Orchid Visualizer",
   description: "A piano learning app",
@@ -59,6 +63,7 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <head>
         <link href={geistMonoImport} rel="stylesheet" />
+        <link href={geistSansImport} rel="stylesheet" />
       </head>
       <body className="flex min-h-screen flex-col bg-black text-white">
         {/* Custom styles are added in globals.css */}
