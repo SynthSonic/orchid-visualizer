@@ -16,7 +16,7 @@ const Navigation = memo(() => {
             <Link href="/" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`font-['Geist_Mono'] text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`--font-geist-mono text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Visualizer
                 </div>
@@ -25,7 +25,7 @@ const Navigation = memo(() => {
             <Link href="/voicings" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`font-['Geist_Mono'] text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/voicings" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`--font-geist-mono text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/voicings" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Voicings
                 </div>
@@ -34,7 +34,7 @@ const Navigation = memo(() => {
             <Link href="/resources" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`font-['Geist_Mono'] text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/resources" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`--font-geist-mono text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/resources" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Resources
                 </div>
@@ -66,7 +66,7 @@ const Navigation = memo(() => {
                   />
                 </svg>
               </div>
-              <div className="hidden font-['Geist_Mono'] text-[17px] uppercase leading-normal tracking-[-0.51px] text-white transition-colors hover:text-[#AD792A] sm:block">
+              <div className="--font-geist-mono hidden text-[17px] uppercase leading-normal tracking-[-0.51px] text-white transition-colors hover:text-[#AD792A] sm:block">
                 Discord
               </div>
             </a>
@@ -90,7 +90,7 @@ const Navigation = memo(() => {
                   />
                 </svg>
               </div>
-              <div className="hidden font-['Geist_Mono'] text-[17px] uppercase leading-normal tracking-[-0.51px] text-white transition-colors hover:text-[#AD792A] sm:block">
+              <div className="--font-geist-mono hidden text-[17px] uppercase leading-normal tracking-[-0.51px] text-white transition-colors hover:text-[#AD792A] sm:block">
                 GitHub
               </div>
             </a>

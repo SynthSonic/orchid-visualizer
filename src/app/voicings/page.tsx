@@ -77,7 +77,7 @@ const VoicingsPage: React.FC = () => {
                 overflow: "hidden",
                 border: "1px solid #FFFFFF",
               }}
-              className="font-['Geist']"
+              className="--font-geist-sans"
             >
               <table
                 className="w-full table-fixed"

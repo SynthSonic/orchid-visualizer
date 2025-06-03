@@ -24,11 +24,11 @@ const ResourcesPage = () => {
                   href="https://discord.gg/m23GeqeS8D"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-['Geist'] text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
+                  className="--font-geist-sans text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
                 >
                   Official Community Discord
                 </a>
-                <div className="font-['Geist'] text-[14px] tracking-[-0.03em] text-[#888888]">
+                <div className="--font-geist-sans text-[14px] tracking-[-0.03em] text-[#888888]">
                   Connect with fellow Orchid owners and the Telepathic team.
                 </div>
               </div>
@@ -39,11 +39,11 @@ const ResourcesPage = () => {
                   href="https://github.com/SynthSonic/orchid-visualizer/issues"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-['Geist'] text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
+                  className="--font-geist-sans text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
                 >
                   Visualizer Feature Requests
                 </a>
-                <div className="font-['Geist'] text-[14px] tracking-[-0.03em] text-[#888888]">
+                <div className="--font-geist-sans text-[14px] tracking-[-0.03em] text-[#888888]">
                   Feedback welcomed. There is also a Discord channel for
                   #orchid-labs
                 </div>
@@ -55,11 +55,11 @@ const ResourcesPage = () => {
                   href="https://github.com/SynthSonic/orchid-visualizer"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-['Geist'] text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
+                  className="--font-geist-sans text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
                 >
                   Visualizer GitHub
                 </a>
-                <div className="font-['Geist'] text-[14px] tracking-[-0.03em] text-[#888888]">
+                <div className="--font-geist-sans text-[14px] tracking-[-0.03em] text-[#888888]">
                   Open-source community project
                 </div>
               </div>
@@ -82,11 +82,11 @@ const ResourcesPage = () => {
                   href="https://help.telepathicinstruments.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-['Geist'] text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
+                  className="--font-geist-sans text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
                 >
                   Telepathic Support
                 </a>
-                <div className="font-['Geist'] text-[14px] tracking-[-0.03em] text-[#888888]">
+                <div className="--font-geist-sans text-[14px] tracking-[-0.03em] text-[#888888]">
                   Product manuals, feature requests, contact info, etc.
                 </div>
               </div>
@@ -97,11 +97,11 @@ const ResourcesPage = () => {
                   href="https://www.youtube.com/@telepathic.instruments"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-['Geist'] text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
+                  className="--font-geist-sans text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
                 >
                   Telepathic YouTube
                 </a>
-                <div className="font-['Geist'] text-[14px] tracking-[-0.03em] text-[#888888]">
+                <div className="--font-geist-sans text-[14px] tracking-[-0.03em] text-[#888888]">
                   Product manuals, feature requests, contact info, etc.
                 </div>
               </div>
@@ -112,11 +112,11 @@ const ResourcesPage = () => {
                   href="https://firmware.telepathicinstruments.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-['Geist'] text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
+                  className="--font-geist-sans text-[20px] font-medium tracking-[-0.03em] text-[#AD792A] no-underline"
                 >
                   Orchid Firmware Updates
                 </a>
-                <div className="font-['Geist'] text-[14px] tracking-[-0.03em] text-[#888888]">
+                <div className="--font-geist-sans text-[14px] tracking-[-0.03em] text-[#888888]">
                   Requires Chrome or Opera based browser
                 </div>
               </div>

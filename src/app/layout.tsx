@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import { Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import Navigation from "./_components/Navigation";
@@ -17,14 +18,6 @@ const instrumentSerif = Instrument_Serif({
 });
 
 // GeistMono and GeistSans are imported from the geist package and include the variable property
-
-// Add Geist Mono font for the new navigation design
-const geistMonoImport =
-  "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap";
-
-// Add Geist Sans font to ensure it's available for all users
-const geistSansImport =
-  "https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600&display=swap";
 
 export const metadata = {
   title: "Orchid Visualizer",
@@ -60,11 +53,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={GeistSans.className}>
-      <head>
-        <link href={geistMonoImport} rel="stylesheet" />
-        <link href={geistSansImport} rel="stylesheet" />
-      </head>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <head></head>
       <body className="flex min-h-screen flex-col bg-black text-white">
         {/* Custom styles are added in globals.css */}
         <TRPCReactProvider>

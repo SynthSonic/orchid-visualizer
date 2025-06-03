@@ -45,7 +45,7 @@ export const Footer: React.FC = () => {
           <button
             ref={buttonRef}
             onClick={() => setIsExpanded(!isExpanded)}
-            className="whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-2 text-center font-['Geist'] text-xs font-medium uppercase text-[#979797]"
+            className="font-geist-sans whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-2 text-center text-xs font-medium uppercase text-[#979797]"
           >
             Problems?
           </button>
@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Center - Credit text */}
-      <div className="absolute left-1/2 -translate-x-1/2 transform text-center font-['Geist'] text-sm text-[#5F5F63]">
+      <div className="--font-geist-sans absolute left-1/2 -translate-x-1/2 transform text-center text-sm text-[#5F5F63]">
         Created by enthusiasts, not by Telepathic Instruments.
       </div>
 
