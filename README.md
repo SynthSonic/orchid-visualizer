@@ -5,7 +5,7 @@
 ### Try it out: [https://orchid.synthsonic.app](https://orchid.synthsonic.app)
 
 
-### ![Orchid Virtual Keyboard](assets/virtual-keyboard.png)
+### ![Orchid Virtual Keyboard](assets/visualizer-keyboard-v2.0.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
