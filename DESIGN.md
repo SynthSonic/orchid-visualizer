@@ -8,18 +8,18 @@ The Orchid device illustration was redrawn in code from scratch to intentionally
 
 ## Primary Colors
 
-Gold <span style="display:inline-block;width:16px;height:16px;background:#AD792A;border:1px solid #888;"></span> #AD792A is the visualizer's primary color, chosen for yellow's association with development and tooling— helping to signal the app's role as a third-party utility.
+Gold #AD792A is the visualizer's primary color, chosen for yellow's association with development and tooling— helping to signal the app's role as a third-party utility.
 
-| Color | Preview | Hex Code | Usage |
-|:------|:--------|:---------|:-------|
-| Black | <span style="display:inline-block;width:16px;height:16px;background:#000000;border:1px solid #888;"></span> | #000000 | Background, keys, bass line |
-| White | <span style="display:inline-block;width:16px;height:16px;background:#FFFFFF;border:1px solid #888;"></span> | #FFFFFF | Outlines, text, indicators |
-| Medium Gray | <span style="display:inline-block;width:16px;height:16px;background:#888888;border:1px solid #888;"></span> | #888888 | Labels |
-| Dark Gray | <span style="display:inline-block;width:16px;height:16px;background:#555555;border:1px solid #888;"></span> | #555555 | Inactive stroke |
-| Darker Gray | <span style="display:inline-block;width:16px;height:16px;background:#222222;border:1px solid #888;"></span> | #222222 | Navigation background |
-| Gold | <span style="display:inline-block;width:16px;height:16px;background:#AD792A;border:1px solid #888;"></span> | #AD792A | Default color; Navigation |
-| Tan/Beige | <span style="display:inline-block;width:16px;height:16px;background:#A88B5E;border:1px solid #888;"></span> | #A88B5E | Keyboard top section |
-| Rich Brown | <span style="display:inline-block;width:16px;height:16px;background:#8B5522;border:1px solid #888;"></span> | #8B5522 | Chord button highlight, Key highlight base color (ranges in opacity 60-100%) |
+| Color | Hex Code | Usage |
+|:------|:---------|:-------|
+| Black | #000000 | Background, keys, bass line |
+| White | #FFFFFF | Outlines, text, indicators |
+| Medium Gray | #888888 | Labels |
+| Dark Gray | #555555 | Inactive stroke |
+| Darker Gray | #222222 | Navigation background |
+| Gold | #AD792A | Default color; Navigation |
+| Tan/Beige | #A88B5E | Keyboard top section |
+| Rich Brown | #8B5522 | Chord button highlight, Key highlight base color (ranges in opacity 60-100%) |
 
 ## Typography
 
