@@ -30,6 +30,12 @@ Offers a separate view where users can explore all voicing numbers used by the s
 * Tabs for different chord qualities (Dim, Min, Maj, and Sus)
 * A breakdown of each voicing with the corresponding notes
 
+## ![Telepathic Instruments Community Discord](public/favicon.ico) Telepathic Instruments Community Discord
+Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=5865F2)](https://discord.gg/m23GeqeS8D)
+
+## 👥 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project. The project has a basic [Design System](DESIGN.md) for reference.
 
 ## 🚀 Tech Stack
 - [T3 Stack](https://create.t3.gg/)
@@ -117,15 +123,6 @@ npm run format:check # Check code formatting
 
 ## 🚀 Deployment
 This project is automatically deployed using [Vercel](https://vercel.com) when changes are merged into the `main` branch.
-
-
-## 👥 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
-
-
-## ![Telepathic Instruments Community Discord](public/favicon.ico) Telepathic Instruments Community Discord
-Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=5865F2)](https://discord.gg/m23GeqeS8D)
 
 ## 📄 License
 

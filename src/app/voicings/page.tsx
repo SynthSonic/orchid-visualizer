@@ -51,14 +51,9 @@ const VoicingsPage: React.FC = () => {
                       }}
                     >
                       <span
-                        className="absolute"
+                        className="absolute text-keyboard-label"
                         style={{
-                          fontFamily: "'Geist Mono', monospace",
-                          fontWeight: 500,
-                          fontSize: "16px",
-                          letterSpacing: "-0.03em",
-                          color:
-                            selectedQuality === quality ? "#FFFFFF" : "#888888",
+                          color: selectedQuality === quality ? "#FFFFFF" : "#888888",
                           left: "12px",
                           top: "12px",
                         }}
@@ -77,7 +72,7 @@ const VoicingsPage: React.FC = () => {
                 overflow: "hidden",
                 border: "1px solid #FFFFFF",
               }}
-              className="--font-geist-sans"
+              className="text-body-2"
             >
               <table
                 className="w-full table-fixed"
@@ -85,13 +80,13 @@ const VoicingsPage: React.FC = () => {
               >
                 <thead>
                   <tr className="bg-[#A88B5E]">
-                    <th className="w-36 px-4 py-4 text-left text-base font-bold text-black">
+                    <th className="w-36 px-4 py-4 text-left text-body-1-emphasized text-black">
                       Inversion
                     </th>
                     {WHOLE_NOTES.map((note) => (
                       <th
                         key={note}
-                        className="w-36 px-4 py-4 text-left text-base font-bold text-black"
+                        className="w-36 px-4 py-4 text-left text-body-1-emphasized text-black"
                       >
                         {note}
                       </th>
@@ -111,7 +106,7 @@ const VoicingsPage: React.FC = () => {
                         key={i}
                         className="border-t border-white transition-colors hover:bg-[#222]"
                       >
-                        <td className="w-36 px-4 py-4 text-base font-medium text-white">
+                        <td className="w-36 px-4 py-4 text-body-1-emphasized text-white">
                           {inversion}
                         </td>
                         {WHOLE_NOTES.map((note, noteIndex) => {
@@ -138,9 +133,9 @@ const VoicingsPage: React.FC = () => {
                               ) : (
                                 <div>
                                   {isFirstVoicing ? (
-                                    <strong>1</strong>
+                                    <span className="text-body-1-emphasized">1</span>
                                   ) : (
-                                    (voicingObj?.voicing ?? "-")
+                                    <span className="text-body-1-emphasized">{voicingObj?.voicing ?? "-"}</span>
                                   )}
                                   <div className="text-sm text-[#888888]">
                                     {getChordNotes(

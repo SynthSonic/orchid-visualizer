@@ -16,7 +16,7 @@ const Navigation = memo(() => {
             <Link href="/" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`--font-geist-mono text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`text-navigation uppercase ${pathname === "/" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Visualizer
                 </div>
@@ -25,7 +25,7 @@ const Navigation = memo(() => {
             <Link href="/voicings" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`--font-geist-mono text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/voicings" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`text-navigation uppercase ${pathname === "/voicings" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Voicings
                 </div>
@@ -34,7 +34,7 @@ const Navigation = memo(() => {
             <Link href="/resources" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`--font-geist-mono text-[17px] uppercase leading-normal tracking-[-0.51px] ${pathname === "/resources" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`text-navigation uppercase ${pathname === "/resources" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Resources
                 </div>
@@ -48,12 +48,12 @@ const Navigation = memo(() => {
           <div className="flex items-center">
             <a
               href="https://discord.gg/wNPUwDYvYr"
-              className="mx-3 flex items-center justify-center gap-2 rounded-[24px] px-4 py-1 transition-colors"
+              className="mx-3 flex items-center justify-center gap-2 rounded-[24px] px-4 py-1 text-white transition-colors hover:text-[#AD792A]"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Join Discord"
             >
-              <div className="h-[16px] w-[16px] text-white transition-colors hover:text-[#AD792A]">
+              <div className="h-[16px] w-[16px]">
                 <svg
                   width="16"
                   height="16"
@@ -66,18 +66,18 @@ const Navigation = memo(() => {
                   />
                 </svg>
               </div>
-              <div className="--font-geist-mono hidden text-[17px] uppercase leading-normal tracking-[-0.51px] text-white transition-colors hover:text-[#AD792A] sm:block">
+              <div className="text-navigation hidden uppercase leading-normal sm:block">
                 Discord
               </div>
             </a>
             <a
               href="https://github.com/SynthSonic/orchid-visualizer"
-              className="mx-3 flex items-center justify-center gap-2 rounded-[24px] px-4 py-1 transition-colors"
+              className="mx-3 flex items-center justify-center gap-2 rounded-[24px] px-4 py-1 text-white transition-colors hover:text-[#AD792A]"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contribute on GitHub"
             >
-              <div className="h-[16px] w-[16px] text-white transition-colors hover:text-[#AD792A]">
+              <div className="h-[16px] w-[16px]">
                 <svg
                   width="16"
                   height="16"
@@ -90,7 +90,7 @@ const Navigation = memo(() => {
                   />
                 </svg>
               </div>
-              <div className="--font-geist-mono hidden text-[17px] uppercase leading-normal tracking-[-0.51px] text-white transition-colors hover:text-[#AD792A] sm:block">
+              <div className="text-navigation hidden uppercase leading-normal sm:block">
                 GitHub
               </div>
             </a>

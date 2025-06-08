@@ -111,6 +111,10 @@ feat(auth): add OAuth2 authentication support
    - Use `docker-compose up --build` when you need to rebuild the container (e.g., after package.json changes)
    - Run commands inside the container with `docker exec -it orchid-visualizer <command>`
 
+## Design Guidelines
+
+See [DESIGN.md](DESIGN.md) for design guidelines.
+
 ## Documentation
 
 - Update README.md if adding new features or changing setup requirements

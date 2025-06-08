@@ -82,8 +82,11 @@ const DebugPage: React.FC = () => {
 
   // Effect for MIDI access initialization
   useEffect(() => {
-    if (!("requestMIDIAccess" in navigator)) {
-      setConnectedDevice("MIDI not supported in this browser");
+    // Check if this is Safari
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
+    if (isSafari || !("requestMIDIAccess" in navigator)) {
+      setConnectedDevice("Browser not supported");
       return;
     }
 

@@ -107,9 +107,7 @@ const Key: React.FC<KeyProps> = ({
           y={isBlack ? 316 + height - 14 : height + 340 - 20}
           textAnchor="middle"
           fill="#FFFFFF"
-          fontFamily="'Geist Mono', monospace"
-          fontWeight="500"
-          fontSize="16"
+          {...getKeyboardLabelFontProps()}
           letterSpacing="-0.03em"
         >
           {displayText}
@@ -171,15 +169,13 @@ const DialComponent: React.FC<DialProps> = ({
             rx="6"
           />
           {/* Always show labels when MIDI device is connected */}
-          {midiDevice !== "No MIDI device connected" && (
+          {(midiDevice !== "No MIDI device connected" && midiDevice !== "Browser not supported") && (
             <text
               x={buttonStartX + (buttonSize + buttonGap) * index + 12}
               y={labelY + yOffset}
               textAnchor="start"
               fill={isActive ? "white" : "#888888"}
-              fontFamily="'Geist Mono', monospace"
-              fontWeight="500"
-              fontSize="16"
+              {...getKeyboardLabelFontProps()}
               letterSpacing="-0.03em"
             >
               {label}
@@ -232,10 +228,21 @@ const Dial = memo(DialComponent, (prevProps, nextProps) => {
 
 // Helper function to determine colors based on MIDI connection state
 const getStrokeColor = (midiDevice: string) => {
-  return midiDevice === "No MIDI device connected"
-    ? INACTIVE_STROKE_COLOR
-    : ACTIVE_STROKE_COLOR;
+  return midiDevice ? ACTIVE_STROKE_COLOR : INACTIVE_STROKE_COLOR;
 };
+
+// Helper functions for standardized font styling in SVG elements
+const getKeyboardLabelFontProps = () => ({
+  fontFamily: "var(--font-geist-mono)",
+  fontWeight: "500",
+  fontSize: "16",
+  letterSpacing: "-0.03em",
+});
+
+const getKeyboardH1FontProps = () => ({
+  fontFamily: "var(--font-instrument)",
+  fontSize: "44",
+});
 
 export const PianoKeyboard: React.FC = () => {
   // Track notes for each channel separately using a ref instead of state
@@ -358,8 +365,13 @@ export const PianoKeyboard: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!("requestMIDIAccess" in navigator)) {
-      setMidiDevice("MIDI not supported in this browser");
+    // Check if this is Safari
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
+    if (isSafari || !("requestMIDIAccess" in navigator)) {
+      console.log('Browser not supported detected');
+      // Force immediate state update
+      setMidiDevice("Browser not supported");
       return;
     }
 
@@ -408,7 +420,10 @@ export const PianoKeyboard: React.FC = () => {
     )
       .requestMIDIAccess()
       .then(handleMidiSuccess)
-      .catch(() => setMidiDevice("No MIDI access"));
+      .catch((error) => {
+        console.log('MIDI access error:', error);
+        setMidiDevice("No MIDI access");
+      });
   }, [handleMIDINote]);
 
   // Extract chord type from chordInfo and map it to button labels
@@ -428,14 +443,14 @@ export const PianoKeyboard: React.FC = () => {
   return (
     <div className="flex flex-col items-center gap-2">
       <div
-        className={`relative overflow-hidden rounded-[64px] border-2 bg-black ${midiDevice === "No MIDI device connected" ? "border-[#555555]" : "border-white"}`}
+        className={`relative overflow-hidden rounded-[64px] border-2 bg-black ${(midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported") ? "border-[#555555]" : "border-white"}`}
       >
         <svg
           width="1130"
           height="704"
           viewBox="-520 0 1040 700"
           className={
-            midiDevice === "No MIDI device connected" ? "midi-disconnected" : ""
+            (midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported") ? "midi-disconnected" : ""
           }
         >
           {/* New top section with speaker cutout holes - increased height */}
@@ -453,12 +468,12 @@ export const PianoKeyboard: React.FC = () => {
                 <path
                   d="M20.3203 100.124C20.3203 100.163 20.2969 108.521 10.3203 108.521V106.521C14.6351 106.521 16.4723 104.776 17.3516 103.3C17.8297 102.497 18.0771 101.677 18.2021 101.047C18.2639 100.736 18.2935 100.482 18.3076 100.315C18.3147 100.233 18.318 100.172 18.3193 100.139C18.32 100.122 18.3203 100.112 18.3203 100.109V17.1436C18.3203 13.8256 17.5757 9.99058 16.0986 7.05957C14.6074 4.1005 12.6442 2.52119 10.3203 2.52148C8.00148 2.52191 6.03717 4.10957 4.54297 7.08105C3.06445 10.0214 2.32042 13.8572 2.32031 17.1436V100.109L2.32129 100.139C2.32262 100.172 2.32596 100.233 2.33301 100.315C2.34717 100.482 2.37673 100.736 2.43848 101.047C2.5635 101.677 2.81089 102.497 3.28906 103.3C4.16832 104.776 6.00552 106.521 10.3203 106.521V108.521L9.8584 108.516C0.343047 108.262 0.320366 100.162 0.320312 100.124V17.1436C0.320549 10.0769 3.48306 0.52238 10.3203 0.521484L10.6377 0.52832C17.2555 0.816347 20.3202 10.1283 20.3203 17.1436V100.124Z"
                   fill={
-                    midiDevice === "No MIDI device connected"
+                    (midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported")
                       ? INACTIVE_STROKE_COLOR
                       : "white"
                   }
                   fillOpacity={
-                    midiDevice === "No MIDI device connected" ? 0.3 : 0.5
+                    (midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported") ? 0.3 : 0.5
                   }
                 />
                 <path
@@ -476,12 +491,12 @@ export const PianoKeyboard: React.FC = () => {
                 <path
                   d="M20.3203 100.124C20.3203 100.163 20.2969 108.521 10.3203 108.521V106.521C14.6351 106.521 16.4723 104.776 17.3516 103.3C17.8297 102.497 18.0771 101.677 18.2021 101.047C18.2639 100.736 18.2935 100.482 18.3076 100.315C18.3147 100.233 18.318 100.172 18.3193 100.139C18.32 100.122 18.3203 100.112 18.3203 100.109V17.1436C18.3203 13.8256 17.5757 9.99058 16.0986 7.05957C14.6074 4.1005 12.6442 2.52119 10.3203 2.52148C8.00148 2.52191 6.03717 4.10957 4.54297 7.08105C3.06445 10.0214 2.32042 13.8572 2.32031 17.1436V100.109L2.32129 100.139C2.32262 100.172 2.32596 100.233 2.33301 100.315C2.34717 100.482 2.37673 100.736 2.43848 101.047C2.5635 101.677 2.81089 102.497 3.28906 103.3C4.16832 104.776 6.00552 106.521 10.3203 106.521V108.521L9.8584 108.516C0.343047 108.262 0.320366 100.162 0.320312 100.124V17.1436C0.320549 10.0769 3.48306 0.52238 10.3203 0.521484L10.6377 0.52832C17.2555 0.816347 20.3202 10.1283 20.3203 17.1436V100.124Z"
                   fill={
-                    midiDevice === "No MIDI device connected"
+                    (midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported")
                       ? INACTIVE_STROKE_COLOR
                       : "white"
                   }
                   fillOpacity={
-                    midiDevice === "No MIDI device connected" ? 0.3 : 0.5
+                    (midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported") ? 0.3 : 0.5
                   }
                 />
                 <path
@@ -503,14 +518,13 @@ export const PianoKeyboard: React.FC = () => {
           />
 
           {/* Only show message when no MIDI device is connected */}
-          {midiDevice === "No MIDI device connected" && (
+          {(midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported") && (
             <text
               x="0"
               y="252"
               textAnchor="start"
               fill="#FFFFFF"
-              fontFamily="'Instrument Serif', serif"
-              fontSize="44"
+              {...getKeyboardH1FontProps()}
               letterSpacing="-0.03em"
             >
               {midiDevice}
@@ -527,16 +541,14 @@ export const PianoKeyboard: React.FC = () => {
           />
           <g>
             {/* Labels - only displayed when MIDI device is connected */}
-            {midiDevice !== "No MIDI device connected" && (
+            {(midiDevice !== "No MIDI device connected" && midiDevice !== "Browser not supported") && (
               <>
                 <text
                   x="0"
                   y="270"
                   textAnchor="start"
                   fill="#888888"
-                  fontFamily="'Geist Mono', monospace"
-                  fontWeight="500"
-                  fontSize="16"
+                  {...getKeyboardLabelFontProps()}
                   letterSpacing="-0.03em"
                 >
                   CHORD
@@ -546,9 +558,7 @@ export const PianoKeyboard: React.FC = () => {
                   y="270"
                   textAnchor="start"
                   fill="#888888"
-                  fontFamily="'Geist Mono', monospace"
-                  fontWeight="500"
-                  fontSize="16"
+                  {...getKeyboardLabelFontProps()}
                   letterSpacing="-0.03em"
                 >
                   INVERSION
@@ -558,9 +568,7 @@ export const PianoKeyboard: React.FC = () => {
                   y="270"
                   textAnchor="start"
                   fill="#888888"
-                  fontFamily="'Geist Mono', monospace"
-                  fontWeight="500"
-                  fontSize="16"
+                  {...getKeyboardLabelFontProps()}
                   letterSpacing="-0.03em"
                 >
                   BASS
@@ -577,8 +585,7 @@ export const PianoKeyboard: React.FC = () => {
                   y="240"
                   textAnchor="start"
                   fill="#FFFFFF"
-                  fontFamily="'Instrument Serif', serif"
-                  fontSize="44"
+                  {...getKeyboardH1FontProps()}
                   letterSpacing="-0.03em"
                 >
                   {/* Split chord name into root note and chord type with same size but with spacing */}
@@ -630,8 +637,7 @@ export const PianoKeyboard: React.FC = () => {
                   y="240"
                   textAnchor="start"
                   fill="#FFFFFF"
-                  fontFamily="'Instrument Serif', serif"
-                  fontSize="44"
+                  {...getKeyboardH1FontProps()}
                   letterSpacing="-0.03em"
                 >
                   {chordInfo.inversion}
@@ -641,8 +647,7 @@ export const PianoKeyboard: React.FC = () => {
                   y="240"
                   textAnchor="start"
                   fill="#FFFFFF"
-                  fontFamily="'Instrument Serif', serif"
-                  fontSize="44"
+                  {...getKeyboardH1FontProps()}
                   letterSpacing="-0.03em"
                 >
                   {chordInfo.bassNote}

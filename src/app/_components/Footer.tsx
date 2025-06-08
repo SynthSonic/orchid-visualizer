@@ -45,7 +45,7 @@ export const Footer: React.FC = () => {
           <button
             ref={buttonRef}
             onClick={() => setIsExpanded(!isExpanded)}
-            className="font-geist-sans whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-2 text-center text-xs font-medium uppercase text-[#979797]"
+            className="text-footer-button whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-2 text-center uppercase text-[#979797]"
           >
             Problems?
           </button>
@@ -58,7 +58,7 @@ export const Footer: React.FC = () => {
             ref={popupRef}
             className="absolute bottom-12 left-0 w-[400px] rounded-lg border border-zinc-700 bg-zinc-800 p-4 shadow-lg"
           >
-            <div className="text-sm text-zinc-300">
+            <div className="text-body-2 text-zinc-300">
               If MIDI notes aren&apos;t appearing, try these steps:
               <ol className="ml-5 mt-1 list-decimal space-y-1 pt-4">
                 <li>Check that your MIDI device is connected and powered on</li>
@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Center - Credit text */}
-      <div className="--font-geist-sans absolute left-1/2 -translate-x-1/2 transform text-center text-sm text-[#5F5F63]">
+      <div className="text-footer-body absolute left-1/2 -translate-x-1/2 transform text-center text-[#5F5F63]">
         Created by enthusiasts, not by Telepathic Instruments.
       </div>
 
