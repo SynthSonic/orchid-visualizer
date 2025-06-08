@@ -5,7 +5,7 @@
 ### Try it out: [https://orchid.synthsonic.app](https://orchid.synthsonic.app)
 
 
-### ![Orchid Virtual Keyboard](assets/visualizer-keyboard-v2.0.png)
+### <img src="https://raw.githubusercontent.com/addisonjames/orchid-visualizer/main/public/icon-192.png" width="16" height="16" alt="Orchid Icon"> ![Orchid Virtual Keyboard](assets/visualizer-keyboard-v2.0.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -14,7 +14,7 @@
 ### Virtual Keyboard Display
 Highlights the notes and chords pressed on your keyboard, providing a clear, real-time visual representation.
 
-### Chord Quality Identification:
+### Chord Quality Identification
 
 Detects and highlights the specific chord quality being played (e.g., minor, major, diminished).
 ### Detailed Chord Information
@@ -24,14 +24,14 @@ Displays comprehensive text details including:
 * Inversion: e.g., Root, First, or Second
 * Bass Note and Octave: e.g., D1
 
-### Voicing Numbers Page:
+### Voicing Numbers Page
 
 Offers a separate view where users can explore all voicing numbers used by the synth. This page includes:
 * Tabs for different chord qualities (Dim, Min, Maj, and Sus)
 * A breakdown of each voicing with the corresponding notes
 
-## <img src="https://raw.githubusercontent.com/addisonjames/orchid-visualizer/main/public/icon-192.png" width="16" height="16" alt="Orchid Icon"> Telepathic Instruments Community Discord
-Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=AD792A)](https://discord.gg/wNPUwDYvYr)
+## <img src="https://img.shields.io/badge/-Discord-5865F2?style=flat&logo=discord&logoColor=white" height="22" alt="Discord Logo"> Telepathic Instruments Community Discord
+Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=5865F2)](https://discord.gg/wNPUwDYvYr)
 
 ## 👥 Contributing
 
