@@ -8,18 +8,18 @@ The Orchid device illustration was redrawn in code from scratch to intentionally
 
 ## Primary Colors
 
-Gold | <img src="https://via.placeholder.com/15/AD792A/AD792A.png" width="15" height="15"> #AD792A is the visualizer's primary color, chosen for yellow's association with development and tooling— helping to signal the app's role as a third-party utility.
+Gold <span style="display:inline-block;width:16px;height:16px;background:#AD792A;border:1px solid #888;"></span> #AD792A is the visualizer's primary color, chosen for yellow's association with development and tooling— helping to signal the app's role as a third-party utility.
 
 | Color | Preview | Hex Code | Usage |
-|-------|---------|----------|-------|
-| Black | <img src="https://via.placeholder.com/15/000000/000000.png" width="15" height="15"> | #000000 | Background, keys, bass line |
-| White | <img src="https://via.placeholder.com/15/FFFFFF/FFFFFF.png" width="15" height="15"> | #FFFFFF | Outlines, text, indicators |
-| Medium Gray | <img src="https://via.placeholder.com/15/888888/888888.png" width="15" height="15"> | #888888 | Labels |
-| Dark Gray | <img src="https://via.placeholder.com/15/555555/555555.png" width="15" height="15"> | #555555 | Inactive stroke |
-| Darker Gray | <img src="https://via.placeholder.com/15/222222/222222.png" width="15" height="15"> | #222222 | Navigation background |
-| Gold | <img src="https://via.placeholder.com/15/AD792A/AD792A.png" width="15" height="15"> | #AD792A | Default color; Navigation |
-| Tan/Beige | <img src="https://via.placeholder.com/15/A88B5E/A88B5E.png" width="15" height="15"> | #A88B5E | Keyboard top section |
-| Rich Brown | <img src="https://via.placeholder.com/15/8B5522/8B5522.png" width="15" height="15"> | #8B5522 | Chord button highlight, Key highlight base color (ranges in opacity 60-100%) |
+|:------|:--------|:---------|:-------|
+| Black | <span style="display:inline-block;width:16px;height:16px;background:#000000;border:1px solid #888;"></span> | #000000 | Background, keys, bass line |
+| White | <span style="display:inline-block;width:16px;height:16px;background:#FFFFFF;border:1px solid #888;"></span> | #FFFFFF | Outlines, text, indicators |
+| Medium Gray | <span style="display:inline-block;width:16px;height:16px;background:#888888;border:1px solid #888;"></span> | #888888 | Labels |
+| Dark Gray | <span style="display:inline-block;width:16px;height:16px;background:#555555;border:1px solid #888;"></span> | #555555 | Inactive stroke |
+| Darker Gray | <span style="display:inline-block;width:16px;height:16px;background:#222222;border:1px solid #888;"></span> | #222222 | Navigation background |
+| Gold | <span style="display:inline-block;width:16px;height:16px;background:#AD792A;border:1px solid #888;"></span> | #AD792A | Default color; Navigation |
+| Tan/Beige | <span style="display:inline-block;width:16px;height:16px;background:#A88B5E;border:1px solid #888;"></span> | #A88B5E | Keyboard top section |
+| Rich Brown | <span style="display:inline-block;width:16px;height:16px;background:#8B5522;border:1px solid #888;"></span> | #8B5522 | Chord button highlight, Key highlight base color (ranges in opacity 60-100%) |
 
 ## Typography
 
@@ -32,7 +32,7 @@ The Orchid Visualizer uses three primary font families:
 ### Font Styles
 
 | Style Name | Font Family | Weight | Size | Letter Spacing | Usage |
-|------------|------------|--------|------|----------------|-------|
+|:------------|:------------|:--------|:------|:----------------|:-------|
 | Body 1 | Geist Sans | Regular (400) | 16px | -3% | Standard paragraph text |
 | Body 1 Emphasized | Geist Sans | Medium (500) | 16px | -3% | Emphasized paragraph text |
 | Body 2 | Geist Sans | Regular (400) | 14px | -3% | Secondary text, default app font |
