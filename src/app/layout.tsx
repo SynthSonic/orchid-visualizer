@@ -66,22 +66,32 @@ export const metadata = {
   },
   icons: [
     { rel: "icon", url: "/favicon.ico" },
-    { rel: "apple-touch-icon", url: "/icon-192.png" },
+    // Standard apple touch icons
+    { rel: "apple-touch-icon", url: "/icon-512.png" },
     { rel: "apple-touch-icon", sizes: "192x192", url: "/icon-192.png" },
-    { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-512.png" }
+    { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-512.png" },
+    // Safari pinned tab icon
+    { rel: "mask-icon", url: "/icon-512.png", color: "#222222" },
+    // macOS dock icon
+    { rel: "apple-touch-startup-image", url: "/icon-512.png" }
   ],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Orchid Visualizer",
+    startupImage: [
+      { url: "/icon-512.png" }
+    ],
+    // Force icon to be used as-is without modifications
+    icon: true,
   },
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#000000",
+  themeColor: "#222222",
 };
 
 export default function RootLayout({
