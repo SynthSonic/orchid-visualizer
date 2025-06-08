@@ -107,7 +107,7 @@ describe("getChordInfo", () => {
     test("identifies B diminished triad in root position", () => {
       // B3(59), D4(62), F4(65)
       expect(getChordInfo([59, 62, 65])).toEqual({
-        chordName: "B Diminished",
+        chordName: "B Dim",
         inversion: "Root",
         bassNote: "B3",
         hasSixth: false,
@@ -120,7 +120,7 @@ describe("getChordInfo", () => {
     test("identifies B diminished triad in first inversion", () => {
       // D4(62), F4(65), B4(71)
       expect(getChordInfo([62, 65, 71])).toEqual({
-        chordName: "B Diminished",
+        chordName: "B Dim",
         inversion: "1st",
         bassNote: "D4",
         hasSixth: false,
@@ -133,7 +133,7 @@ describe("getChordInfo", () => {
     test("identifies B diminished triad in second inversion", () => {
       // F3(53), B3(59), D4(62)
       expect(getChordInfo([53, 59, 62])).toEqual({
-        chordName: "B Diminished",
+        chordName: "B Dim",
         inversion: "2nd",
         bassNote: "F3",
         hasSixth: false,
@@ -330,7 +330,7 @@ describe("getChordInfo", () => {
       test("identifies Cdim6 chord", () => {
         // C4(60), Eb4(63), Gb4(66), A4(69) - A is the major 6th
         expect(getChordInfo([60, 63, 66, 69])).toEqual({
-          chordName: "C Diminished",
+          chordName: "C Dim",
           inversion: "Root",
           bassNote: "C4",
           hasSixth: true,
@@ -343,7 +343,7 @@ describe("getChordInfo", () => {
       test("identifies Cdim7 chord", () => {
         // C4(60), Eb4(63), Gb4(66), Bb4(70) - Bb is the diminished 7th
         expect(getChordInfo([60, 63, 66, 70])).toEqual({
-          chordName: "C Diminished",
+          chordName: "C Dim",
           inversion: "Root",
           bassNote: "C4",
           hasSixth: false,
@@ -356,7 +356,7 @@ describe("getChordInfo", () => {
       test("identifies CdimM7 chord", () => {
         // C4(60), Eb4(63), Gb4(66), B4(71)
         expect(getChordInfo([60, 63, 66, 71])).toEqual({
-          chordName: "C Diminished",
+          chordName: "C Dim",
           inversion: "Root",
           bassNote: "C4",
           hasSixth: false,
@@ -369,7 +369,7 @@ describe("getChordInfo", () => {
       test("identifies Cdim9 chord", () => {
         // C4(60), Eb4(63), Gb4(66), A4(69), D5(74)
         expect(getChordInfo([60, 63, 66, 69, 74])).toEqual({
-          chordName: "C Diminished",
+          chordName: "C Dim",
           inversion: "Root",
           bassNote: "C4",
           hasSixth: true,
@@ -505,7 +505,7 @@ describe("getChordInfo", () => {
       test("identifies Cdim6/7 chord", () => {
         // C4(60), Eb4(63), Gb4(66), A4(69), Bb4(70)
         expect(getChordInfo([60, 63, 66, 69, 70])).toEqual({
-          chordName: "C Diminished",
+          chordName: "C Dim",
           inversion: "Root",
           bassNote: "C4",
           hasSixth: true,

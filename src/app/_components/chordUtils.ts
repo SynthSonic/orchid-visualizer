@@ -344,11 +344,7 @@ export const getChordInfo = (notes: number[]): ChordInfo | null => {
 
       // Use full names for Major, Minor, and Diminished, but abbreviations for others
       let displayName;
-      if (
-        match.chordType === "Major" ||
-        match.chordType === "Minor" ||
-        match.chordType === "Diminished"
-      ) {
+      if (match.chordType === "Major" || match.chordType === "Minor") {
         displayName = match.chordType; // Use full name
       } else if (match.chordType === "Sus4") {
         // Special case for Sus4 chords - use full name "Sus4" except for G Sus
@@ -358,6 +354,8 @@ export const getChordInfo = (notes: number[]): ChordInfo | null => {
         } else {
           displayName = "Sus4"; // Use full name for other Sus4 chords
         }
+      } else if (match.chordType === "Diminished") {
+        displayName = "Dim";
       } else {
         // Add type assertion to ensure TypeScript knows this is a valid chord type
         const chordType = match.chordType as keyof typeof CHORD_DEFINITIONS;
