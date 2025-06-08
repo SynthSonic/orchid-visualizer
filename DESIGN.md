@@ -19,7 +19,7 @@ Gold #AD792A is the visualizer's primary color, chosen for yellow's association 
 | Darker Gray | #222222 | Navigation background |
 | Gold | #AD792A | Default color; Navigation |
 | Tan/Beige | #A88B5E | Keyboard top section |
-| Rich Brown | #8B5522 | Chord button highlight, Key highlight (color ranges in lightness 20-55% based on octave)) |
+| Rich Brown | #8B5522 | Chord button highlight, Key highlight (color ranges in lightness 20-55% based on octave) |
 
 ## Typography
 
