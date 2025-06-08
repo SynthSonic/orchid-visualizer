@@ -105,15 +105,24 @@ export default function RootLayout({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       className={`${(GeistSans as any).variable} ${(GeistMono as any).variable} ${(instrumentSerif as any).variable}`}
     >
-      <head></head>
+      <head>
+        {/* Apple-specific meta tags for proper PWA icon display */}
+        <link rel="apple-touch-icon" href="/icon-512.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
+        <link rel="apple-touch-startup-image" href="/icon-512.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Orchid Visualizer" />
+      </head>
       <body className="flex min-h-screen flex-col bg-black text-white text-body-2">
         {/* Default font is text-body-2: Geist Sans 14pt Regular */}
         <TRPCReactProvider>
           <Navigation />
           <main className="flex-grow">{children}</main>
+          <Footer />
+          <Analytics />
         </TRPCReactProvider>
-        <Footer />
-        <Analytics />
       </body>
     </html>
   );
