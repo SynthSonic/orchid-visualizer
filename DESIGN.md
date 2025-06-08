@@ -8,18 +8,18 @@ The Orchid device illustration was redrawn in code from scratch to intentionally
 
 ## Primary Colors
 
-Gold | #AD792A is the visualizer’s primary color, chosen for yellow’s association with development and tooling— helping to signal the app’s role as a third-party utility.
+Gold | <img src="https://via.placeholder.com/15/AD792A/AD792A.png" width="15" height="15"> #AD792A is the visualizer's primary color, chosen for yellow's association with development and tooling— helping to signal the app's role as a third-party utility.
 
-| Color | Hex Code | Usage |
-|-------|----------|-------|
-| Black | #000000 | Background, keys, bass line |
-| White | #FFFFFF | Outlines, text, indicators |
-| Medium Gray | #888888 | Labels |
-| Dark Gray | #555555 | Inactive stroke |
-| Darker Gray | #222222 | Navigation background |
-| Gold | #AD792A | Default color; Navigation |
-| Tan/Beige | #A88B5E | Keyboard top section |
-| Rich Brown | #8B5522 | Chord button highlight, Key highlight base color (ranges in opacity 60-100%) |
+| Color | Preview | Hex Code | Usage |
+|-------|---------|----------|-------|
+| Black | <img src="https://via.placeholder.com/15/000000/000000.png" width="15" height="15"> | #000000 | Background, keys, bass line |
+| White | <img src="https://via.placeholder.com/15/FFFFFF/FFFFFF.png" width="15" height="15"> | #FFFFFF | Outlines, text, indicators |
+| Medium Gray | <img src="https://via.placeholder.com/15/888888/888888.png" width="15" height="15"> | #888888 | Labels |
+| Dark Gray | <img src="https://via.placeholder.com/15/555555/555555.png" width="15" height="15"> | #555555 | Inactive stroke |
+| Darker Gray | <img src="https://via.placeholder.com/15/222222/222222.png" width="15" height="15"> | #222222 | Navigation background |
+| Gold | <img src="https://via.placeholder.com/15/AD792A/AD792A.png" width="15" height="15"> | #AD792A | Default color; Navigation |
+| Tan/Beige | <img src="https://via.placeholder.com/15/A88B5E/A88B5E.png" width="15" height="15"> | #A88B5E | Keyboard top section |
+| Rich Brown | <img src="https://via.placeholder.com/15/8B5522/8B5522.png" width="15" height="15"> | #8B5522 | Chord button highlight, Key highlight base color (ranges in opacity 60-100%) |
 
 ## Typography
 
