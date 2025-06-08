@@ -66,25 +66,19 @@ export const metadata = {
   },
   icons: [
     { rel: "icon", url: "/favicon.ico" },
-    // Standard apple touch icons
-    { rel: "apple-touch-icon", url: "/icon-512.png" },
-    { rel: "apple-touch-icon", sizes: "192x192", url: "/icon-192.png" },
-    { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-512.png" },
-    // Safari pinned tab icon
-    { rel: "mask-icon", url: "/icon-512.png", color: "#222222" },
-    // macOS dock icon
-    { rel: "apple-touch-startup-image", url: "/icon-512.png" }
+    { rel: "apple-touch-icon", url: "/icon-1024-apple.png" },
+    { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-1024-apple.png" },
+    { rel: "apple-touch-icon", sizes: "192x192", url: "/icon-1024-apple.png" },
+    { rel: "mask-icon", url: "/icon-maskable.png", color: "#222222" },
+    { rel: "apple-touch-startup-image", url: "/icon-1024-apple.png" }
   ],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Orchid Visualizer",
-    startupImage: [
-      { url: "/icon-512.png" }
-    ],
-    // Force icon to be used as-is without modifications
-    icon: true,
+    startupImage: [{ url: "/icon-1024-apple.png" }],
+    icon: true
   },
 };
 
@@ -107,10 +101,11 @@ export default function RootLayout({
     >
       <head>
         {/* Apple-specific meta tags for proper PWA icon display */}
-        <link rel="apple-touch-icon" href="/icon-512.png" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
-        <link rel="apple-touch-startup-image" href="/icon-512.png" />
+        <link rel="apple-touch-icon" href="/icon-1024-apple.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icon-1024-apple.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icon-1024-apple.png" />
+        <link rel="apple-touch-startup-image" href="/icon-1024-apple.png" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Orchid Visualizer" />
