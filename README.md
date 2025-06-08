@@ -1,11 +1,11 @@
-# Orchid Visualizer
+# <img src="https://raw.githubusercontent.com/addisonjames/orchid-visualizer/main/public/icon-192.png" width="24" height="24" alt="Visualizer Icon"> Orchid Visualizer
 
 **Orchid Visualizer** is an open-source community project designed to enhance your experience with the [Telepathic Instruments Orchid](https://telepathicinstruments.com/). This tool helps you explore and visualize the capabilities of this amazing device, making it easier to interact with and understand its features.  
 
 ### Try it out: [https://orchid.synthsonic.app](https://orchid.synthsonic.app)
 
 
-### <img src="https://raw.githubusercontent.com/addisonjames/orchid-visualizer/main/public/icon-192.png" width="16" height="16" alt="Orchid Icon"> ![Orchid Virtual Keyboard](assets/visualizer-keyboard-v2.0.png)
+### ![Orchid Virtual Keyboard](assets/visualizer-keyboard-v2.0.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -30,7 +30,7 @@ Offers a separate view where users can explore all voicing numbers used by the s
 * Tabs for different chord qualities (Dim, Min, Maj, and Sus)
 * A breakdown of each voicing with the corresponding notes
 
-## <img src="https://img.shields.io/badge/-Discord-5865F2?style=flat&logo=discord&logoColor=white" height="22" alt="Discord Logo"> Telepathic Instruments Community Discord
+## <img src="https://cdn.simpleicons.org/discord/5865F2" width="24" height="24" alt="Discord Logo"> Telepathic Instruments Community Discord
 Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=5865F2)](https://discord.gg/wNPUwDYvYr)
 
 ## 👥 Contributing
