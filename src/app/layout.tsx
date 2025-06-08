@@ -65,15 +65,15 @@ export const metadata = {
       "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights!",
   },
   icons: [
-    { rel: "icon", url: "/favicon.ico" },
-    // Standard apple touch icons
-    { rel: "apple-touch-icon", url: "/icon-512.png" },
-    { rel: "apple-touch-icon", sizes: "192x192", url: "/icon-192.png" },
-    { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-512.png" },
+    { rel: "icon", url: "/icon-pwa.png" },
+    // Primary PWA icon for all browsers
+    { rel: "apple-touch-icon", url: "/icon-pwa.png" },
+    { rel: "apple-touch-icon", sizes: "192x192", url: "/icon-pwa.png" },
+    { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-pwa.png" },
     // Safari pinned tab icon
-    { rel: "mask-icon", url: "/icon-512.png", color: "#222222" },
+    { rel: "mask-icon", url: "/icon-pwa.png", color: "#222222" },
     // macOS dock icon
-    { rel: "apple-touch-startup-image", url: "/icon-512.png" }
+    { rel: "apple-touch-startup-image", url: "/icon-pwa.png" }
   ],
   manifest: "/manifest.json",
   appleWebApp: {
@@ -81,7 +81,7 @@ export const metadata = {
     statusBarStyle: "black-translucent",
     title: "Orchid Visualizer",
     startupImage: [
-      { url: "/icon-512.png" }
+      { url: "/icon-pwa.png" }
     ],
     // Force icon to be used as-is without modifications
     icon: true,
@@ -107,10 +107,10 @@ export default function RootLayout({
     >
       <head>
         {/* Apple-specific meta tags for proper PWA icon display */}
-        <link rel="apple-touch-icon" href="/icon-512.png" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
-        <link rel="apple-touch-startup-image" href="/icon-512.png" />
+        <link rel="apple-touch-icon" href="/icon-pwa.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icon-pwa.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icon-pwa.png" />
+        <link rel="apple-touch-startup-image" href="/icon-pwa.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Orchid Visualizer" />
