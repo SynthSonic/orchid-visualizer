@@ -53,7 +53,8 @@ const VoicingsPage: React.FC = () => {
                       <span
                         className="absolute text-keyboard-label"
                         style={{
-                          color: selectedQuality === quality ? "#FFFFFF" : "#888888",
+                          color:
+                            selectedQuality === quality ? "#FFFFFF" : "#888888",
                           left: "12px",
                           top: "12px",
                         }}
@@ -80,13 +81,13 @@ const VoicingsPage: React.FC = () => {
               >
                 <thead>
                   <tr className="bg-[#A88B5E]">
-                    <th className="w-36 px-4 py-4 text-left text-body-1-emphasized text-black">
+                    <th className="w-36 px-4 py-4 text-left text-black text-body-1-emphasized">
                       Inversion
                     </th>
                     {WHOLE_NOTES.map((note) => (
                       <th
                         key={note}
-                        className="w-36 px-4 py-4 text-left text-body-1-emphasized text-black"
+                        className="w-36 px-4 py-4 text-left text-black text-body-1-emphasized"
                       >
                         {note}
                       </th>
@@ -106,7 +107,7 @@ const VoicingsPage: React.FC = () => {
                         key={i}
                         className="border-t border-white transition-colors hover:bg-[#222]"
                       >
-                        <td className="w-36 px-4 py-4 text-body-1-emphasized text-white">
+                        <td className="w-36 px-4 py-4 text-white text-body-1-emphasized">
                           {inversion}
                         </td>
                         {WHOLE_NOTES.map((note, noteIndex) => {
@@ -133,9 +134,13 @@ const VoicingsPage: React.FC = () => {
                               ) : (
                                 <div>
                                   {isFirstVoicing ? (
-                                    <span className="text-body-1-emphasized">1</span>
+                                    <span className="text-body-1-emphasized">
+                                      1
+                                    </span>
                                   ) : (
-                                    <span className="text-body-1-emphasized">{voicingObj?.voicing ?? "-"}</span>
+                                    <span className="text-body-1-emphasized">
+                                      {voicingObj?.voicing ?? "-"}
+                                    </span>
                                   )}
                                   <div className="text-sm text-[#888888]">
                                     {getChordNotes(

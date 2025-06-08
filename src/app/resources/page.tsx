@@ -10,11 +10,7 @@ const ResourcesPage = () => {
         >
           {/* Left Column */}
           <div className="w-[300px]">
-            <h2
-              className="text-heading-1 mb-8"
-            >
-              Community
-            </h2>
+            <h2 className="mb-8 text-heading-1">Community</h2>
 
             <div className="space-y-6">
               {/* Link 1 */}
@@ -23,11 +19,11 @@ const ResourcesPage = () => {
                   href="https://discord.gg/m23GeqeS8D"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-title-1 text-[#AD792A] no-underline"
+                  className="text-[#AD792A] no-underline text-title-1"
                 >
                   Official Community Discord
                 </a>
-                <div className="text-body-1 text-[#888888]">
+                <div className="text-[#888888] text-body-1">
                   Connect with fellow Orchid owners and the Telepathic team.
                 </div>
               </div>
@@ -38,11 +34,11 @@ const ResourcesPage = () => {
                   href="https://github.com/SynthSonic/orchid-visualizer/issues"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-title-1 text-[#AD792A] no-underline"
+                  className="text-[#AD792A] no-underline text-title-1"
                 >
                   Visualizer Feature Requests
                 </a>
-                <div className="text-body-1 text-[#888888]">
+                <div className="text-[#888888] text-body-1">
                   Feedback welcomed. There is also a Discord channel for
                   #orchid-labs
                 </div>
@@ -54,11 +50,11 @@ const ResourcesPage = () => {
                   href="https://github.com/SynthSonic/orchid-visualizer"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-title-1 text-[#AD792A] no-underline"
+                  className="text-[#AD792A] no-underline text-title-1"
                 >
                   Visualizer GitHub
                 </a>
-                <div className="text-body-1 text-[#888888]">
+                <div className="text-[#888888] text-body-1">
                   Open-source community project
                 </div>
               </div>
@@ -67,11 +63,7 @@ const ResourcesPage = () => {
 
           {/* Right Column */}
           <div className="w-[300px]">
-            <h2
-              className="text-heading-1 mb-8"
-            >
-              Telepathic Instruments
-            </h2>
+            <h2 className="mb-8 text-heading-1">Telepathic Instruments</h2>
 
             <div className="space-y-6">
               {/* Link 1 */}
@@ -80,11 +72,11 @@ const ResourcesPage = () => {
                   href="https://help.telepathicinstruments.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-title-1 text-[#AD792A] no-underline"
+                  className="text-[#AD792A] no-underline text-title-1"
                 >
                   Telepathic Support
                 </a>
-                <div className="text-body-1 text-[#888888]">
+                <div className="text-[#888888] text-body-1">
                   Product manuals, feature requests, contact info, etc.
                 </div>
               </div>
@@ -95,11 +87,11 @@ const ResourcesPage = () => {
                   href="https://www.youtube.com/@telepathic.instruments"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-title-1 text-[#AD792A] no-underline"
+                  className="text-[#AD792A] no-underline text-title-1"
                 >
                   Telepathic YouTube
                 </a>
-                <div className="text-body-1 text-[#888888]">
+                <div className="text-[#888888] text-body-1">
                   Product manuals, feature requests, contact info, etc.
                 </div>
               </div>
@@ -110,11 +102,11 @@ const ResourcesPage = () => {
                   href="https://firmware.telepathicinstruments.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-title-1 text-[#AD792A] no-underline"
+                  className="text-[#AD792A] no-underline text-title-1"
                 >
                   Orchid Firmware Updates
                 </a>
-                <div className="text-body-1 text-[#888888]">
+                <div className="text-[#888888] text-body-1">
                   Requires Chrome or Opera based browser
                 </div>
               </div>

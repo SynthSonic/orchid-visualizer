@@ -16,7 +16,7 @@ const Navigation = memo(() => {
             <Link href="/" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`text-navigation uppercase ${pathname === "/" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`uppercase text-navigation ${pathname === "/" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Visualizer
                 </div>
@@ -25,7 +25,7 @@ const Navigation = memo(() => {
             <Link href="/voicings" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`text-navigation uppercase ${pathname === "/voicings" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`uppercase text-navigation ${pathname === "/voicings" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Voicings
                 </div>
@@ -34,7 +34,7 @@ const Navigation = memo(() => {
             <Link href="/resources" passHref>
               <div className="mx-3 flex items-center justify-center rounded-[24px] px-4 py-1 transition-colors">
                 <div
-                  className={`text-navigation uppercase ${pathname === "/resources" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
+                  className={`uppercase text-navigation ${pathname === "/resources" ? "text-[#AD792A]" : "text-white hover:text-[#AD792A]"}`}
                 >
                   Resources
                 </div>
@@ -66,7 +66,7 @@ const Navigation = memo(() => {
                   />
                 </svg>
               </div>
-              <div className="text-navigation hidden uppercase leading-normal sm:block">
+              <div className="hidden uppercase leading-normal text-navigation sm:block">
                 Discord
               </div>
             </a>
@@ -90,7 +90,7 @@ const Navigation = memo(() => {
                   />
                 </svg>
               </div>
-              <div className="text-navigation hidden uppercase leading-normal sm:block">
+              <div className="hidden uppercase leading-normal text-navigation sm:block">
                 GitHub
               </div>
             </a>
