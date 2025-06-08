@@ -70,7 +70,7 @@ export const metadata = {
     { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-1024-apple.png" },
     { rel: "apple-touch-icon", sizes: "192x192", url: "/icon-1024-apple.png" },
     { rel: "mask-icon", url: "/icon-maskable.png", color: "#222222" },
-    { rel: "apple-touch-startup-image", url: "/icon-1024-apple.png" }
+    { rel: "apple-touch-startup-image", url: "/icon-1024-apple.png" },
   ],
   manifest: "/manifest.json",
   appleWebApp: {
@@ -78,7 +78,7 @@ export const metadata = {
     statusBarStyle: "black-translucent",
     title: "Orchid Visualizer",
     startupImage: [{ url: "/icon-1024-apple.png" }],
-    icon: true
+    icon: true,
   },
 };
 
@@ -102,12 +102,23 @@ export default function RootLayout({
       <head>
         {/* Apple-specific meta tags for proper PWA icon display */}
         <link rel="apple-touch-icon" href="/icon-1024-apple.png" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/icon-1024-apple.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/icon-1024-apple.png" />
+        <link
+          rel="apple-touch-icon"
+          sizes="192x192"
+          href="/icon-1024-apple.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="512x512"
+          href="/icon-1024-apple.png"
+        />
         <link rel="apple-touch-startup-image" href="/icon-1024-apple.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
         <meta name="apple-mobile-web-app-title" content="Orchid Visualizer" />
       </head>
       <body className="flex min-h-screen flex-col bg-black text-white text-body-2">
