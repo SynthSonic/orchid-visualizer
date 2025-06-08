@@ -64,9 +64,7 @@ export const metadata = {
     description:
       "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights!",
   },
-  icons: [
-    { rel: "icon", url: "/favicon.ico" }
-  ],
+  icons: [{ rel: "icon", url: "/favicon.ico" }],
   manifest: "/manifest.json",
 };
 
@@ -85,6 +83,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${(GeistSans as any).variable} ${(GeistMono as any).variable} ${(instrumentSerif as any).variable}`}
+      // Using any type assertion for font variables to bypass TypeScript checks
     >
       <head></head>
       <body className="flex min-h-screen flex-col bg-black text-white text-body-2">
