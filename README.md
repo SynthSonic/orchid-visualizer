@@ -30,7 +30,7 @@ Offers a separate view where users can explore all voicing numbers used by the s
 * Tabs for different chord qualities (Dim, Min, Maj, and Sus)
 * A breakdown of each voicing with the corresponding notes
 
-## ![Discord Logo](https://cdn.simpleicons.org/discord/5865F2) Telepathic Instruments Community Discord
+## <img src="https://cdn.simpleicons.org/discord/5865F2" width="24" height="24" alt="Discord Logo"> Telepathic Instruments Community Discord
 Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=5865F2)](https://discord.gg/wNPUwDYvYr)
 
 ## 👥 Contributing
