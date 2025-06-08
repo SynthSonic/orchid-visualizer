@@ -64,8 +64,18 @@ export const metadata = {
     description:
       "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights!",
   },
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [
+    { rel: "icon", url: "/favicon.ico" },
+    { rel: "apple-touch-icon", url: "/icon-192.png" },
+    { rel: "apple-touch-icon", sizes: "192x192", url: "/icon-192.png" },
+    { rel: "apple-touch-icon", sizes: "512x512", url: "/icon-512.png" }
+  ],
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Orchid Visualizer",
+  },
 };
 
 export const viewport = {
@@ -82,8 +92,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       className={`${(GeistSans as any).variable} ${(GeistMono as any).variable} ${(instrumentSerif as any).variable}`}
-      // Using any type assertion for font variables to bypass TypeScript checks
     >
       <head></head>
       <body className="flex min-h-screen flex-col bg-black text-white text-body-2">
