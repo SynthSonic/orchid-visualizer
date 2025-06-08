@@ -82,8 +82,11 @@ const DebugPage: React.FC = () => {
 
   // Effect for MIDI access initialization
   useEffect(() => {
-    if (!("requestMIDIAccess" in navigator)) {
-      setConnectedDevice("MIDI not supported in this browser");
+    // Check if this is Safari
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (isSafari || !("requestMIDIAccess" in navigator)) {
+      setConnectedDevice("Browser not supported");
       return;
     }
 
@@ -148,7 +151,7 @@ const DebugPage: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h1 className="mb-6 font-old-standard text-3xl font-bold italic text-white">
+      <h1 className="font-old-standard mb-6 text-3xl font-bold italic text-white">
         MIDI Debug Console
       </h1>
 

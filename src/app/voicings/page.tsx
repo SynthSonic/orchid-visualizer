@@ -22,117 +22,145 @@ const VoicingsPage: React.FC = () => {
   );
 
   return (
-    <div className="p-8">
-      <div className="mx-auto max-w-7xl">
-        <h1 className="mb-8 font-old-standard text-3xl font-bold italic">
-          Chord Voicings
-        </h1>
+    <div className="p-8 pt-[60px]">
+      <div className="mx-auto flex max-w-7xl flex-col items-center">
+        <div className="flex w-full justify-center">
+          <div className="inline-block overflow-x-auto">
+            {/* Chord quality buttons row */}
+            <div
+              className="flex"
+              style={{
+                borderTopLeftRadius: "6px",
+                borderTopRightRadius: "6px",
+              }}
+            >
+              {(["Dim", "Min", "Maj", "Sus"] as ChordQuality[]).map(
+                (quality, index) => (
+                  <button
+                    key={quality}
+                    onClick={() => setSelectedQuality(quality)}
+                    className="relative"
+                    style={{ marginRight: index === 3 ? "0" : "8px" }}
+                  >
+                    <div
+                      className={`relative h-[75px] w-[75px] ${selectedQuality === quality ? "bg-[#AD792A]" : "bg-black"}`}
+                      style={{
+                        border: "1px solid #FFFFFF",
+                        borderRadius: "6px",
+                        margin: "8px 0 8px 0",
+                      }}
+                    >
+                      <span
+                        className="absolute text-keyboard-label"
+                        style={{
+                          color:
+                            selectedQuality === quality ? "#FFFFFF" : "#888888",
+                          left: "12px",
+                          top: "12px",
+                        }}
+                      >
+                        {quality}
+                      </span>
+                    </div>
+                  </button>
+                ),
+              )}
+            </div>
 
-        <div className="mb-8">
-          <label className="mb-2 block text-sm font-medium text-gray-400">
-            Select Chord Quality
-          </label>
-          <div className="inline-flex rounded-lg bg-[#1a1a1a] p-1">
-            {(["Dim", "Min", "Maj", "Sus"] as ChordQuality[]).map((quality) => (
-              <button
-                key={quality}
-                onClick={() => setSelectedQuality(quality)}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                  selectedQuality === quality
-                    ? "bg-[#8B4513] text-white"
-                    : "text-gray-400 hover:bg-[#222] hover:text-white"
-                }`}
+            <div
+              style={{
+                borderRadius: "6px",
+                overflow: "hidden",
+                border: "1px solid #FFFFFF",
+              }}
+              className="text-body-2"
+            >
+              <table
+                className="w-full table-fixed"
+                style={{ borderCollapse: "collapse" }}
               >
-                {quality === "Dim"
-                  ? "Diminished"
-                  : quality === "Min"
-                    ? "Minor"
-                    : quality === "Maj"
-                      ? "Major"
-                      : "Suspended"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="overflow-x-auto rounded-lg border border-gray-700">
-          <table className="min-w-full bg-[#1a1a1a]">
-            <thead>
-              <tr className="bg-[#111]">
-                <th className="w-32 px-6 py-4 text-left text-sm font-bold text-gray-400">
-                  Inversion
-                </th>
-                {WHOLE_NOTES.map((note) => (
-                  <th
-                    key={note}
-                    className="w-32 px-6 py-4 text-left text-sm font-bold text-gray-400"
-                  >
-                    {note}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from({ length: maxVoicings }, (_, i) => {
-                const firstVoicings = WHOLE_NOTES.map((note) =>
-                  getFirstVoicing(voicings[note] ?? {}),
-                );
-                const inversion =
-                  i % 3 === 0 ? "1st" : i % 3 === 1 ? "2nd" : "Root";
-
-                return (
-                  <tr
-                    key={i}
-                    className="border-t border-gray-700 transition-colors hover:bg-[#222]"
-                  >
-                    <td className="w-32 px-6 py-4 text-sm font-medium text-gray-400">
-                      {inversion}
-                    </td>
-                    {WHOLE_NOTES.map((note, noteIndex) => {
-                      const voicingObj = voicings[note]?.[i];
-                      const firstVoicing = firstVoicings[noteIndex] ?? null;
-                      const isFirstVoicing =
-                        voicingObj?.voicing === firstVoicing;
-                      const shouldShowDash =
-                        voicingObj !== undefined &&
-                        firstVoicing !== null &&
-                        voicingObj.voicing < firstVoicing;
-
-                      return (
-                        <td
-                          key={note}
-                          className={`w-32 px-6 py-4 font-mono ${
-                            isFirstVoicing
-                              ? "font-medium text-[#8B4513]"
-                              : "text-gray-300"
-                          }`}
-                        >
-                          {shouldShowDash ? (
-                            "-"
-                          ) : (
-                            <div>
-                              {isFirstVoicing ? (
-                                <strong>1</strong>
-                              ) : (
-                                (voicingObj?.voicing ?? "-")
-                              )}
-                              <div className="text-xs text-gray-500">
-                                {getChordNotes(
-                                  note,
-                                  voicingObj,
-                                  selectedQuality,
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </td>
-                      );
-                    })}
+                <thead>
+                  <tr className="bg-[#A88B5E]">
+                    <th className="w-36 px-4 py-4 text-left text-black text-body-1-emphasized">
+                      Inversion
+                    </th>
+                    {WHOLE_NOTES.map((note) => (
+                      <th
+                        key={note}
+                        className="w-36 px-4 py-4 text-left text-black text-body-1-emphasized"
+                      >
+                        {note}
+                      </th>
+                    ))}
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {Array.from({ length: maxVoicings }, (_, i) => {
+                    const firstVoicings = WHOLE_NOTES.map((note) =>
+                      getFirstVoicing(voicings[note] ?? {}),
+                    );
+                    const inversion =
+                      i % 3 === 0 ? "1st" : i % 3 === 1 ? "2nd" : "Root";
+
+                    return (
+                      <tr
+                        key={i}
+                        className="border-t border-white transition-colors hover:bg-[#222]"
+                      >
+                        <td className="w-36 px-4 py-4 text-white text-body-1-emphasized">
+                          {inversion}
+                        </td>
+                        {WHOLE_NOTES.map((note, noteIndex) => {
+                          const voicingObj = voicings[note]?.[i];
+                          const firstVoicing = firstVoicings[noteIndex] ?? null;
+                          const isFirstVoicing =
+                            voicingObj?.voicing === firstVoicing;
+                          const shouldShowDash =
+                            voicingObj !== undefined &&
+                            firstVoicing !== null &&
+                            voicingObj.voicing < firstVoicing;
+
+                          return (
+                            <td
+                              key={note}
+                              className={`w-36 px-4 py-4 ${
+                                isFirstVoicing
+                                  ? "font-medium text-[#AD792A]"
+                                  : "text-white"
+                              }`}
+                            >
+                              {shouldShowDash ? (
+                                "-"
+                              ) : (
+                                <div>
+                                  {isFirstVoicing ? (
+                                    <span className="text-body-1-emphasized">
+                                      1
+                                    </span>
+                                  ) : (
+                                    <span className="text-body-1-emphasized">
+                                      {voicingObj?.voicing ?? "-"}
+                                    </span>
+                                  )}
+                                  <div className="text-sm text-[#888888]">
+                                    {getChordNotes(
+                                      note,
+                                      voicingObj,
+                                      selectedQuality,
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

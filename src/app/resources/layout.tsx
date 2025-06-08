@@ -1,12 +1,12 @@
 export const metadata = {
-  title: "Orchid Voicings",
+  title: "Orchid Resources",
 };
 
 export const viewport = {
   themeColor: "#222222",
 };
 
-export default function VoicingsLayout({
+export default function ResourcesLayout({
   children,
 }: {
   children: React.ReactNode;

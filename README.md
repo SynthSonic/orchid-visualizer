@@ -1,20 +1,20 @@
-# Orchid Visualizer
+# <img src="https://raw.githubusercontent.com/addisonjames/orchid-visualizer/main/public/icon-192.png" width="32" height="32" alt="Visualizer Icon"> Orchid Visualizer
 
-**Orchid Visualizer** is an open-source community project designed to enhance your experience with the [Telepathic Instruments Orchid](https://telepathicinstruments.com/). This tool helps you explore and visualize the capabilities of this amazing device, making it easier to interact with and understand its features.  
+**Orchid Visualizer** is an open-source community project designed to enhance your experience with the [Telepathic Instruments Orchid](https://telepathicinstruments.com/). This tool helps you explore and visualize the capabilities of this amazing device, making it easier to interact with and understand its features.
 
 ### Try it out: [https://orchid.synthsonic.app](https://orchid.synthsonic.app)
 
 
-### ![Orchid Virtual Keyboard](assets/virtual-keyboard.png)
+### ![Orchid Virtual Keyboard](assets/visualizer-keyboard-v2.1.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🌟 Features
+## 🎛️ Features
 
 ### Virtual Keyboard Display
 Highlights the notes and chords pressed on your keyboard, providing a clear, real-time visual representation.
 
-### Chord Quality Identification:
+### Chord Quality Identification
 
 Detects and highlights the specific chord quality being played (e.g., minor, major, diminished).
 ### Detailed Chord Information
@@ -24,12 +24,18 @@ Displays comprehensive text details including:
 * Inversion: e.g., Root, First, or Second
 * Bass Note and Octave: e.g., D1
 
-### Voicing Numbers Page:
+### Voicing Numbers Page
 
 Offers a separate view where users can explore all voicing numbers used by the synth. This page includes:
 * Tabs for different chord qualities (Dim, Min, Maj, and Sus)
 * A breakdown of each voicing with the corresponding notes
 
+## <img src="https://cdn.simpleicons.org/discord/5865F2" width="24" height="24" alt="Discord Logo"> Telepathic Instruments Community Discord
+Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=5865F2)](https://discord.gg/wNPUwDYvYr)
+
+## 👥 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project. The project has a basic [Design System](DESIGN.md) for reference.
 
 ## 🚀 Tech Stack
 - [T3 Stack](https://create.t3.gg/)
@@ -117,15 +123,6 @@ npm run format:check # Check code formatting
 
 ## 🚀 Deployment
 This project is automatically deployed using [Vercel](https://vercel.com) when changes are merged into the `main` branch.
-
-
-## 👥 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
-
-
-## ![Telepathic Instruments Community Discord](public/favicon.ico) Telepathic Instruments Community Discord
-Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?logo=discord&color=5865F2)](https://discord.gg/m23GeqeS8D)
 
 ## 📄 License
 
