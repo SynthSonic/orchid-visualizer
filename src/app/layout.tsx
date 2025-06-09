@@ -53,16 +53,25 @@ export const metadata = {
   openGraph: {
     title: "Orchid Visualizer",
     description:
-      "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights!",
+      "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights.",
     type: "website",
     siteName: "Orchid Visualizer",
     locale: "en_US",
+    images: [
+      {
+        url: "/social-share-v1.png",
+        width: 1200,
+        height: 630,
+        alt: "Orchid Visualizer - Piano chord analysis and voicing tool",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Orchid Visualizer",
     description:
-      "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights!",
+      "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights.",
+    images: ["/social-share-v1.png"],
   },
   icons: [
     { rel: "icon", url: "/favicon.ico" },
