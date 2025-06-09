@@ -59,7 +59,7 @@ export const metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/social-share-v1.png",
+        url: "/social-share-v2.png",
         width: 1200,
         height: 630,
         alt: "Orchid Visualizer - Piano chord analysis and voicing tool",
@@ -71,7 +71,7 @@ export const metadata = {
     title: "Orchid Visualizer",
     description:
       "A tool to explore and understand the Telepathic Instruments Orchid with real-time chord analysis and voicing insights.",
-    images: ["/social-share-v1.png"],
+    images: ["/social-share-v2.png"],
   },
   icons: [
     { rel: "icon", url: "/favicon.ico" },
