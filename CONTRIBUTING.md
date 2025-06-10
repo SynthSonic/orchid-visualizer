@@ -131,4 +131,4 @@ Join us here: [![Discord](https://img.shields.io/discord/1344898163898585138?log
 
 By contributing to the Orchid Visualizer, you agree that your contributions will be licensed under the same terms as the project (MIT License).
 
-Thank you for contributing to the Orchid Visualizer! 🌟
+Thank you for contributing to the Orchid Visualizer! 🌟🌟🌟
