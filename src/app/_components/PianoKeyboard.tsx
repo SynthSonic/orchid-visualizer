@@ -93,9 +93,9 @@ const Key: React.FC<KeyProps> = ({
       {isBassNote && (
         <line
           x1={adjustedX + 4} // 4px padding from left
-          y1={height + 340 - 8} // 8px padding from bottom of key
+          y1={isBlack ? height + 340 - 8 - 22 : height + 340 - 8} // Raise by 22px for black keys only
           x2={adjustedX + width - 4} // 4px padding from right
-          y2={height + 340 - 8} // 8px padding from bottom of key
+          y2={isBlack ? height + 340 - 8 - 22 : height + 340 - 8} // Raise by 22px for black keys only
           stroke="#FFFFFF"
           strokeWidth="2"
         />
