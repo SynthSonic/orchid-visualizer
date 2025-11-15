@@ -10,6 +10,8 @@ import {
   getColorBrightness,
   parseMIDIMessage,
 } from "./chordUtils";
+import type { ChordSnapshot } from "./pdfGenerator";
+import { generateChordSheetPDF, downloadPDF } from "./pdfGenerator";
 
 const BASE_CHORD_COLOR = "#8B5522"; // Rich brown color
 
@@ -266,6 +268,14 @@ export const PianoKeyboard: React.FC = () => {
   const [bassNotes, setBassNotes] = useState<Set<string>>(new Set()); // Track bass note names
   const [chordInfo, setChordInfo] = useState<ChordInfo | null>(null);
 
+  // Recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedSnapshots, setRecordedSnapshots] = useState<ChordSnapshot[]>(
+    [],
+  );
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const lastCapturedChordRef = useRef<string | null>(null);
+
   // Update keyboard display based on Channel 1 notes
   const updateKeyboardDisplay = useCallback((notes: number[]) => {
     const newDisplayText: Record<string, string> = {};
@@ -299,6 +309,44 @@ export const PianoKeyboard: React.FC = () => {
   // Update chord info based on Channel 3 notes
   const updateChordInfo = useCallback((notes: number[]) => {
     setChordInfo(notes.length > 0 ? getChordInfo(notes) : null);
+  }, []);
+
+  // Start recording chord snapshots
+  const startRecording = useCallback(() => {
+    setIsRecording(true);
+    setRecordedSnapshots([]);
+    lastCapturedChordRef.current = null;
+  }, []);
+
+  // Stop recording
+  const stopRecording = useCallback(() => {
+    setIsRecording(false);
+  }, []);
+
+  // Generate and download PDF
+  const generatePDF = useCallback(async () => {
+    if (recordedSnapshots.length === 0) {
+      alert("No chords recorded yet!");
+      return;
+    }
+
+    setIsGeneratingPDF(true);
+    try {
+      const pdfBytes = await generateChordSheetPDF(recordedSnapshots);
+      downloadPDF(pdfBytes, "orchid-chord-sheet.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Check console for details.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  }, [recordedSnapshots]);
+
+  // Clear recorded snapshots
+  const clearRecording = useCallback(() => {
+    setRecordedSnapshots([]);
+    lastCapturedChordRef.current = null;
+    setIsRecording(false);
   }, []);
 
   const handleMIDINote = useCallback(
@@ -364,6 +412,58 @@ export const PianoKeyboard: React.FC = () => {
     },
     [updateKeyboardDisplay, updateBassNotesDisplay, updateChordInfo],
   );
+
+  // Capture chord snapshots during recording
+  useEffect(() => {
+    if (!isRecording) return;
+    if (recordedSnapshots.length >= 8) {
+      // Auto-stop after 8 chords
+      setIsRecording(false);
+      return;
+    }
+
+    // Only capture if we have active notes
+    const activeNotes = Object.keys(noteDisplayText);
+    if (activeNotes.length === 0) return;
+
+    // Create a unique key for this chord combination
+    const chordKey = JSON.stringify({
+      notes: activeNotes.sort(),
+      type: chordInfo?.chordName,
+    });
+
+    // Only capture if this is a new chord (different from last)
+    if (chordKey === lastCapturedChordRef.current) return;
+
+    // Extract modifier info from chordInfo
+    const chordType = chordInfo
+      ? (chordInfo.chordName
+          .split(" ")[1]
+          ?.replace("7th", "7")
+          ?.replace("Major", "Maj")
+          ?.replace("Minor", "Min")
+          ?.replace("Diminished", "Dim")
+          ?.replace("Dominant", "")
+          ?.replace("Sus4", "Sus")
+          ?.replace("Sus2", "Sus") as "Dim" | "Min" | "Maj" | "Sus" | undefined)
+      : undefined;
+
+    // Extract root note from chord name (e.g., "C Major" -> "C")
+    const rootNote = chordInfo?.chordName.split(" ")[0];
+
+    const snapshot: ChordSnapshot = {
+      chordType,
+      hasSixth: chordInfo?.hasSixth ?? false,
+      hasSeventh: chordInfo?.hasSeventh ?? false,
+      hasMajorSeventh: chordInfo?.hasMajorSeventh ?? false,
+      hasNinth: chordInfo?.hasNinth ?? false,
+      notes: activeNotes,
+      rootNote, // The primary key that was pressed
+    };
+
+    setRecordedSnapshots((prev) => [...prev, snapshot]);
+    lastCapturedChordRef.current = chordKey;
+  }, [isRecording, noteDisplayText, chordInfo, recordedSnapshots.length]);
 
   useEffect(() => {
     // Check if this is Safari
@@ -442,7 +542,58 @@ export const PianoKeyboard: React.FC = () => {
     : undefined;
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-4">
+      {/* Recording Controls */}
+      {midiDevice !== "No MIDI device connected" &&
+        midiDevice !== "Browser not supported" && (
+          <div className="flex items-center gap-4">
+            {!isRecording ? (
+              <button
+                onClick={startRecording}
+                className="rounded-lg bg-[#8B5522] px-6 py-3 font-mono text-white hover:bg-[#A66A2D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={recordedSnapshots.length >= 8}
+              >
+                {recordedSnapshots.length === 0
+                  ? "Start Recording"
+                  : recordedSnapshots.length >= 8
+                    ? "Max 8 Chords"
+                    : "Record More"}
+              </button>
+            ) : (
+              <button
+                onClick={stopRecording}
+                className="rounded-lg bg-red-600 px-6 py-3 font-mono text-white hover:bg-red-700 transition-colors animate-pulse"
+              >
+                ● Recording... ({recordedSnapshots.length}/8)
+              </button>
+            )}
+
+            {recordedSnapshots.length > 0 && (
+              <>
+                <button
+                  onClick={generatePDF}
+                  disabled={isGeneratingPDF}
+                  className="rounded-lg bg-[#AD792A] px-6 py-3 font-mono text-white hover:bg-[#C88A34] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGeneratingPDF ? "Generating..." : "Download PDF"}
+                </button>
+
+                <button
+                  onClick={clearRecording}
+                  disabled={isRecording || isGeneratingPDF}
+                  className="rounded-lg bg-gray-700 px-4 py-3 font-mono text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Clear
+                </button>
+
+                <span className="text-sm text-gray-400 font-mono">
+                  {recordedSnapshots.length} chord{recordedSnapshots.length !== 1 ? "s" : ""} captured
+                </span>
+              </>
+            )}
+          </div>
+        )}
+
       <div
         className={`relative overflow-hidden rounded-[64px] border-2 bg-black ${midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported" ? "border-[#555555]" : "border-white"}`}
       >
