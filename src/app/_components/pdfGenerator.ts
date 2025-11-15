@@ -1,5 +1,6 @@
 import type { PDFFont, PDFPage } from "pdf-lib";
 import { PDFDocument, StandardFonts, grayscale } from "pdf-lib";
+import type { OrchidSettings } from "./types/chord.types";
 
 export interface ChordSnapshot {
   // Modifier buttons
@@ -11,6 +12,8 @@ export interface ChordSnapshot {
   // Piano keys (note names without octave)
   notes: string[]; // e.g., ["C", "E", "G"]
   rootNote?: string; // The primary key that was pressed (e.g., "G")
+  // Optional Orchid settings
+  settings?: OrchidSettings;
 }
 
 // Type aliases for clarity
@@ -36,7 +39,6 @@ function drawChordPosition(
   startX: number,
   startY: number,
   monoFont: PDFFont,
-  maxWidth: number,
 ): void {
   const whiteKeyWidth = 40;
   const whiteKeyHeight = 140;
@@ -206,6 +208,156 @@ function drawChordPosition(
 }
 
 /**
+ * Draws the settings header at the top of the first page
+ */
+function drawSettingsHeader(
+  page: PDFPage,
+  settings: OrchidSettings,
+  startY: number,
+  monoFont: PDFFont,
+  monoBoldFont: PDFFont,
+  margin: number,
+): number {
+  const fontSize = 8;
+  const lineHeight = 12;
+  const labelColor = MEDIUM_GREY;
+  const valueColor = WHITE;
+  let currentY = startY;
+
+  // Draw settings in a grid layout (3 columns)
+  const columnWidth = 170;
+  const columns: Array<{ label: string; value: string }[]> = [[], [], []];
+  let columnIndex = 0;
+
+  // Collect all settings into columns
+  if (settings.sound !== undefined) {
+    columns[columnIndex % 3]!.push({
+      label: "Sound",
+      value: settings.sound.toString(),
+    });
+    columnIndex++;
+  }
+
+  if (settings.voicing !== undefined) {
+    columns[columnIndex % 3]!.push({
+      label: "Voicing",
+      value: settings.voicing.toString().padStart(2, "0"),
+    });
+    columnIndex++;
+  }
+
+  if (settings.performance !== undefined) {
+    const modeValue =
+      settings.performanceValue !== undefined
+        ? ` (${settings.performanceValue})`
+        : "";
+    columns[columnIndex % 3]!.push({
+      label: "Performance",
+      value: `${settings.performance.replace(" 2 octaves", " 2oct")}${modeValue}`,
+    });
+    columnIndex++;
+  }
+
+  if (settings.bpm !== undefined) {
+    columns[columnIndex % 3]!.push({
+      label: "BPM",
+      value: settings.bpm.toString(),
+    });
+    columnIndex++;
+  }
+
+  if (settings.drumLoop !== undefined) {
+    columns[columnIndex % 3]!.push({
+      label: "Drum Loop",
+      value: settings.drumLoop,
+    });
+    columnIndex++;
+  }
+
+  if (settings.fx && settings.fx.length > 0) {
+    settings.fx.forEach((fx) => {
+      columns[columnIndex % 3]!.push({
+        label: fx.type,
+        value: fx.value === 0 ? "Off" : fx.value.toString().padStart(2, "0"),
+      });
+      columnIndex++;
+    });
+  }
+
+  if (settings.filter !== undefined) {
+    columns[columnIndex % 3]!.push({
+      label: "Filter",
+      value: settings.filter === 0 ? "Off" : settings.filter.toString().padStart(2, "0"),
+    });
+    columnIndex++;
+  }
+
+  if (settings.drumFX) {
+    const drumFX = settings.drumFX;
+    if (drumFX.reverbType !== undefined) {
+      columns[columnIndex % 3]!.push({
+        label: "Reverb Type",
+        value: drumFX.reverbType.toString().padStart(2, "0"),
+      });
+      columnIndex++;
+    }
+    if (drumFX.reverbMix !== undefined) {
+      columns[columnIndex % 3]!.push({
+        label: "Reverb Mix",
+        value: drumFX.reverbMix === 0 ? "Off" : drumFX.reverbMix.toString().padStart(2, "0"),
+      });
+      columnIndex++;
+    }
+    if (drumFX.saturatorType !== undefined) {
+      columns[columnIndex % 3]!.push({
+        label: "Saturator Type",
+        value: drumFX.saturatorType.toString().padStart(2, "0"),
+      });
+      columnIndex++;
+    }
+    if (drumFX.saturatorMix !== undefined) {
+      columns[columnIndex % 3]!.push({
+        label: "Saturator Mix",
+        value: drumFX.saturatorMix === 0 ? "Off" : drumFX.saturatorMix.toString().padStart(2, "0"),
+      });
+      columnIndex++;
+    }
+  }
+
+  // Calculate max rows needed
+  const maxRows = Math.max(columns[0]!.length, columns[1]!.length, columns[2]!.length);
+
+  // Draw the grid
+  for (let row = 0; row < maxRows; row++) {
+    for (let col = 0; col < 3; col++) {
+      const item = columns[col]?.[row];
+      if (item) {
+        const x = margin + col * columnWidth;
+        // Draw label in uppercase
+        page.drawText(item.label.toUpperCase(), {
+          x,
+          y: currentY,
+          size: fontSize,
+          font: monoFont,
+          color: labelColor,
+        });
+        // Draw value
+        page.drawText(item.value, {
+          x: x + 100,
+          y: currentY,
+          size: fontSize,
+          font: monoBoldFont,
+          color: valueColor,
+        });
+      }
+    }
+    currentY -= lineHeight;
+  }
+
+  return currentY - 10; // Return the new Y position with some spacing
+}
+
+/**
  * Generates a clean dark mode PDF chord sheet from scratch
  * Supports up to 8 chords (4 per page)
  */
@@ -238,32 +390,79 @@ export async function generateChordSheetPDF(
       color: BACKGROUND,
     });
 
-    // Title (only on first page)
-    if (pageNum === 0) {
-      page.drawText("ORCHID", {
-        x: margin,
-        y: pageHeight - 45,
-        size: 18,
-        font: monoBoldFont,
-        color: WHITE,
-      });
+    let contentStartY = pageHeight - 90;
 
-      // Subtle subtitle
-      page.drawText("Chord Sheet", {
-        x: margin + 85,
-        y: pageHeight - 45,
-        size: 18,
-        font: monoFont,
-        color: MEDIUM_GREY,
-      });
+    // Title and settings header (only on first page)
+    if (pageNum === 0) {
+      let titleY = pageHeight - 45;
+
+      // Check if any snapshot has a custom title
+      const firstSnapshotWithSettings = snapshots.find((s) => s.settings);
+      const customTitle = firstSnapshotWithSettings?.settings?.title;
+
+      if (customTitle) {
+        // Draw custom title
+        page.drawText(customTitle, {
+          x: margin,
+          y: titleY,
+          size: 18,
+          font: monoBoldFont,
+          color: WHITE,
+        });
+        titleY -= 25; // Move down for next section
+      } else {
+        // Draw default title
+        page.drawText("ORCHID", {
+          x: margin,
+          y: titleY,
+          size: 18,
+          font: monoBoldFont,
+          color: WHITE,
+        });
+
+        // Subtle subtitle
+        page.drawText("Chord Sheet", {
+          x: margin + 85,
+          y: titleY,
+          size: 18,
+          font: monoFont,
+          color: MEDIUM_GREY,
+        });
+      }
+
+      if (firstSnapshotWithSettings?.settings) {
+        // Draw settings header
+        contentStartY = drawSettingsHeader(
+          page,
+          firstSnapshotWithSettings.settings,
+          titleY - 30,
+          monoFont,
+          monoBoldFont,
+          margin,
+        );
+      } else {
+        contentStartY = titleY - 45;
+      }
     }
 
     // Draw chords for this page
-    const startY = pageHeight - 90;
+    const startY = contentStartY;
     const startChordIdx = pageNum * chordsPerPage;
     const endChordIdx = Math.min(
       startChordIdx + chordsPerPage,
       snapshots.length,
+    );
+
+    // Calculate available space for chords on this page
+    const footerY = 25;
+    const footerMargin = 50; // Space needed for footer
+    const availableSpace = startY - footerMargin;
+    const chordsOnThisPage = endChordIdx - startChordIdx;
+    
+    // Adjust spacing based on available space (min 140, max 175)
+    const dynamicSpacing = Math.max(
+      140,
+      Math.min(chordSpacing, availableSpace / chordsOnThisPage)
     );
 
     for (let i = startChordIdx; i < endChordIdx; i++) {
@@ -271,7 +470,7 @@ export async function generateChordSheetPDF(
       if (!snapshot) continue;
 
       const localIdx = i - startChordIdx;
-      const currentY = startY - localIdx * chordSpacing;
+      const currentY = startY - localIdx * dynamicSpacing;
 
       // Draw position number with minimalist style
       page.drawText(`${i + 1}`, {
@@ -282,11 +481,10 @@ export async function generateChordSheetPDF(
         color: MEDIUM_GREY,
       });
 
-      drawChordPosition(page, snapshot, margin, currentY, monoFont, pageWidth - 2 * margin);
+      drawChordPosition(page, snapshot, margin, currentY, monoFont);
     }
 
     // Footer - clean and minimal
-    const footerY = 25;
     page.drawText("orchid.synthsonic.app", {
       x: margin,
       y: footerY,

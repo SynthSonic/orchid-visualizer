@@ -102,3 +102,88 @@ export interface MIDIMessage {
   programNumber?: number;
   rawData: number[];
 }
+
+/**
+ * Performance modes available on the Orchid device.
+ */
+export type PerformanceMode =
+  | "Strum"
+  | "Strum 2 octaves"
+  | "Slop"
+  | "Arpeggiate"
+  | "Arp 2 octaves"
+  | "Pattern"
+  | "Harp";
+
+/**
+ * FX types available on the Orchid device.
+ */
+export type FXType =
+  | "Reverb"
+  | "Phaser"
+  | "Chorus"
+  | "Tremolo"
+  | "Delay"
+  | "Ensemble"
+  | "Drive";
+
+/**
+ * Drum loop options available on the Orchid device.
+ */
+export type DrumLoop =
+  | "Saint Germain"
+  | "Orchid Bossanova"
+  | "Trap"
+  | "Disco"
+  | "Old Skool"
+  | "Techno"
+  | "Latin"
+  | "Millionaire"
+  | "Bronson"
+  | "North Soul"
+  | "Back Beat"
+  | "Apartment";
+
+/**
+ * Reverb type for Drum FX.
+ */
+export type ReverbType = 1 | 2 | 3;
+
+/**
+ * Saturator type for Drum FX.
+ */
+export type SaturatorType = 1 | 2 | 3;
+
+/**
+ * Individual FX setting with type and value.
+ */
+export interface FXSetting {
+  type: FXType;
+  value: number; // 0 (off) to 10
+}
+
+/**
+ * Drum FX settings.
+ */
+export interface DrumFXSettings {
+  reverbType?: ReverbType;
+  reverbMix?: number; // 0 (off) to 10
+  saturatorType?: SaturatorType;
+  saturatorMix?: number; // 0 (off) to 10
+}
+
+/**
+ * Additional Orchid settings that can be manually added to a chord snapshot.
+ */
+export interface OrchidSettings {
+  title?: string; // Optional PDF title
+  sound?: number; // 1-60
+  voicing?: number; // 0-60
+  performance?: PerformanceMode;
+  performanceValue?: number; // 0-15
+  fx?: FXSetting[]; // Max 3
+  filter?: number; // 0 (off) to 10
+  drumFX?: DrumFXSettings;
+  bpm?: number; // Up to 200
+  drumLoop?: DrumLoop;
+}

@@ -3,7 +3,12 @@
 /// <reference types="webmidi" />
 
 import React, { useState, useEffect, useCallback, useRef, memo } from "react";
-import type { NoteName, ChordInfo, MIDIMessage } from "./types/chord.types";
+import type {
+  NoteName,
+  ChordInfo,
+  MIDIMessage,
+  OrchidSettings,
+} from "./types/chord.types";
 import {
   getMIDINoteName,
   getChordInfo,
@@ -12,6 +17,7 @@ import {
 } from "./chordUtils";
 import type { ChordSnapshot } from "./pdfGenerator";
 import { generateChordSheetPDF, downloadPDF } from "./pdfGenerator";
+import { AdditionalOptionsDialog } from "./AdditionalOptionsDialog";
 
 const BASE_CHORD_COLOR = "#8B5522"; // Rich brown color
 
@@ -275,6 +281,11 @@ export const PianoKeyboard: React.FC = () => {
   );
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const lastCapturedChordRef = useRef<string | null>(null);
+  const pendingChordRef = useRef<{ snapshot: ChordSnapshot; chordKey: string } | null>(null); // Store the chord to capture when keys are released
+
+  // Additional options state
+  const [isOptionsDialogOpen, setIsOptionsDialogOpen] = useState(false);
+  const [currentSettings, setCurrentSettings] = useState<OrchidSettings>({});
 
   // Update keyboard display based on Channel 1 notes
   const updateKeyboardDisplay = useCallback((notes: number[]) => {
@@ -320,6 +331,7 @@ export const PianoKeyboard: React.FC = () => {
 
   // Stop recording
   const stopRecording = useCallback(() => {
+    pendingChordRef.current = null;
     setIsRecording(false);
   }, []);
 
@@ -346,6 +358,7 @@ export const PianoKeyboard: React.FC = () => {
   const clearRecording = useCallback(() => {
     setRecordedSnapshots([]);
     lastCapturedChordRef.current = null;
+    pendingChordRef.current = null;
     setIsRecording(false);
   }, []);
 
@@ -413,57 +426,62 @@ export const PianoKeyboard: React.FC = () => {
     [updateKeyboardDisplay, updateBassNotesDisplay, updateChordInfo],
   );
 
-  // Capture chord snapshots during recording
+  // Track chord state and capture when all notes are released
   useEffect(() => {
     if (!isRecording) return;
     if (recordedSnapshots.length >= 8) {
-      // Auto-stop after 8 chords
       setIsRecording(false);
       return;
     }
 
-    // Only capture if we have active notes
     const activeNotes = Object.keys(noteDisplayText);
-    if (activeNotes.length === 0) return;
 
-    // Create a unique key for this chord combination
-    const chordKey = JSON.stringify({
-      notes: activeNotes.sort(),
-      type: chordInfo?.chordName,
-    });
+    if (activeNotes.length > 0) {
+      // Notes are active - update the pending chord
+      const chordKey = JSON.stringify({
+        notes: activeNotes.sort(),
+        type: chordInfo?.chordName,
+      });
 
-    // Only capture if this is a new chord (different from last)
-    if (chordKey === lastCapturedChordRef.current) return;
+      // Extract modifier info from chordInfo
+      const chordType = chordInfo
+        ? (chordInfo.chordName
+            .split(" ")[1]
+            ?.replace("7th", "7")
+            ?.replace("Major", "Maj")
+            ?.replace("Minor", "Min")
+            ?.replace("Diminished", "Dim")
+            ?.replace("Dominant", "")
+            ?.replace("Sus4", "Sus")
+            ?.replace("Sus2", "Sus") as "Dim" | "Min" | "Maj" | "Sus" | undefined)
+        : undefined;
 
-    // Extract modifier info from chordInfo
-    const chordType = chordInfo
-      ? (chordInfo.chordName
-          .split(" ")[1]
-          ?.replace("7th", "7")
-          ?.replace("Major", "Maj")
-          ?.replace("Minor", "Min")
-          ?.replace("Diminished", "Dim")
-          ?.replace("Dominant", "")
-          ?.replace("Sus4", "Sus")
-          ?.replace("Sus2", "Sus") as "Dim" | "Min" | "Maj" | "Sus" | undefined)
-      : undefined;
+      // Extract root note from chord name
+      const rootNote = chordInfo?.chordName.split(" ")[0];
 
-    // Extract root note from chord name (e.g., "C Major" -> "C")
-    const rootNote = chordInfo?.chordName.split(" ")[0];
+      const snapshot: ChordSnapshot = {
+        chordType,
+        hasSixth: chordInfo?.hasSixth ?? false,
+        hasSeventh: chordInfo?.hasSeventh ?? false,
+        hasMajorSeventh: chordInfo?.hasMajorSeventh ?? false,
+        hasNinth: chordInfo?.hasNinth ?? false,
+        notes: activeNotes,
+        rootNote,
+        settings:
+          Object.keys(currentSettings).length > 0 ? currentSettings : undefined,
+      };
 
-    const snapshot: ChordSnapshot = {
-      chordType,
-      hasSixth: chordInfo?.hasSixth ?? false,
-      hasSeventh: chordInfo?.hasSeventh ?? false,
-      hasMajorSeventh: chordInfo?.hasMajorSeventh ?? false,
-      hasNinth: chordInfo?.hasNinth ?? false,
-      notes: activeNotes,
-      rootNote, // The primary key that was pressed
-    };
-
-    setRecordedSnapshots((prev) => [...prev, snapshot]);
-    lastCapturedChordRef.current = chordKey;
-  }, [isRecording, noteDisplayText, chordInfo, recordedSnapshots.length]);
+      pendingChordRef.current = { snapshot, chordKey };
+    } else if (pendingChordRef.current) {
+      // All notes released - capture the pending chord if it's new
+      const { snapshot, chordKey } = pendingChordRef.current;
+      if (chordKey !== lastCapturedChordRef.current) {
+        setRecordedSnapshots((prev) => [...prev, snapshot]);
+        lastCapturedChordRef.current = chordKey;
+      }
+      pendingChordRef.current = null;
+    }
+  }, [isRecording, noteDisplayText, chordInfo, recordedSnapshots.length, currentSettings]);
 
   useEffect(() => {
     // Check if this is Safari
@@ -554,7 +572,7 @@ export const PianoKeyboard: React.FC = () => {
                 disabled={recordedSnapshots.length >= 8}
               >
                 {recordedSnapshots.length === 0
-                  ? "Start Recording"
+                  ? "START RECORDING"
                   : recordedSnapshots.length >= 8
                     ? "Max 8 Chords"
                     : "Record More"}
@@ -567,6 +585,13 @@ export const PianoKeyboard: React.FC = () => {
                 ● Recording... ({recordedSnapshots.length}/8)
               </button>
             )}
+
+            <button
+              onClick={() => setIsOptionsDialogOpen(true)}
+              className="rounded-lg border border-[#8B5522] bg-transparent px-4 py-3 font-mono text-[#8B5522] transition-colors hover:bg-[#8B5522] hover:text-white"
+            >
+              ADDITIONAL OPTIONS
+            </button>
 
             {recordedSnapshots.length > 0 && (
               <>
@@ -841,6 +866,17 @@ export const PianoKeyboard: React.FC = () => {
           ))}
         </svg>
       </div>
+
+      {/* Additional Options Dialog */}
+      <AdditionalOptionsDialog
+        isOpen={isOptionsDialogOpen}
+        onClose={() => setIsOptionsDialogOpen(false)}
+        onSave={(settings) => {
+          setCurrentSettings(settings);
+          setIsOptionsDialogOpen(false);
+        }}
+        initialSettings={currentSettings}
+      />
     </div>
   );
 };
