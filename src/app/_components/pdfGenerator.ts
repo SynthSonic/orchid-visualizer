@@ -1,4 +1,5 @@
-import { PDFDocument, rgb, StandardFonts, grayscale } from "pdf-lib";
+import type { PDFFont, PDFPage } from "pdf-lib";
+import { PDFDocument, StandardFonts, grayscale } from "pdf-lib";
 
 export interface ChordSnapshot {
   // Modifier buttons
@@ -12,64 +13,30 @@ export interface ChordSnapshot {
   rootNote?: string; // The primary key that was pressed (e.g., "G")
 }
 
+// Type aliases for clarity
+type GrayscaleValue = ReturnType<typeof grayscale>;
+
 // Define the white and black key layout for one octave
 const WHITE_KEYS = ["C", "D", "E", "F", "G", "A", "B"];
 const BLACK_KEYS = ["C#", "D#", null, "F#", "G#", "A#", null]; // null = no black key
 
 // Dark mode color palette
-const BACKGROUND = grayscale(0); // Pure black
-const WHITE = grayscale(1); // Pure white
-const VERY_SUBTLE_GREY = grayscale(0.25); // Very subtle grey for secondary keys (barely visible)
-const MEDIUM_GREY = grayscale(0.5); // Medium grey for borders/text
-const DARK_GREY = grayscale(0.15); // Dark grey for inactive black keys
-
-/**
- * Helper function to draw rounded rectangle (pdf-lib doesn't have native support)
- */
-function drawRoundedRect(
-  page: ReturnType<PDFDocument["getPages"]>[0],
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-  options: {
-    color?: any;
-    borderColor?: any;
-    borderWidth?: number;
-  } = {},
-) {
-  const { color, borderColor, borderWidth = 1 } = options;
-
-  // For simplicity, we'll use regular rectangles but with the aesthetic in mind
-  // pdf-lib doesn't support rounded corners easily, so we'll keep sharp corners
-  // but make them look good with proper sizing
-  if (color) {
-    page.drawRectangle({ x, y, width, height, color });
-  }
-  if (borderColor) {
-    page.drawRectangle({
-      x,
-      y,
-      width,
-      height,
-      borderColor,
-      borderWidth,
-      color: color || BACKGROUND,
-    });
-  }
-}
+const BACKGROUND: GrayscaleValue = grayscale(0); // Pure black
+const WHITE: GrayscaleValue = grayscale(1); // Pure white
+const VERY_SUBTLE_GREY: GrayscaleValue = grayscale(0.25); // Very subtle grey for secondary keys (barely visible)
+const MEDIUM_GREY: GrayscaleValue = grayscale(0.5); // Medium grey for borders/text
+const DARK_GREY: GrayscaleValue = grayscale(0.15); // Dark grey for inactive black keys
 
 /**
  * Draws a single chord position on the PDF
  */
 function drawChordPosition(
-  page: ReturnType<PDFDocument["getPages"]>[0],
+  page: PDFPage,
   snapshot: ChordSnapshot,
   startX: number,
   startY: number,
-  monoFont: any,
-) {
+  monoFont: PDFFont,
+): void {
   const whiteKeyWidth = 45;
   const whiteKeyHeight = 140;
   const blackKeyWidth = 28;
@@ -81,7 +48,7 @@ function drawChordPosition(
   const modifiers = [
     ["Dim", "Min", "Maj", "Sus"],
     ["6", "m7", "M7", "9"],
-  ];
+  ] as const;
 
   for (let row = 0; row < 2; row++) {
     for (let col = 0; col < 4; col++) {
@@ -259,7 +226,7 @@ export async function generateChordSheetPDF(
   const numPages = Math.ceil(Math.min(snapshots.length, 8) / chordsPerPage);
 
   for (let pageNum = 0; pageNum < numPages; pageNum++) {
-    const page = pdfDoc.addPage([pageWidth, pageHeight]);
+    const page: PDFPage = pdfDoc.addPage([pageWidth, pageHeight]);
 
     // Fill background with black
     page.drawRectangle({
@@ -347,8 +314,10 @@ export async function generateChordSheetPDF(
 /**
  * Downloads a PDF blob to the user's computer
  */
-export function downloadPDF(pdfBytes: Uint8Array, filename: string) {
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+export function downloadPDF(pdfBytes: Uint8Array, filename: string): void {
+  const blob = new Blob([pdfBytes.buffer as ArrayBuffer], {
+    type: "application/pdf",
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -356,4 +325,3 @@ export function downloadPDF(pdfBytes: Uint8Array, filename: string) {
   link.click();
   URL.revokeObjectURL(url);
 }
-

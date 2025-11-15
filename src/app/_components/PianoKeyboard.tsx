@@ -550,7 +550,7 @@ export const PianoKeyboard: React.FC = () => {
             {!isRecording ? (
               <button
                 onClick={startRecording}
-                className="rounded-lg bg-[#8B5522] px-6 py-3 font-mono text-white hover:bg-[#A66A2D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-[#8B5522] px-6 py-3 font-mono text-white transition-colors hover:bg-[#A66A2D] disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={recordedSnapshots.length >= 8}
               >
                 {recordedSnapshots.length === 0
@@ -562,7 +562,7 @@ export const PianoKeyboard: React.FC = () => {
             ) : (
               <button
                 onClick={stopRecording}
-                className="rounded-lg bg-red-600 px-6 py-3 font-mono text-white hover:bg-red-700 transition-colors animate-pulse"
+                className="animate-pulse rounded-lg bg-red-600 px-6 py-3 font-mono text-white transition-colors hover:bg-red-700"
               >
                 ● Recording... ({recordedSnapshots.length}/8)
               </button>
@@ -573,7 +573,7 @@ export const PianoKeyboard: React.FC = () => {
                 <button
                   onClick={generatePDF}
                   disabled={isGeneratingPDF}
-                  className="rounded-lg bg-[#AD792A] px-6 py-3 font-mono text-white hover:bg-[#C88A34] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg bg-[#AD792A] px-6 py-3 font-mono text-white transition-colors hover:bg-[#C88A34] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isGeneratingPDF ? "Generating..." : "Download PDF"}
                 </button>
@@ -581,13 +581,14 @@ export const PianoKeyboard: React.FC = () => {
                 <button
                   onClick={clearRecording}
                   disabled={isRecording || isGeneratingPDF}
-                  className="rounded-lg bg-gray-700 px-4 py-3 font-mono text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg bg-gray-700 px-4 py-3 font-mono text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Clear
                 </button>
 
-                <span className="text-sm text-gray-400 font-mono">
-                  {recordedSnapshots.length} chord{recordedSnapshots.length !== 1 ? "s" : ""} captured
+                <span className="font-mono text-sm text-gray-400">
+                  {recordedSnapshots.length} chord
+                  {recordedSnapshots.length !== 1 ? "s" : ""} captured
                 </span>
               </>
             )}
