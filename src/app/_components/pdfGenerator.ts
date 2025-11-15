@@ -36,13 +36,14 @@ function drawChordPosition(
   startX: number,
   startY: number,
   monoFont: PDFFont,
+  maxWidth: number,
 ): void {
-  const whiteKeyWidth = 45;
+  const whiteKeyWidth = 40;
   const whiteKeyHeight = 140;
-  const blackKeyWidth = 28;
+  const blackKeyWidth = 25;
   const blackKeyHeight = 90;
-  const buttonSize = 55;
-  const buttonGap = 8;
+  const buttonSize = 50;
+  const buttonGap = 6;
 
   // Draw modifier buttons (4x2 grid on the left)
   const modifiers = [
@@ -84,7 +85,7 @@ function drawChordPosition(
       });
 
       // Draw label (monospace font for clean look)
-      const fontSize = 11;
+      const fontSize = 10;
       const textWidth = monoFont.widthOfTextAtSize(label, fontSize);
       page.drawText(label, {
         x: x + buttonSize / 2 - textWidth / 2,
@@ -97,7 +98,7 @@ function drawChordPosition(
   }
 
   // Draw piano keyboard (to the right of buttons)
-  const pianoStartX = startX + 4 * (buttonSize + buttonGap) + 30;
+  const pianoStartX = startX + 4 * (buttonSize + buttonGap) + 20;
   const pianoStartY = startY;
 
   // Draw white keys first
@@ -281,7 +282,7 @@ export async function generateChordSheetPDF(
         color: MEDIUM_GREY,
       });
 
-      drawChordPosition(page, snapshot, margin, currentY, monoFont);
+      drawChordPosition(page, snapshot, margin, currentY, monoFont, pageWidth - 2 * margin);
     }
 
     // Footer - clean and minimal
