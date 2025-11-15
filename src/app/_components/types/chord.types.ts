@@ -116,6 +116,19 @@ export type PerformanceMode =
   | "Harp";
 
 /**
+ * Array of all available performance modes.
+ */
+export const PERFORMANCE_MODES: PerformanceMode[] = [
+  "Strum",
+  "Strum 2 octaves",
+  "Slop",
+  "Arpeggiate",
+  "Arp 2 octaves",
+  "Pattern",
+  "Harp",
+];
+
+/**
  * FX types available on the Orchid device.
  */
 export type FXType =
@@ -126,6 +139,19 @@ export type FXType =
   | "Delay"
   | "Ensemble"
   | "Drive";
+
+/**
+ * Array of all available FX types.
+ */
+export const FX_TYPES: FXType[] = [
+  "Reverb",
+  "Phaser",
+  "Chorus",
+  "Tremolo",
+  "Delay",
+  "Ensemble",
+  "Drive",
+];
 
 /**
  * Drum loop options available on the Orchid device.
@@ -143,6 +169,24 @@ export type DrumLoop =
   | "North Soul"
   | "Back Beat"
   | "Apartment";
+
+/**
+ * Array of all available drum loops.
+ */
+export const DRUM_LOOPS: DrumLoop[] = [
+  "Saint Germain",
+  "Orchid Bossanova",
+  "Trap",
+  "Disco",
+  "Old Skool",
+  "Techno",
+  "Latin",
+  "Millionaire",
+  "Bronson",
+  "North Soul",
+  "Back Beat",
+  "Apartment",
+];
 
 /**
  * Reverb type for Drum FX.

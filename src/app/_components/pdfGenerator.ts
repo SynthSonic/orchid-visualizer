@@ -224,26 +224,23 @@ function drawSettingsHeader(
   const valueColor = WHITE;
   let currentY = startY;
 
-  // Draw settings in a grid layout (3 columns)
+  // Draw settings in a grid layout (3 columns) with specific groupings
   const columnWidth = 170;
   const columns: Array<{ label: string; value: string }[]> = [[], [], []];
-  let columnIndex = 0;
 
-  // Collect all settings into columns
+  // Column 0: Sound, Voicing, Performance, BPM
   if (settings.sound !== undefined) {
-    columns[columnIndex % 3]!.push({
+    columns[0]!.push({
       label: "Sound",
       value: settings.sound.toString(),
     });
-    columnIndex++;
   }
 
   if (settings.voicing !== undefined) {
-    columns[columnIndex % 3]!.push({
+    columns[0]!.push({
       label: "Voicing",
       value: settings.voicing.toString().padStart(2, "0"),
     });
-    columnIndex++;
   }
 
   if (settings.performance !== undefined) {
@@ -251,76 +248,69 @@ function drawSettingsHeader(
       settings.performanceValue !== undefined
         ? ` (${settings.performanceValue})`
         : "";
-    columns[columnIndex % 3]!.push({
+    columns[0]!.push({
       label: "Performance",
       value: `${settings.performance.replace(" 2 octaves", " 2oct")}${modeValue}`,
     });
-    columnIndex++;
   }
 
   if (settings.bpm !== undefined) {
-    columns[columnIndex % 3]!.push({
+    columns[0]!.push({
       label: "BPM",
       value: settings.bpm.toString(),
     });
-    columnIndex++;
   }
 
-  if (settings.drumLoop !== undefined) {
-    columns[columnIndex % 3]!.push({
-      label: "Drum Loop",
-      value: settings.drumLoop,
-    });
-    columnIndex++;
-  }
-
+  // Column 1: All FX (Reverb, Phaser, Chorus, Tremolo, Delay, Ensemble, Drive) and Filter
   if (settings.fx && settings.fx.length > 0) {
     settings.fx.forEach((fx) => {
-      columns[columnIndex % 3]!.push({
+      columns[1]!.push({
         label: fx.type,
         value: fx.value === 0 ? "Off" : fx.value.toString().padStart(2, "0"),
       });
-      columnIndex++;
     });
   }
 
   if (settings.filter !== undefined) {
-    columns[columnIndex % 3]!.push({
+    columns[1]!.push({
       label: "Filter",
       value: settings.filter === 0 ? "Off" : settings.filter.toString().padStart(2, "0"),
     });
-    columnIndex++;
+  }
+
+  // Column 2: Drum FX (Drum Loop, Reverb Type/Mix, Saturator Type/Mix)
+  if (settings.drumLoop !== undefined) {
+    columns[2]!.push({
+      label: "Drum Loop",
+      value: settings.drumLoop,
+    });
   }
 
   if (settings.drumFX) {
     const drumFX = settings.drumFX;
     if (drumFX.reverbType !== undefined) {
-      columns[columnIndex % 3]!.push({
+      columns[2]!.push({
         label: "Reverb Type",
         value: drumFX.reverbType.toString().padStart(2, "0"),
       });
-      columnIndex++;
     }
     if (drumFX.reverbMix !== undefined) {
-      columns[columnIndex % 3]!.push({
+      columns[2]!.push({
         label: "Reverb Mix",
         value: drumFX.reverbMix === 0 ? "Off" : drumFX.reverbMix.toString().padStart(2, "0"),
       });
-      columnIndex++;
     }
     if (drumFX.saturatorType !== undefined) {
-      columns[columnIndex % 3]!.push({
+      columns[2]!.push({
         label: "Saturator Type",
         value: drumFX.saturatorType.toString().padStart(2, "0"),
       });
-      columnIndex++;
     }
     if (drumFX.saturatorMix !== undefined) {
-      columns[columnIndex % 3]!.push({
+      columns[2]!.push({
         label: "Saturator Mix",
         value: drumFX.saturatorMix === 0 ? "Off" : drumFX.saturatorMix.toString().padStart(2, "0"),
       });
-      columnIndex++;
     }
   }
 

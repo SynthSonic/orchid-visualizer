@@ -10,6 +10,11 @@ import type {
   SaturatorType,
   FXSetting,
 } from "./types/chord.types";
+import {
+  PERFORMANCE_MODES,
+  FX_TYPES,
+  DRUM_LOOPS,
+} from "./types/chord.types";
 
 interface AdditionalOptionsDialogProps {
   isOpen: boolean;
@@ -17,41 +22,6 @@ interface AdditionalOptionsDialogProps {
   onSave: (settings: OrchidSettings) => void;
   initialSettings?: OrchidSettings;
 }
-
-const PERFORMANCE_MODES: PerformanceMode[] = [
-  "Strum",
-  "Strum 2 octaves",
-  "Slop",
-  "Arpeggiate",
-  "Arp 2 octaves",
-  "Pattern",
-  "Harp",
-];
-
-const FX_TYPES: FXType[] = [
-  "Reverb",
-  "Phaser",
-  "Chorus",
-  "Tremolo",
-  "Delay",
-  "Ensemble",
-  "Drive",
-];
-
-const DRUM_LOOPS: DrumLoop[] = [
-  "Saint Germain",
-  "Orchid Bossanova",
-  "Trap",
-  "Disco",
-  "Old Skool",
-  "Techno",
-  "Latin",
-  "Millionaire",
-  "Bronson",
-  "North Soul",
-  "Back Beat",
-  "Apartment",
-];
 
 export const AdditionalOptionsDialog: React.FC<
   AdditionalOptionsDialogProps
