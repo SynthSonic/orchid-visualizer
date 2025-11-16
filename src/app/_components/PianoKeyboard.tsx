@@ -3,13 +3,21 @@
 /// <reference types="webmidi" />
 
 import React, { useState, useEffect, useCallback, useRef, memo } from "react";
-import type { NoteName, ChordInfo, MIDIMessage } from "./types/chord.types";
+import type {
+  NoteName,
+  ChordInfo,
+  MIDIMessage,
+  OrchidSettings,
+} from "./types/chord.types";
 import {
   getMIDINoteName,
   getChordInfo,
   getColorBrightness,
   parseMIDIMessage,
 } from "./chordUtils";
+import type { ChordSnapshot } from "./pdfGenerator";
+import { generateChordSheetPDF, downloadPDF } from "./pdfGenerator";
+import { AdditionalOptionsDialog } from "./AdditionalOptionsDialog";
 
 const BASE_CHORD_COLOR = "#8B5522"; // Rich brown color
 
@@ -266,6 +274,19 @@ export const PianoKeyboard: React.FC = () => {
   const [bassNotes, setBassNotes] = useState<Set<string>>(new Set()); // Track bass note names
   const [chordInfo, setChordInfo] = useState<ChordInfo | null>(null);
 
+  // Recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedSnapshots, setRecordedSnapshots] = useState<ChordSnapshot[]>(
+    [],
+  );
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const lastCapturedChordRef = useRef<string | null>(null);
+  const pendingChordRef = useRef<{ snapshot: ChordSnapshot; chordKey: string } | null>(null); // Store the chord to capture when keys are released
+
+  // Additional options state
+  const [isOptionsDialogOpen, setIsOptionsDialogOpen] = useState(false);
+  const [currentSettings, setCurrentSettings] = useState<OrchidSettings>({});
+
   // Update keyboard display based on Channel 1 notes
   const updateKeyboardDisplay = useCallback((notes: number[]) => {
     const newDisplayText: Record<string, string> = {};
@@ -299,6 +320,46 @@ export const PianoKeyboard: React.FC = () => {
   // Update chord info based on Channel 3 notes
   const updateChordInfo = useCallback((notes: number[]) => {
     setChordInfo(notes.length > 0 ? getChordInfo(notes) : null);
+  }, []);
+
+  // Start recording chord snapshots
+  const startRecording = useCallback(() => {
+    setIsRecording(true);
+    setRecordedSnapshots([]);
+    lastCapturedChordRef.current = null;
+  }, []);
+
+  // Stop recording
+  const stopRecording = useCallback(() => {
+    pendingChordRef.current = null;
+    setIsRecording(false);
+  }, []);
+
+  // Generate and download PDF
+  const generatePDF = useCallback(async () => {
+    if (recordedSnapshots.length === 0) {
+      alert("No chords recorded yet!");
+      return;
+    }
+
+    setIsGeneratingPDF(true);
+    try {
+      const pdfBytes = await generateChordSheetPDF(recordedSnapshots);
+      downloadPDF(pdfBytes, "orchid-chord-sheet.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Check console for details.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  }, [recordedSnapshots]);
+
+  // Clear recorded snapshots
+  const clearRecording = useCallback(() => {
+    setRecordedSnapshots([]);
+    lastCapturedChordRef.current = null;
+    pendingChordRef.current = null;
+    setIsRecording(false);
   }, []);
 
   const handleMIDINote = useCallback(
@@ -364,6 +425,63 @@ export const PianoKeyboard: React.FC = () => {
     },
     [updateKeyboardDisplay, updateBassNotesDisplay, updateChordInfo],
   );
+
+  // Track chord state and capture when all notes are released
+  useEffect(() => {
+    if (!isRecording) return;
+    if (recordedSnapshots.length >= 8) {
+      setIsRecording(false);
+      return;
+    }
+
+    const activeNotes = Object.keys(noteDisplayText);
+
+    if (activeNotes.length > 0) {
+      // Notes are active - update the pending chord
+      const chordKey = JSON.stringify({
+        notes: activeNotes.sort(),
+        type: chordInfo?.chordName,
+      });
+
+      // Extract modifier info from chordInfo
+      const chordType = chordInfo
+        ? (chordInfo.chordName
+            .split(" ")[1]
+            ?.replace("7th", "7")
+            ?.replace("Major", "Maj")
+            ?.replace("Minor", "Min")
+            ?.replace("Diminished", "Dim")
+            ?.replace("Dominant", "")
+            ?.replace("Sus4", "Sus")
+            ?.replace("Sus2", "Sus") as "Dim" | "Min" | "Maj" | "Sus" | undefined)
+        : undefined;
+
+      // Extract root note from chord name
+      const rootNote = chordInfo?.chordName.split(" ")[0];
+
+      const snapshot: ChordSnapshot = {
+        chordType,
+        hasSixth: chordInfo?.hasSixth ?? false,
+        hasSeventh: chordInfo?.hasSeventh ?? false,
+        hasMajorSeventh: chordInfo?.hasMajorSeventh ?? false,
+        hasNinth: chordInfo?.hasNinth ?? false,
+        notes: activeNotes,
+        rootNote,
+        settings:
+          Object.keys(currentSettings).length > 0 ? currentSettings : undefined,
+      };
+
+      pendingChordRef.current = { snapshot, chordKey };
+    } else if (pendingChordRef.current) {
+      // All notes released - capture the pending chord if it's new
+      const { snapshot, chordKey } = pendingChordRef.current;
+      if (chordKey !== lastCapturedChordRef.current) {
+        setRecordedSnapshots((prev) => [...prev, snapshot]);
+        lastCapturedChordRef.current = chordKey;
+      }
+      pendingChordRef.current = null;
+    }
+  }, [isRecording, noteDisplayText, chordInfo, recordedSnapshots.length, currentSettings]);
 
   useEffect(() => {
     // Check if this is Safari
@@ -442,7 +560,66 @@ export const PianoKeyboard: React.FC = () => {
     : undefined;
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-4">
+      {/* Recording Controls */}
+      {midiDevice !== "No MIDI device connected" &&
+        midiDevice !== "Browser not supported" && (
+          <div className="flex items-center gap-4">
+            {!isRecording ? (
+              <button
+                onClick={startRecording}
+                className="rounded-lg bg-[#8B5522] px-6 py-3 font-mono text-white transition-colors hover:bg-[#A66A2D] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={recordedSnapshots.length >= 8}
+              >
+                {recordedSnapshots.length === 0
+                  ? "START RECORDING"
+                  : recordedSnapshots.length >= 8
+                    ? "Max 8 Chords"
+                    : "Record More"}
+              </button>
+            ) : (
+              <button
+                onClick={stopRecording}
+                className="animate-pulse rounded-lg bg-red-600 px-6 py-3 font-mono text-white transition-colors hover:bg-red-700"
+              >
+                ● Recording... ({recordedSnapshots.length}/8)
+              </button>
+            )}
+
+            <button
+              onClick={() => setIsOptionsDialogOpen(true)}
+              className="rounded-lg border border-[#8B5522] bg-transparent px-4 py-3 font-mono text-[#8B5522] transition-colors hover:bg-[#8B5522] hover:text-white"
+            >
+              ADDITIONAL OPTIONS
+            </button>
+
+            {recordedSnapshots.length > 0 && (
+              <>
+                <button
+                  onClick={generatePDF}
+                  disabled={isGeneratingPDF}
+                  className="rounded-lg bg-[#AD792A] px-6 py-3 font-mono text-white transition-colors hover:bg-[#C88A34] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isGeneratingPDF ? "Generating..." : "Download PDF"}
+                </button>
+
+                <button
+                  onClick={clearRecording}
+                  disabled={isRecording || isGeneratingPDF}
+                  className="rounded-lg bg-gray-700 px-4 py-3 font-mono text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Clear
+                </button>
+
+                <span className="font-mono text-sm text-gray-400">
+                  {recordedSnapshots.length} chord
+                  {recordedSnapshots.length !== 1 ? "s" : ""} captured
+                </span>
+              </>
+            )}
+          </div>
+        )}
+
       <div
         className={`relative overflow-hidden rounded-[64px] border-2 bg-black ${midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported" ? "border-[#555555]" : "border-white"}`}
       >
@@ -689,6 +866,17 @@ export const PianoKeyboard: React.FC = () => {
           ))}
         </svg>
       </div>
+
+      {/* Additional Options Dialog */}
+      <AdditionalOptionsDialog
+        isOpen={isOptionsDialogOpen}
+        onClose={() => setIsOptionsDialogOpen(false)}
+        onSave={(settings) => {
+          setCurrentSettings(settings);
+          setIsOptionsDialogOpen(false);
+        }}
+        initialSettings={currentSettings}
+      />
     </div>
   );
 };
