@@ -10,11 +10,7 @@ import type {
   SaturatorType,
   FXSetting,
 } from "./types/chord.types";
-import {
-  PERFORMANCE_MODES,
-  FX_TYPES,
-  DRUM_LOOPS,
-} from "./types/chord.types";
+import { PERFORMANCE_MODES, FX_TYPES, DRUM_LOOPS } from "./types/chord.types";
 
 interface AdditionalOptionsDialogProps {
   isOpen: boolean;
@@ -27,18 +23,16 @@ export const AdditionalOptionsDialog: React.FC<
   AdditionalOptionsDialogProps
 > = ({ isOpen, onClose, onSave, initialSettings }) => {
   const [title, setTitle] = useState<string>(initialSettings?.title ?? "");
-  const [sound, setSound] = useState<number | "">(
-    initialSettings?.sound ?? "",
-  );
+  const [sound, setSound] = useState<number | "">(initialSettings?.sound ?? "");
   const [voicing, setVoicing] = useState<number | "">(
     initialSettings?.voicing ?? "",
   );
   const [performance, setPerformance] = useState<PerformanceMode | "">(
     initialSettings?.performance ?? "",
   );
-  const [performanceValue, setPerformanceValue] = useState<
-    number | ""
-  >(initialSettings?.performanceValue ?? "");
+  const [performanceValue, setPerformanceValue] = useState<number | "">(
+    initialSettings?.performanceValue ?? "",
+  );
   const [selectedFX, setSelectedFX] = useState<FXSetting[]>(
     initialSettings?.fx ?? [],
   );
@@ -89,8 +83,7 @@ export const AdditionalOptionsDialog: React.FC<
     if (sound !== "") settings.sound = sound;
     if (voicing !== "") settings.voicing = voicing;
     if (performance !== "") settings.performance = performance;
-    if (performanceValue !== "")
-      settings.performanceValue = performanceValue;
+    if (performanceValue !== "") settings.performanceValue = performanceValue;
     if (selectedFX.length > 0) settings.fx = selectedFX;
     if (filter !== "") settings.filter = filter;
     if (bpm !== "") settings.bpm = bpm;
@@ -419,4 +412,3 @@ export const AdditionalOptionsDialog: React.FC<
     </div>
   );
 };
-
