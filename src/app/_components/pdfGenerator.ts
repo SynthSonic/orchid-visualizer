@@ -274,7 +274,10 @@ function drawSettingsHeader(
   if (settings.filter !== undefined) {
     columns[1]!.push({
       label: "Filter",
-      value: settings.filter === 0 ? "Off" : settings.filter.toString().padStart(2, "0"),
+      value:
+        settings.filter === 0
+          ? "Off"
+          : settings.filter.toString().padStart(2, "0"),
     });
   }
 
@@ -297,7 +300,10 @@ function drawSettingsHeader(
     if (drumFX.reverbMix !== undefined) {
       columns[2]!.push({
         label: "Reverb Mix",
-        value: drumFX.reverbMix === 0 ? "Off" : drumFX.reverbMix.toString().padStart(2, "0"),
+        value:
+          drumFX.reverbMix === 0
+            ? "Off"
+            : drumFX.reverbMix.toString().padStart(2, "0"),
       });
     }
     if (drumFX.saturatorType !== undefined) {
@@ -309,13 +315,20 @@ function drawSettingsHeader(
     if (drumFX.saturatorMix !== undefined) {
       columns[2]!.push({
         label: "Saturator Mix",
-        value: drumFX.saturatorMix === 0 ? "Off" : drumFX.saturatorMix.toString().padStart(2, "0"),
+        value:
+          drumFX.saturatorMix === 0
+            ? "Off"
+            : drumFX.saturatorMix.toString().padStart(2, "0"),
       });
     }
   }
 
   // Calculate max rows needed
-  const maxRows = Math.max(columns[0]!.length, columns[1]!.length, columns[2]!.length);
+  const maxRows = Math.max(
+    columns[0]!.length,
+    columns[1]!.length,
+    columns[2]!.length,
+  );
 
   // Draw the grid
   for (let row = 0; row < maxRows; row++) {
@@ -448,11 +461,11 @@ export async function generateChordSheetPDF(
     const footerMargin = 50; // Space needed for footer
     const availableSpace = startY - footerMargin;
     const chordsOnThisPage = endChordIdx - startChordIdx;
-    
+
     // Adjust spacing based on available space (min 140, max 175)
     const dynamicSpacing = Math.max(
       140,
-      Math.min(chordSpacing, availableSpace / chordsOnThisPage)
+      Math.min(chordSpacing, availableSpace / chordsOnThisPage),
     );
 
     for (let i = startChordIdx; i < endChordIdx; i++) {

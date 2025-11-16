@@ -281,7 +281,10 @@ export const PianoKeyboard: React.FC = () => {
   );
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const lastCapturedChordRef = useRef<string | null>(null);
-  const pendingChordRef = useRef<{ snapshot: ChordSnapshot; chordKey: string } | null>(null); // Store the chord to capture when keys are released
+  const pendingChordRef = useRef<{
+    snapshot: ChordSnapshot;
+    chordKey: string;
+  } | null>(null); // Store the chord to capture when keys are released
 
   // Additional options state
   const [isOptionsDialogOpen, setIsOptionsDialogOpen] = useState(false);
@@ -453,7 +456,12 @@ export const PianoKeyboard: React.FC = () => {
             ?.replace("Diminished", "Dim")
             ?.replace("Dominant", "")
             ?.replace("Sus4", "Sus")
-            ?.replace("Sus2", "Sus") as "Dim" | "Min" | "Maj" | "Sus" | undefined)
+            ?.replace("Sus2", "Sus") as
+            | "Dim"
+            | "Min"
+            | "Maj"
+            | "Sus"
+            | undefined)
         : undefined;
 
       // Extract root note from chord name
@@ -481,7 +489,13 @@ export const PianoKeyboard: React.FC = () => {
       }
       pendingChordRef.current = null;
     }
-  }, [isRecording, noteDisplayText, chordInfo, recordedSnapshots.length, currentSettings]);
+  }, [
+    isRecording,
+    noteDisplayText,
+    chordInfo,
+    recordedSnapshots.length,
+    currentSettings,
+  ]);
 
   useEffect(() => {
     // Check if this is Safari
@@ -561,65 +575,6 @@ export const PianoKeyboard: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* Recording Controls */}
-      {midiDevice !== "No MIDI device connected" &&
-        midiDevice !== "Browser not supported" && (
-          <div className="flex items-center gap-4">
-            {!isRecording ? (
-              <button
-                onClick={startRecording}
-                className="rounded-lg bg-[#8B5522] px-6 py-3 font-mono text-white transition-colors hover:bg-[#A66A2D] disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={recordedSnapshots.length >= 8}
-              >
-                {recordedSnapshots.length === 0
-                  ? "START RECORDING"
-                  : recordedSnapshots.length >= 8
-                    ? "Max 8 Chords"
-                    : "Record More"}
-              </button>
-            ) : (
-              <button
-                onClick={stopRecording}
-                className="animate-pulse rounded-lg bg-red-600 px-6 py-3 font-mono text-white transition-colors hover:bg-red-700"
-              >
-                ● Recording... ({recordedSnapshots.length}/8)
-              </button>
-            )}
-
-            <button
-              onClick={() => setIsOptionsDialogOpen(true)}
-              className="rounded-lg border border-[#8B5522] bg-transparent px-4 py-3 font-mono text-[#8B5522] transition-colors hover:bg-[#8B5522] hover:text-white"
-            >
-              ADDITIONAL OPTIONS
-            </button>
-
-            {recordedSnapshots.length > 0 && (
-              <>
-                <button
-                  onClick={generatePDF}
-                  disabled={isGeneratingPDF}
-                  className="rounded-lg bg-[#AD792A] px-6 py-3 font-mono text-white transition-colors hover:bg-[#C88A34] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isGeneratingPDF ? "Generating..." : "Download PDF"}
-                </button>
-
-                <button
-                  onClick={clearRecording}
-                  disabled={isRecording || isGeneratingPDF}
-                  className="rounded-lg bg-gray-700 px-4 py-3 font-mono text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Clear
-                </button>
-
-                <span className="font-mono text-sm text-gray-400">
-                  {recordedSnapshots.length} chord
-                  {recordedSnapshots.length !== 1 ? "s" : ""} captured
-                </span>
-              </>
-            )}
-          </div>
-        )}
-
       <div
         className={`relative overflow-hidden rounded-[64px] border-2 bg-black ${midiDevice === "No MIDI device connected" || midiDevice === "Browser not supported" ? "border-[#555555]" : "border-white"}`}
       >
@@ -866,6 +821,64 @@ export const PianoKeyboard: React.FC = () => {
           ))}
         </svg>
       </div>
+      {/* Recording Controls */}
+      {midiDevice !== "No MIDI device connected" &&
+        midiDevice !== "Browser not supported" && (
+          <div className="flex items-center gap-4">
+            {!isRecording ? (
+              <button
+                onClick={startRecording}
+                className="rounded-lg bg-[#8B5522] px-6 py-3 font-mono text-white transition-colors hover:bg-[#A66A2D] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={recordedSnapshots.length >= 8}
+              >
+                {recordedSnapshots.length === 0
+                  ? "START RECORDING"
+                  : recordedSnapshots.length >= 8
+                    ? "Max 8 Chords"
+                    : "Record More"}
+              </button>
+            ) : (
+              <button
+                onClick={stopRecording}
+                className="animate-pulse rounded-lg bg-red-600 px-6 py-3 font-mono text-white transition-colors hover:bg-red-700"
+              >
+                ● Recording... ({recordedSnapshots.length}/8)
+              </button>
+            )}
+
+            <button
+              onClick={() => setIsOptionsDialogOpen(true)}
+              className="rounded-lg border border-[#8B5522] bg-transparent px-4 py-3 font-mono text-[#8B5522] transition-colors hover:bg-[#8B5522] hover:text-white"
+            >
+              ADDITIONAL OPTIONS
+            </button>
+
+            {recordedSnapshots.length > 0 && (
+              <>
+                <button
+                  onClick={generatePDF}
+                  disabled={isGeneratingPDF}
+                  className="rounded-lg bg-[#AD792A] px-6 py-3 font-mono text-white transition-colors hover:bg-[#C88A34] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isGeneratingPDF ? "Generating..." : "Download PDF"}
+                </button>
+
+                <button
+                  onClick={clearRecording}
+                  disabled={isRecording || isGeneratingPDF}
+                  className="rounded-lg bg-gray-700 px-4 py-3 font-mono text-white transition-colors hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Clear
+                </button>
+
+                <span className="font-mono text-sm text-gray-400">
+                  {recordedSnapshots.length} chord
+                  {recordedSnapshots.length !== 1 ? "s" : ""} captured
+                </span>
+              </>
+            )}
+          </div>
+        )}
 
       {/* Additional Options Dialog */}
       <AdditionalOptionsDialog
